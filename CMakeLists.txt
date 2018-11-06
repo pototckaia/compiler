@@ -8,7 +8,6 @@ set(MAIN_SOURCES main.cpp)
 set(LEX_SOURCES
         tokenizer/token_type.h tokenizer/token_type.cpp
         tokenizer/token.h tokenizer/token.cpp
-        tokenizer/state.cpp tokenizer/state.h
         tokenizer/lexer_exception.h
         tokenizer/lexer.h tokenizer/lexer.cpp tokenizer/state_table.h)
 
