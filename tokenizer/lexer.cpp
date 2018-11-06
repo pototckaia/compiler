@@ -1,100 +1,176 @@
+#include <algorithm>
+#include <iostream>
 #include "lexer.h"
 
+#include "state_table.h"
+#include "token_type.h"
+#include "lexer_exception.h"
+#include "token_type.h"
 
-Lexer::Lexer(const std::string & filename) : is_end_(false), line_(1), column_(1) {
-  file.open(filename, std::ifstream::in);
-}
+Lexer::Lexer(const std::string & filename)
+    : line(1), column(1), startState(0),
+      eofState(EOF_STATE), checkIdState(CHECK_ID),
+      twicePutbackState(TWICE_PUT_BACK),
+      stateTable(STATE_TABLE),
+      writeFile(filename, std::ifstream::in),
+      withoutPreview(WITHOUT_PREVIEW),
+      skipSymbol(SKIP_SYMBOL),
+      charConstantAdd(CHAR_CONSTANT),
+      charConstantEnd(CHAR_CONSTANT_END),
+      toTokenType(FROM_FINAL_STATE_TO_TOKEN),
+      changeBaseInt(CHANGE_BASE) {}
 
-Lexer::~Lexer() {
-  file.close();
-}
-
-void Lexer::error_handler(int state) {
-  if (state == states.ill_char) {
-    throw IllegalCharacter(line_, column_, prev_symbol);
-  } else if (state == states.ill_str) {
-    throw IllegalStringConstant(line_, column_, str_token);
-  }
-}
-
-std::unique_ptr<TokenBase> Lexer::get_token(int cur_state)  {
-  std::unique_ptr<TokenBase> token;
-  tok::TokenType t = states.to_token_type(cur_state);
-
-  if (t == tok::TokenType::String) {
-    token = std::make_unique<ConstString>(line_, column_, t, str_token);
-  } else if (t == tok::TokenType::Double) {
-    token = std::make_unique<Double>(line_, column_, t, str_token);
-  } else if (t == tok::TokenType::IntBase10 || t == tok::TokenType::IntBase2 ||
-             t == tok::TokenType::IntBase16 || t == tok::TokenType::IntBase8) {
-    token = std::make_unique<Integer>(line_, column_, t, str_token);
-  } else if (states.is_id_or_key(cur_state)) {
-    std::string val(str_token);
-    std::transform(val.begin(), val.end(), val.begin(), ::tolower);
-    if (keywordHelper.is_keyword(val)) {
-      token = std::make_unique<Keyword>(line_, column_, t,
-                                        keywordHelper.get_keyword(val), str_token);
-    } else {
-      token = std::make_unique<OperatorOrId>(line_, column_, t, val, str_token);
+void Lexer::errorHandler(int state) {
+  std::string c(1, curSymbol);
+  switch (state) {
+    case (-77): {
+      throw lxerr::LexerException(line, beginToken, "Error: Illegal character \"" + c + "\""); // correct
     }
-  } else if (t == tok::TokenType::Id) {
-    std::string val(str_token);
-    std::transform(val.begin(), val.end(), val.begin(), ::tolower);
-    token = std::make_unique<OperatorOrId>(line_, column_, t, val, str_token);
-  } else {
-    token = std::make_unique<OperatorOrId>(line_, column_, t, str_token, str_token);
+    case(-71): {
+      throw lxerr::LexerException(line, beginToken, "Error: String on new line");
+    }
+    case (-80): {
+      throw lxerr::LexerException(line, beginToken + 1, "Error: Illegal start integer constant \"" + c + "\"");
+    }
+    case (-81): {
+      throw lxerr::LexerException(line, numSymbol - 1, "Error: Illegal start char constant \"" + c + "\"");
+    }
+    case (-82): {
+      throw lxerr::LexerException(line, beginToken, "Error: Illegal double \"" + strToken + "\"");
+    }
+    case (-83): {
+      throw lxerr::LexerException("Error: Unexpected end of file"); // comment
+    }
   }
-
-  return token;
 }
 
+bool Lexer::isEndComment(int prevState, int newState) {
+  return newState == 0 && (prevState == 28 || prevState == 36 || prevState == 35);
+}
+
+bool Lexer::isPreview(int state) {
+  return state < 0 && withoutPreview.count(state) == 0;
+}
+
+bool Lexer::isWhitespace(int prevState, int newState) {
+  return prevState == 0 && newState == 0;
+}
 
 std::unique_ptr<TokenBase> Lexer::next() {
-  if (is_end_) {
-    throw std::out_of_range("конец файла");
+  if (writeFile.bad()) {
+    return nullptr;
   }
 
-  int cur_state = states.start_state();
-  str_token = "";
-  prev_symbol = '\0';
+  strToken = "";
+  std::string valToken;
+  std::string charConstant;
 
-  int rcount = column_;
-  int plcount = rcount;
+  int prevState = startState;
+  int newState = startState;
+  int baseIntConvert = 10;
 
-  char c = file.get();
-  while(!states.is_final(cur_state = states.move(cur_state, c))) {
-    if (c == '\n') {
-      ++line_;
-      column_ = rcount = 1;
+  numSymbol = beginToken = column;
+
+  for (; newState >= 0; prevState = newState) {
+    curSymbol = writeFile.get();
+    if (curSymbol < 0) { curSymbol = 4; } // hack
+    newState = stateTable[prevState][curSymbol];
+
+    std::pair<int, int> pairState(prevState, newState);
+
+    // change base if we can
+    if (changeBaseInt.count(pairState) > 0) {
+      baseIntConvert = changeBaseInt[pairState];
     }
 
-    if (states.is_skip(cur_state, c)) {
-      cur_state = states.start_state();
-      ++column_;
-    } else {
-      str_token += c;
+    if (charConstantEnd.count(pairState) > 0) {
+      valToken += std::stoi(charConstant, nullptr, baseIntConvert);
+      charConstant = "";
+    } else if (charConstantAdd.count(pairState) > 0) {
+      // for char constant
+      charConstant += curSymbol;
+    } else if (skipSymbol.count(pairState) == 0 && !isPreview(newState)) {
+      // skip &, #, %, $, whitespace
+      valToken += curSymbol;
     }
 
-    prev_symbol = c;
-    c = file.get();
-    ++rcount;
+    // whitespace
+    if (!isWhitespace(prevState, newState) && !isPreview(newState)) {
+      strToken += curSymbol;
+    }
+
+    if (curSymbol == '\n' && newState >= 0) {
+      ++line;
+      numSymbol = beginToken = 1;
+    } else if (curSymbol != '\n') {
+      ++numSymbol;
+      if (newState == startState) {
+        ++beginToken;
+      }
+    }
+
+    if (isEndComment(prevState, newState)) {
+      beginToken = numSymbol;
+      valToken = strToken = "";
+    }
+
+    // check id for len
+    if (((prevState == 2 && newState == 2) || (prevState == 14 && newState == 14)) && valToken.size() > maxLenId)  {
+      throw lxerr::LexerException(line, beginToken, "Error: Identifier exceed maximum length");
+    }
+
   }
 
-  error_handler(cur_state);
+  errorHandler(newState);
 
-  is_end_ = states.is_eof(states.move(states.start_state(), c));
-
-  if (states.is_putback(cur_state)) {
-    file.putback(c);
-//    --rcount;
-//    if (c == '\n') { --line_; }
-  } else {
-    str_token += c;
+  if (writeFile.bad() || newState == eofState) {
+    return nullptr;
   }
 
-  auto token = get_token(cur_state);
+  if (withoutPreview.count(newState) == 0) {
+    writeFile.putback(curSymbol);
+    --numSymbol;
+    if (newState == twicePutbackState) {
+      writeFile.putback(strToken.back());
+      --numSymbol;
+      strToken.pop_back();
+    }
+  }
 
-  column_ = rcount;
+  column = numSymbol;
 
-  return token;
+  std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
+
+  auto tokenType = toTokenType[newState];
+  if (newState == checkIdState && tok::isKeyword(valToken)) {
+    tokenType = tok::TokenType::Keyword;
+  }
+
+  switch (tokenType) {
+    case tok::TokenType::Int: {
+      long long value = std::stoll(valToken, nullptr, baseIntConvert);
+      return std::make_unique<Token<long long>>(line, beginToken, tokenType, value, strToken);
+    }
+    case tok::TokenType::Double: {
+      long double value = std::stold(valToken);
+      return std::make_unique<Token<long double>>(line, beginToken, tokenType, value, strToken);
+    }
+    case tok::TokenType::Keyword: {
+      tok::KeywordType key = tok::getKeywordType(valToken);
+      return std::make_unique<Token<tok::KeywordType >>(line, beginToken, tokenType, key, strToken);
+    }
+    default:
+      return std::make_unique<Token<std::string>>(line, beginToken, tokenType, valToken, strToken);
+  }
 }
+
+
+template <class T1, class T2>
+std::size_t Lexer::pairHash::operator()(const std::pair<T1, T2> &p) const {
+    auto h1 = std::hash<T1>{}(p.first);
+    auto h2 = std::hash<T2>{}(p.second);
+
+    // Mainly for demonstration purposes, i.e. works but is overly simple
+    // In the real world, use sth. like boost.hash_combine
+    return h1 ^ h2;
+};

@@ -1,36 +1,46 @@
-//
-// Created by cheri on 10/29/18.
-//
-
 #pragma once
 
 #include <memory>
 #include <fstream>
-#include <algorithm>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "token.h"
-#include "state.h"
-#include "lexer_exception.h"
+
 
 class Lexer {
  public:
-  Lexer(const std::string&);
-  ~Lexer();
+  explicit Lexer(const std::string&);
+  ~Lexer() = default;
 
   std::unique_ptr<TokenBase> next();
-  bool is_end() { return is_end_; }
 
  private:
-  LexerStates states;
-  tok::KeywordHelper keywordHelper;
-  std::ifstream file;
+  void errorHandler(int state);
 
-  void error_handler(int state);
-  std::unique_ptr<TokenBase> get_token(int);
-  
-  bool is_end_;
-  int line_, column_;
-  std::string str_token;
-  char prev_symbol;
+  inline bool isEndComment(int prevState, int newState);
+  inline bool isWhitespace(int prevState, int newState);
+  inline bool isPreview(int);
+
+  struct pairHash {
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1,T2> &p) const;
+  };
+
+  int line, column;
+  int beginToken, numSymbol;
+  int curSymbol;
+  const int startState, eofState, checkIdState, twicePutbackState;
+  const int maxLenId = 144;
+  int stateTable[38][128];
+
+  std::string strToken;
+  std::ifstream writeFile;
+
+  std::unordered_set<int> withoutPreview;
+  std::unordered_set<std::pair<int, int>, pairHash> skipSymbol;
+  std::unordered_set<std::pair<int, int>, pairHash> charConstantAdd, charConstantEnd;
+  std::unordered_map<int, tok::TokenType> toTokenType;
+  std::unordered_map<std::pair<int, int>, int, pairHash> changeBaseInt;
 };
