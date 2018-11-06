@@ -1,21 +1,18 @@
 #pragma once
 
 #include <string>
+namespace lxerr {
 
-struct IllegalCharacter : public std::exception
-{
+class LexerException : public std::exception {
+ public:
+  explicit LexerException(const std::string &ss) : s(ss) {}
+  explicit LexerException(int l, int c, const std::string &ss) : s(std::to_string(l) + "\t" +
+                                                                   std::to_string(c) + "\t" + ss) {}
+  ~LexerException() override = default;
+  const char *what() const noexcept { return s.c_str(); }
 
+ private:
   std::string s;
-  IllegalCharacter(int line, int col, char ss) : s("("+ std::to_string(line) + ", " + std::to_string(col) + " ) Error: Illegal Character \"" + ss + "\" ") {}
-  ~IllegalCharacter() throw () {} // Updated
-  const char* what() const throw() { return s.c_str(); }
 };
 
-struct IllegalStringConstant : public std::exception
-{
-
-  std::string s;
-  IllegalStringConstant(int line, int col, std::string ss) : s("("+ std::to_string(line) + ", " + std::to_string(col) + ") Error: Illegal String Constant \"" + ss + "\" ") {}
-  ~IllegalStringConstant() throw () {} // Updated
-  const char* what() const throw() { return s.c_str(); }
-};
+} // namespace lxerr
