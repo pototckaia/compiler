@@ -17,7 +17,8 @@ class Lexer {
   std::unique_ptr<TokenBase> next();
 
  private:
-  void errorHandler(int state);
+  inline void errorHandler(int state);
+  inline void checkLenId(int prevState, int newState);
 
   inline bool isEndComment(int prevState, int newState);
   inline bool isWhitespace(int prevState, int newState);
@@ -29,15 +30,17 @@ class Lexer {
   };
 
   int line, column;
-  int beginToken, numSymbol;
   int curSymbol;
+  int beginToken, numSymbol;
+
+  std::string strToken, valToken;
+
   const int startState, eofState, checkIdState, twicePutbackState;
   const int maxLenId = 144;
+
+  std::ifstream readFile;
+
   int stateTable[38][128];
-
-  std::string strToken;
-  std::ifstream writeFile;
-
   std::unordered_set<int> withoutPreview;
   std::unordered_set<std::pair<int, int>, pairHash> skipSymbol;
   std::unordered_set<std::pair<int, int>, pairHash> charConstantAdd, charConstantEnd;

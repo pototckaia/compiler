@@ -11,8 +11,8 @@ Lexer::Lexer(const std::string & filename)
     : line(1), column(1), startState(0),
       eofState(EOF_STATE), checkIdState(CHECK_ID),
       twicePutbackState(TWICE_PUT_BACK),
+      readFile(filename, std::ifstream::in),
       stateTable(STATE_TABLE),
-      writeFile(filename, std::ifstream::in),
       withoutPreview(WITHOUT_PREVIEW),
       skipSymbol(SKIP_SYMBOL),
       charConstantAdd(CHAR_CONSTANT),
@@ -24,9 +24,9 @@ void Lexer::errorHandler(int state) {
   std::string c(1, curSymbol);
   switch (state) {
     case (-77): {
-      throw lxerr::LexerException(line, beginToken, "Error: Illegal character \"" + c + "\""); // correct
+      throw lxerr::LexerException(line, beginToken, "Error: Illegal character \"" + c + "\"");
     }
-    case(-71): {
+    case (-71): {
       throw lxerr::LexerException(line, beginToken, "Error: String on new line");
     }
     case (-80): {
@@ -39,8 +39,15 @@ void Lexer::errorHandler(int state) {
       throw lxerr::LexerException(line, beginToken, "Error: Illegal double \"" + strToken + "\"");
     }
     case (-83): {
-      throw lxerr::LexerException("Error: Unexpected end of file"); // comment
+      throw lxerr::LexerException("Error: Unexpected end of file");
     }
+  }
+}
+
+void Lexer::checkLenId(int prevState, int newState) {
+  bool isIdContinue = (prevState == 2 && newState == 2) || (prevState == 14 && newState == 14);
+  if (isIdContinue && valToken.size() > maxLenId)  {
+    throw lxerr::LexerException(line, beginToken, "Error: Identifier exceed maximum length");
   }
 }
 
@@ -57,7 +64,7 @@ bool Lexer::isWhitespace(int prevState, int newState) {
 }
 
 std::unique_ptr<TokenBase> Lexer::next() {
-  if (writeFile.bad()) {
+  if (readFile.bad()) {
     return nullptr;
   }
 
@@ -72,10 +79,10 @@ std::unique_ptr<TokenBase> Lexer::next() {
   numSymbol = beginToken = column;
 
   for (; newState >= 0; prevState = newState) {
-    curSymbol = writeFile.get();
+    curSymbol = readFile.get();
     if (curSymbol < 0) { curSymbol = 4; } // hack
-    newState = stateTable[prevState][curSymbol];
 
+    newState = stateTable[prevState][curSymbol];
     std::pair<int, int> pairState(prevState, newState);
 
     // change base if we can
@@ -87,14 +94,11 @@ std::unique_ptr<TokenBase> Lexer::next() {
       valToken += std::stoi(charConstant, nullptr, baseIntConvert);
       charConstant = "";
     } else if (charConstantAdd.count(pairState) > 0) {
-      // for char constant
       charConstant += curSymbol;
     } else if (skipSymbol.count(pairState) == 0 && !isPreview(newState)) {
-      // skip &, #, %, $, whitespace
       valToken += curSymbol;
     }
 
-    // whitespace
     if (!isWhitespace(prevState, newState) && !isPreview(newState)) {
       strToken += curSymbol;
     }
@@ -114,31 +118,26 @@ std::unique_ptr<TokenBase> Lexer::next() {
       valToken = strToken = "";
     }
 
-    // check id for len
-    if (((prevState == 2 && newState == 2) || (prevState == 14 && newState == 14)) && valToken.size() > maxLenId)  {
-      throw lxerr::LexerException(line, beginToken, "Error: Identifier exceed maximum length");
-    }
-
+    checkLenId(prevState, newState);
   }
 
   errorHandler(newState);
 
-  if (writeFile.bad() || newState == eofState) {
+  if (readFile.bad() || newState == eofState) {
     return nullptr;
   }
 
   if (withoutPreview.count(newState) == 0) {
-    writeFile.putback(curSymbol);
+    readFile.putback(curSymbol);
     --numSymbol;
     if (newState == twicePutbackState) {
-      writeFile.putback(strToken.back());
+      readFile.putback(strToken.back());
       --numSymbol;
       strToken.pop_back();
     }
   }
 
   column = numSymbol;
-
   std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
 
   auto tokenType = toTokenType[newState];
