@@ -1,0 +1,5 @@
+// Other operators
+
+left >< right
+ptr := ^asdf;
+adr := @test;
