@@ -1,0 +1,7 @@
+3	1	Id	"&if"		if
+4	1	Keyword	"if"		if
+6	1	Id	"&begin"		begin
+7	1	Keyword	"begin"		begin
+9	1	Id	"&_asd"		_asd
+10	1	Id	"_asd"		_asd
+12	1	Id	"&while"		while
