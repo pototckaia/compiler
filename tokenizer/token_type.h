@@ -4,10 +4,7 @@
 #include <map>
 
 #define TOKEN_TYPE(X, XX) \
-  XX(IntBase2, "Int", 2) \
-  XX(IntBase8, "Int", 8) \
-  XX(IntBase10, "Int", 10) \
-  XX(IntBase16, "Int", 16) \
+  X(Int, "Int") \
   X(Id, "Id") \
   X(Keyword, "Keyword") \
   X(Double, "Double") \
@@ -104,37 +101,23 @@ namespace tok {
 
 #define MAKE_ENUM(E, S) E,
 #define MAKE_ENUM_WITH_N(E, S, N) E = N,
-enum TokenType {
+enum class TokenType {
   TOKEN_TYPE(MAKE_ENUM, MAKE_ENUM_WITH_N)
 };
 #undef MAKE_ENUM_WITH_N
 
-enum KeywordType {
+enum class KeywordType {
   KEYWORD_TYPE(MAKE_ENUM)
 };
 
 #undef MAKE_ENUM
 
-//#define MAKE_STRING(E, S) S,
-//const char * const str_token_type[] = {
-//  TOKEN_TYPE(MAKE_STRING)
-//};
-//#undef MAKE_STRING
-//#undef TOKEN_TYPE
+std::string toString(TokenType t);
 
-std::string to_string(TokenType t);
+std::string toString(KeywordType);
 
-class KeywordHelper {
- public:
-  KeywordHelper();
+KeywordType getKeywordType(const std::string &);
 
-  static std::string to_string(KeywordType);
-
-  KeywordType get_keyword(const std::string&) const;
-  bool is_keyword(const std::string&) const;
-
- private:
-  std::map<std::string, KeywordType> map_;
-};
+bool isKeyword(const std::string &);
 
 } // namespace tok
