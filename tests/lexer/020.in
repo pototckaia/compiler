@@ -1,0 +1,20 @@
+program hello;
+
+procedure hey(x: Integer);
+var
+  ans: Real;
+begin
+  WriteLn('Hello' + chr(x));
+end;
+
+var
+  x, y: Real;
+  ans: Real;
+begin
+  x := 2;
+  y := 0;
+  ans := x + y;
+  hey(41);
+  WriteLn(ans);
+  Read(x);
+end. 
