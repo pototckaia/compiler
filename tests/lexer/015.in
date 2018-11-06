@@ -1,0 +1,20 @@
+// String constants
+
+#32
+#33
+#65#66#67#68#69#70
+
+
+ 'This is a pascal string'   
+  ''    
+  'a'  
+  'A tabulator character: '#9' is easy to embed'
+
+''' This '''
+
+	'My name - '#66#67#78'   Gggg l'#80#81#87'   HHHH'
+
+// New Line in string
+  'the string starts here'#13#10'   and continues here'
+  'the string starts here'#10'   and continues here'
+  'the string starts here'#13'   and continues here'

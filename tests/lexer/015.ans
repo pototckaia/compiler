@@ -1,0 +1,15 @@
+3	1	String	"#32"		" "
+4	1	String	"#33"		"!"
+5	1	String	"#65#66#67#68#69#70"		"abcdef"
+8	2	String	"'This is a pascal string'"		"this is a pascal string"
+9	3	String	"''"		""
+10	3	String	"'a'"		"a"
+11	3	String	"'A tabulator character: '#9' is easy to embed'"		"a tabulator character: 	 is easy to embed"
+13	1	String	"''' This '''"		"' this '"
+15	2	String	"'My name - '#66#67#78'   Gggg l'#80#81#87'   HHHH'"		"my name - bcn   gggg lpqw   hhhh"
+18	3	String	"'the string starts here'#13#10'   and continues here'"		"the string starts here
+   and continues here"
+19	3	String	"'the string starts here'#10'   and continues here'"		"the string starts here
+   and continues here"
+20	3	String	"'the string starts here'#13'   and continues here'"		"the string starts here
+   and continues here"
