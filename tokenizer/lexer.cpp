@@ -2,23 +2,13 @@
 #include <iostream>
 #include "lexer.h"
 
-#include "state_table.h"
 #include "token_type.h"
 #include "lexer_exception.h"
 #include "token_type.h"
 
 Lexer::Lexer(const std::string & filename)
-    : line(1), column(1), startState(0),
-      eofState(EOF_STATE), checkIdState(CHECK_ID),
-      twicePutbackState(TWICE_PUT_BACK),
-      readFile(filename, std::ifstream::in),
-      stateTable(STATE_TABLE),
-      withoutPreview(WITHOUT_PREVIEW),
-      skipSymbol(SKIP_SYMBOL),
-      charConstantAdd(CHAR_CONSTANT),
-      charConstantEnd(CHAR_CONSTANT_END),
-      toTokenType(FROM_FINAL_STATE_TO_TOKEN),
-      changeBaseInt(CHANGE_BASE) {}
+    : line(1), column(1),
+      readFile(filename, std::ifstream::in) {}
 
 void Lexer::errorHandler(int state) {
   std::string c(1, curSymbol);
@@ -69,7 +59,7 @@ std::unique_ptr<TokenBase> Lexer::next() {
   }
 
   strToken = "";
-  std::string valToken;
+  valToken = "";
   std::string charConstant;
 
   int prevState = startState;
@@ -87,7 +77,7 @@ std::unique_ptr<TokenBase> Lexer::next() {
 
     // change base if we can
     if (changeBaseInt.count(pairState) > 0) {
-      baseIntConvert = changeBaseInt[pairState];
+      baseIntConvert = changeBaseInt.at(pairState);
     }
 
     if (charConstantEnd.count(pairState) > 0) {
@@ -140,7 +130,7 @@ std::unique_ptr<TokenBase> Lexer::next() {
   column = numSymbol;
   std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
 
-  auto tokenType = toTokenType[newState];
+  auto tokenType = toTokenType.at(newState);
   if (newState == checkIdState && tok::isKeyword(valToken)) {
     tokenType = tok::TokenType::Keyword;
   }

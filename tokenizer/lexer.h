@@ -7,7 +7,7 @@
 #include <unordered_set>
 
 #include "token.h"
-
+#include "state_table.h"
 
 class Lexer {
  public:
@@ -35,15 +35,21 @@ class Lexer {
 
   std::string strToken, valToken;
 
-  const int startState, eofState, checkIdState, twicePutbackState;
-  const int maxLenId = 144;
-
   std::ifstream readFile;
 
-  int stateTable[38][128];
-  std::unordered_set<int> withoutPreview;
-  std::unordered_set<std::pair<int, int>, pairHash> skipSymbol;
-  std::unordered_set<std::pair<int, int>, pairHash> charConstantAdd, charConstantEnd;
-  std::unordered_map<int, tok::TokenType> toTokenType;
-  std::unordered_map<std::pair<int, int>, int, pairHash> changeBaseInt;
+  const int startState = 0;
+  const int eofState = EOF_STATE;
+  const int checkIdState = CHECK_ID;
+  const int twicePutbackState = TWICE_PUT_BACK;
+  const int stateTable[38][128] = STATE_TABLE;
+
+  const int maxLenId = 144;
+
+
+  const std::unordered_set<int> withoutPreview = WITHOUT_PREVIEW;
+  const std::unordered_set<std::pair<int, int>, pairHash> skipSymbol = SKIP_SYMBOL;
+  const std::unordered_set<std::pair<int, int>, pairHash> charConstantAdd = CHAR_CONSTANT;
+  const std::unordered_set<std::pair<int, int>, pairHash> charConstantEnd = CHAR_CONSTANT_END;
+  const std::unordered_map<int, tok::TokenType> toTokenType = FROM_FINAL_STATE_TO_TOKEN;
+  const std::unordered_map<std::pair<int, int>, int, pairHash> changeBaseInt = CHANGE_BASE;
 };
