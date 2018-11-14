@@ -8,9 +8,9 @@
 
 using namespace lx;
 
-Lexer::Lexer(const std::string & filename)
-    : line(1), column(1),
-      readFile(filename, std::ifstream::in) {}
+Lexer::Lexer(const std::string& filename)
+  : line(1), column(1),
+    readFile(filename, std::ifstream::in) {}
 
 void Lexer::errorHandler(int state) {
   std::string c(1, curSymbol);
@@ -38,7 +38,7 @@ void Lexer::errorHandler(int state) {
 
 void Lexer::checkLenId(int prevState, int newState) {
   bool isIdContinue = (prevState == 2 && newState == 2) || (prevState == 14 && newState == 14);
-  if (isIdContinue && valToken.size() > maxLenId)  {
+  if (isIdContinue && valToken.size() > maxLenId) {
     throw lxerr::LexerException(line, beginToken, "Error: Identifier exceed maximum length");
   }
 }
@@ -72,7 +72,9 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
 
   for (; newState >= 0; prevState = newState) {
     curSymbol = readFile.get();
-    if (curSymbol < 0) { curSymbol = 4; } // hack
+    if (curSymbol < 0) {
+      curSymbol = 4;
+    } // hack
 
     newState = stateTable[prevState][curSymbol];
     std::pair<int, int> pairState(prevState, newState);
@@ -156,12 +158,12 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
 }
 
 
-template <class T1, class T2>
-std::size_t Lexer::pairHash::operator()(const std::pair<T1, T2> &p) const {
-    auto h1 = std::hash<T1>{}(p.first);
-    auto h2 = std::hash<T2>{}(p.second);
+template<class T1, class T2>
+std::size_t Lexer::pairHash::operator()(const std::pair<T1, T2>& p) const {
+  auto h1 = std::hash<T1>{}(p.first);
+  auto h2 = std::hash<T2>{}(p.second);
 
-    // Mainly for demonstration purposes, i.e. works but is overly simple
-    // In the real world, use sth. like boost.hash_combine
-    return h1 ^ h2;
+  // Mainly for demonstration purposes, i.e. works but is overly simple
+  // In the real world, use sth. like boost.hash_combine
+  return h1 ^ h2;
 };
