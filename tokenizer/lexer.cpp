@@ -6,6 +6,8 @@
 #include "lexer_exception.h"
 #include "token_type.h"
 
+using namespace lx;
+
 Lexer::Lexer(const std::string & filename)
     : line(1), column(1),
       readFile(filename, std::ifstream::in) {}
@@ -53,7 +55,7 @@ bool Lexer::isWhitespace(int prevState, int newState) {
   return prevState == 0 && newState == 0;
 }
 
-std::unique_ptr<TokenBase> Lexer::next() {
+std::unique_ptr<tok::TokenBase> Lexer::next() {
   if (readFile.bad()) {
     return nullptr;
   }
@@ -138,18 +140,18 @@ std::unique_ptr<TokenBase> Lexer::next() {
   switch (tokenType) {
     case tok::TokenType::Int: {
       long long value = std::stoll(valToken, nullptr, baseIntConvert);
-      return std::make_unique<Token<long long>>(line, beginToken, tokenType, value, strToken);
+      return std::make_unique<tok::Token<long long>>(line, beginToken, tokenType, value, strToken);
     }
     case tok::TokenType::Double: {
       long double value = std::stold(valToken);
-      return std::make_unique<Token<long double>>(line, beginToken, tokenType, value, strToken);
+      return std::make_unique<tok::Token<long double>>(line, beginToken, tokenType, value, strToken);
     }
     case tok::TokenType::Keyword: {
       tok::KeywordType key = tok::getKeywordType(valToken);
-      return std::make_unique<Token<tok::KeywordType >>(line, beginToken, tokenType, key, strToken);
+      return std::make_unique<tok::Token<tok::KeywordType >>(line, beginToken, tokenType, key, strToken);
     }
     default:
-      return std::make_unique<Token<std::string>>(line, beginToken, tokenType, valToken, strToken);
+      return std::make_unique<tok::Token<std::string>>(line, beginToken, tokenType, valToken, strToken);
   }
 }
 
