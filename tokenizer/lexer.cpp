@@ -3,7 +3,7 @@
 #include "lexer.h"
 
 #include "token_type.h"
-#include "lexer_exception.h"
+#include "../exception.h"
 #include "token_type.h"
 
 using namespace lx;
@@ -16,22 +16,22 @@ void Lexer::errorHandler(int state) {
   std::string c(1, curSymbol);
   switch (state) {
     case (-77): {
-      throw lxerr::LexerException(line, beginToken, "Error: Illegal character \"" + c + "\"");
+      throw LexerException(line, beginToken, "Error: Illegal character \"" + c + "\"");
     }
     case (-71): {
-      throw lxerr::LexerException(line, beginToken, "Error: String on new line");
+      throw LexerException(line, beginToken, "Error: String on new line");
     }
     case (-80): {
-      throw lxerr::LexerException(line, beginToken + 1, "Error: Illegal start integer constant \"" + c + "\"");
+      throw LexerException(line, beginToken + 1, "Error: Illegal start integer constant \"" + c + "\"");
     }
     case (-81): {
-      throw lxerr::LexerException(line, numSymbol - 1, "Error: Illegal start char constant \"" + c + "\"");
+      throw LexerException(line, numSymbol - 1, "Error: Illegal start char constant \"" + c + "\"");
     }
     case (-82): {
-      throw lxerr::LexerException(line, beginToken, "Error: Illegal double \"" + strToken + "\"");
+      throw LexerException(line, beginToken, "Error: Illegal double \"" + strToken + "\"");
     }
     case (-83): {
-      throw lxerr::LexerException("Error: Unexpected end of file");
+      throw LexerException("Error: Unexpected end of file");
     }
   }
 }
@@ -39,7 +39,7 @@ void Lexer::errorHandler(int state) {
 void Lexer::checkLenId(int prevState, int newState) {
   bool isIdContinue = (prevState == 2 && newState == 2) || (prevState == 14 && newState == 14);
   if (isIdContinue && valToken.size() > maxLenId) {
-    throw lxerr::LexerException(line, beginToken, "Error: Identifier exceed maximum length");
+    throw LexerException(line, beginToken, "Error: Identifier exceed maximum length");
   }
 }
 
