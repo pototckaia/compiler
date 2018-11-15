@@ -1,9 +1,41 @@
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <algorithm>
 
 #include "lexer.h"
-#include "lexer_exception.h"
+
+#include "exception.h"
+
+#include "parser/parser.h"
+#include "parser/visitor.h"
+
+
+void lexerTest(std::string& inputFileName, std::string& outputFileName) {
+  std::ofstream wfile;
+  wfile.open(outputFileName, std::ifstream::out);
+
+  lx::Lexer lex(inputFileName);
+
+  try {
+    for (auto token = lex.next(); token != nullptr; token = lex.next()) {
+      wfile << token->toString() << std::endl;
+    }
+  } catch(LexerException& e) {
+    wfile << e.what() << std::endl;
+  }
+
+  wfile.close();
+}
+
+void parserTest(std::string& inputFileName, std::string& outputFileName) {
+  pr::Parser p(inputFileName);
+  pr::PrintVisitor v(outputFileName);
+
+  auto tree = p.parse();
+  tree->accept(v);
+
+}
 
 int main(int argc, char *argv[]) {
   std::string inputFileName, outputFileName;
@@ -34,19 +66,5 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-
-  std::ofstream wfile;
-  wfile.open(outputFileName, std::ifstream::out);
-
-  Lexer lex(inputFileName);
-
-  try {
-    for (auto token = lex.next(); token != nullptr; token = lex.next()) {
-      wfile << token->toString() << std::endl;
-    }
-  } catch(lxerr::LexerException& e) {
-    wfile << e.what() << std::endl;
-  }
-
-  wfile.close();
+ parserTest(inputFileName, outputFileName);
 }
