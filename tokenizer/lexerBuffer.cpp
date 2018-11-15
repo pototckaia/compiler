@@ -28,6 +28,6 @@ const std::unique_ptr<tok::TokenBase>& LexerBuffer::get() {
   return *it;
 }
 
-void LexerBuffer::push_back(std::unique_ptr<tok::TokenBase>&& t) {
+void LexerBuffer::push_back(std::unique_ptr<tok::TokenBase>& t) {
   buffer.emplace_back(std::move(t));
 }
