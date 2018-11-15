@@ -4,6 +4,7 @@ import subprocess
 import re
 import sys
 from itertools import count
+import argparse
 
 testsPath = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,13 +13,14 @@ programName = 'Compile'
 compilePath = testsPath + os.sep + '..' + os.sep + cmakeDir + os.sep + programName
 
 lexPath = testsPath + os.sep + 'lexer'
+parserPath = testsPath + os.sep + 'parser'
 
 def compareFiles(pos, receive, expect):
 	receiveBaseName = os.path.basename(receive)
 
 	with open(receive, 'r') as rec, open(expect, 'r') as exp:
-		allWordsReceive = (word for line in rec for word in re.findall(r'(\w+)', line))
-		allWordsExpect = (word for line in exp for word in re.findall(r'(\w+)', line))
+		allWordsReceive	 = (line for line in rec)
+		allWordsExpect = (line for line in exp)
 		we = ' '
 		i = 0
 		while(we != ''):
@@ -27,7 +29,7 @@ def compareFiles(pos, receive, expect):
 			if we != wr:
 				print('____________________________________')
 				print('{0} Test "{1}" not pass in line {0}'.format(pos + 1, receiveBaseName, i + 1))
-				print("Expect  '{0}'  but find  '{1}' ".format(we, wr))
+				print("Expect:\n{0}\nBut find:\n{1}".format(we, wr))
 				return False
 			i += 1
 
@@ -52,4 +54,16 @@ def runTests(dirPath):
 
 
 if __name__ == '__main__':
-	runTests(lexPath)
+
+	argsParser = argparse.ArgumentParser()
+
+	argsParser.add_argument('-l', '--lexer', help='Start lexer tests', action='store_true')
+	argsParser.add_argument('-p', '--parser', help='Start parser tests', action='store_true')
+
+	args = argsParser.parse_args()
+
+	if args.lexer:
+		runTests(lexPath)
+
+	if args.parser:
+		runTests(parserPath)
