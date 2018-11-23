@@ -29,11 +29,17 @@ void lexerTest(std::string& inputFileName, std::string& outputFileName) {
 }
 
 void parserTest(std::string& inputFileName, std::string& outputFileName) {
-  pr::Parser p(inputFileName);
-  pr::PrintVisitor v(outputFileName);
+  std::ofstream out(outputFileName);
 
-  auto tree = p.parse();
-  tree->accept(v);
+  pr::Parser p(inputFileName);
+  pr::PrintVisitor v(out);
+
+  try {
+    auto tree = p.parse();
+    tree->accept(v);
+  } catch(ParserException& e) {
+    out << e.what();
+  }
 
 }
 
