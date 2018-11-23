@@ -6,7 +6,6 @@
 #define TOKEN_TYPE(X, XX) \
   X(Int, "Int") \
   X(Id, "Id") \
-  X(Keyword, "Keyword") \
   X(Double, "Double") \
   X(String, "String") \
   X(Plus, "+") \
@@ -39,7 +38,9 @@
   X(CloseParenthesis, ")") \
   X(OpenSquareBracket, "[") \
   X(CloseSquareBracket, "]") \
-  X(Comment, "Comment")
+  X(Keyword, "Keyword") \
+  X(Comment, "Comment") \
+  X(EndOfFile, "EOF")
 
 
 #define KEYWORD_TYPE(X) \
