@@ -3,14 +3,14 @@
 
 using namespace pr;
 
-Parser::Parser(const std::string& s) : lexer(s) {}
+Parser::Parser(const std::string& s) : lexer(s), priority() {
+  priority[0] = {tok::TokenType::Minus, tok::TokenType::Plus};
+  priority[1] = {tok::TokenType::Asterisk, tok::TokenType::Slash};
+}
 
 std::unique_ptr<ASTNode> Parser::parseFactor() {
+  requireNotNull();
   auto token = lexer.next();
-
-  if (token == nullptr) {
-    throw ParserException(token->getLine(), token->getColumn(), "Syntax error");
-  }
 
   switch (token->getTokenType()) {
     case tok::TokenType::Id: {
@@ -20,29 +20,25 @@ std::unique_ptr<ASTNode> Parser::parseFactor() {
       return std::make_unique<Literal>(std::move(token));
     }
     case tok::TokenType::OpenParenthesis: {
-      auto expr = parseExpr();
+      auto expr = parseTerm();
+      require(tok::TokenType::CloseParenthesis);
       auto t = lexer.next();
-      if (t->getTokenType() != tok::TokenType::CloseParenthesis) {
-        throw ParserException(t->getLine(), t->getColumn(), "Syntax error: except \")\" but find \"" + t->getValueString() + "\"");
-      };
       return expr;
     }
     default:
-      throw ParserException(token->getLine(), token->getColumn(), "Syntax error");
+      throw ParserException(token->getLine(), token->getColumn());
   }
 }
 
-std::unique_ptr<ASTNode> Parser::parseTerm() {
-  auto left = parseFactor();
+std::unique_ptr<ASTNode> Parser::parseTerm(int p) {
+  auto left = getTermOrFactor(p + 1);
 
   while (true) {
-    const auto& token = lexer.get();
-    if (token == nullptr || (token->getTokenType() != tok::TokenType::Asterisk &&
-        token->getTokenType() != tok::TokenType::Slash)) {
+    if (!require(priority[p])) {
       break;
     }
     auto op = lexer.next();
-    auto right = parseFactor();
+    auto right = getTermOrFactor(p + 1);
 
     left = std::make_unique<BinaryOperation>(std::move(op), std::move(left), std::move(right));
   }
@@ -50,24 +46,37 @@ std::unique_ptr<ASTNode> Parser::parseTerm() {
   return left;
 }
 
-std::unique_ptr<pr::ASTNode> Parser::parseExpr() {
-  auto left = parseTerm();
-
-  while (true) {
-    const auto& token = lexer.get();
-    if (token == nullptr || (token->getTokenType() != tok::TokenType::Minus &&
-        token->getTokenType() != tok::TokenType::Plus)) {
-      break;
-    }
-    auto op = lexer.next();
-    auto right = parseTerm();
-
-    left = std::make_unique<BinaryOperation>(std::move(op), std::move(left), std::move(right));
+std::unique_ptr<pr::ASTNode> Parser::getTermOrFactor(int p) {
+  if (p == priority.size()) {
+    return parseFactor();
+  } else {
+    return parseTerm(p);
   }
-
-  return left;
 }
 
 std::unique_ptr<pr::ASTNode> Parser::parse() {
-  return parseExpr();
+  return getTermOrFactor();
+}
+
+bool Parser::require(std::list<tok::TokenType>& listType) {
+  auto& get = lexer.get();
+  if (get == nullptr) { return false; }
+  for (auto& exceptType: listType) {
+    if (get->getTokenType() == exceptType) { return true; }
+  }
+  return false;
+}
+
+void Parser::require(tok::TokenType type) {
+  auto& get = lexer.get();
+  if (get == nullptr ||  get->getTokenType() != type) {
+    throw ParserException(get->getLine(), get->getColumn(), type, get->getTokenType());
+  }
+}
+
+void Parser::requireNotNull() {
+  auto& token = lexer.get();
+  if (token == nullptr) {
+    throw ParserException(token->getLine(), token->getColumn());
+  }
 }
