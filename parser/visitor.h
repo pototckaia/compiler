@@ -16,14 +16,14 @@ class Visitor {
 
 class PrintVisitor : public Visitor {
  public:
-  explicit PrintVisitor(const std::string& outName);
+  explicit PrintVisitor(std::ofstream& out);
 
   void visit(Variable&) override;
   void visit(Literal&) override;
   void visit(BinaryOperation&) override;
 
  private:
-  std::ofstream out;
+  std::ofstream& out;
   int depth;
 };
 
