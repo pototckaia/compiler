@@ -38,7 +38,6 @@
   X(CloseParenthesis, ")") \
   X(OpenSquareBracket, "[") \
   X(CloseSquareBracket, "]") \
-  X(Keyword, "Keyword") \
   X(Comment, "Comment") \
   X(EndOfFile, "EOF")
 
@@ -104,20 +103,15 @@ namespace tok {
 #define MAKE_ENUM_WITH_N(E, S, N) E = N,
 enum class TokenType {
   TOKEN_TYPE(MAKE_ENUM, MAKE_ENUM_WITH_N)
-};
-#undef MAKE_ENUM_WITH_N
-
-enum class KeywordType {
   KEYWORD_TYPE(MAKE_ENUM)
 };
+#undef MAKE_ENUM_WITH_N
 
 #undef MAKE_ENUM
 
 std::string toString(TokenType t);
 
-std::string toString(KeywordType);
-
-KeywordType getKeywordType(const std::string &);
+TokenType getKeywordType(const std::string &);
 
 bool isKeyword(const std::string &);
 
