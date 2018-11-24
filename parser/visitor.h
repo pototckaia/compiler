@@ -12,6 +12,7 @@ class Visitor {
   virtual void visit(Variable&) = 0;
   virtual void visit(Literal&) = 0;
   virtual void visit(BinaryOperation&) = 0;
+  virtual void visit(UnaryOperation&) = 0;
 };
 
 class PrintVisitor : public Visitor {
@@ -21,6 +22,7 @@ class PrintVisitor : public Visitor {
   void visit(Variable&) override;
   void visit(Literal&) override;
   void visit(BinaryOperation&) override;
+  void visit(UnaryOperation&) override;
 
  private:
   std::ofstream& out;

@@ -20,7 +20,7 @@ class ASTNode {
 
 class Variable : public ASTNode {
  public:
-  explicit Variable(std::unique_ptr<tok::TokenBase>&& n);
+  explicit Variable(std::unique_ptr<tok::TokenBase>);
   ~Variable() override = default;
 
   const auto& getName() const { return name; }
@@ -34,7 +34,7 @@ class Variable : public ASTNode {
 
 class Literal : public ASTNode {
  public:
-  explicit Literal(std::unique_ptr<tok::TokenBase>&&);
+  explicit Literal(std::unique_ptr<tok::TokenBase>);
   ~Literal() override = default;
 
   const auto& getValue() const { return value; }
@@ -48,9 +48,9 @@ class Literal : public ASTNode {
 
 class BinaryOperation : public ASTNode {
  public:
-  BinaryOperation(std::unique_ptr<tok::TokenBase>&&,
-                  std::unique_ptr<ASTNode>&&,
-                  std::unique_ptr<ASTNode>&&);
+  BinaryOperation(std::unique_ptr<tok::TokenBase>,
+                  std::unique_ptr<ASTNode>,
+                  std::unique_ptr<ASTNode>);
   ~BinaryOperation() override = default;
 
   const auto& getLeft() const { return left; }
@@ -63,6 +63,21 @@ class BinaryOperation : public ASTNode {
   std::unique_ptr<tok::TokenBase> opr;
   std::unique_ptr<ASTNode> left;
   std::unique_ptr<ASTNode> right;
+};
+
+class UnaryOperation : public ASTNode {
+ public:
+  explicit UnaryOperation(std::unique_ptr<tok::TokenBase>, std::unique_ptr<ASTNode>);
+  ~UnaryOperation() override = default;
+
+  const auto& getOpr() const { return opr; }
+  const auto& getExpr() const { return expr; }
+
+  void accept(Visitor&) override;
+
+ private:
+  std::unique_ptr<tok::TokenBase> opr;
+  std::unique_ptr<ASTNode> expr;
 };
 
 } // namespace pr

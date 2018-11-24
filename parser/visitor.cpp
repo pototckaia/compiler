@@ -21,3 +21,11 @@ void PrintVisitor::visit(pr::BinaryOperation& b) {
   b.getRight()->accept(*this);
   --depth;
 }
+
+void PrintVisitor::visit(pr::UnaryOperation& u) {
+  out << std::string(depth, '\t') << u.getOpr()->getValueString() << std::endl;
+
+  ++depth;
+  u.getExpr()->accept(*this);
+  --depth;
+}

@@ -3,26 +3,35 @@
 
 using namespace pr;
 
-Parser::Parser(const std::string& s) : lexer(s), priority() {
+Parser::Parser(const std::string& s) : lexer(s) {
   priority[0] = {tok::TokenType::Minus, tok::TokenType::Plus};
   priority[1] = {tok::TokenType::Asterisk, tok::TokenType::Slash};
 }
 
 std::unique_ptr<ASTNode> Parser::parseFactor() {
-  requireNotNull();
+  notRequire(tok::TokenType::EndOfFile);
   auto token = lexer.next();
 
   switch (token->getTokenType()) {
+    case tok::TokenType::Not:
+    case tok::TokenType::Minus:
+    case tok::TokenType::Plus:
+    case tok::TokenType::At: {
+      return std::make_unique<UnaryOperation>(std::move(token), parseFactor());
+    }
+    case tok::TokenType::Int:
+    case tok::TokenType::Double: {
+      return std::make_unique<Literal>(std::move(token));
+    }
     case tok::TokenType::Id: {
       return std::make_unique<Variable>(std::move(token));
     }
-    case tok::TokenType::Int: case tok::TokenType::Double: {
-      return std::make_unique<Literal>(std::move(token));
-    }
     case tok::TokenType::OpenParenthesis: {
       auto expr = parseTerm();
+
       require(tok::TokenType::CloseParenthesis);
-      auto t = lexer.next();
+      lexer.next();
+
       return expr;
     }
     default:
@@ -69,14 +78,14 @@ bool Parser::require(std::list<tok::TokenType>& listType) {
 
 void Parser::require(tok::TokenType type) {
   auto& get = lexer.get();
-  if (get == nullptr ||  get->getTokenType() != type) {
+  if (get->getTokenType() != type) {
     throw ParserException(get->getLine(), get->getColumn(), type, get->getTokenType());
   }
 }
 
-void Parser::requireNotNull() {
-  auto& token = lexer.get();
-  if (token == nullptr) {
-    throw ParserException(token->getLine(), token->getColumn());
+void Parser::notRequire(tok::TokenType type) {
+  auto& get = lexer.get();
+  if (get->getTokenType() == type) {
+    throw ParserException(get->getLine(), get->getColumn());
   }
 }
