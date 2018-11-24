@@ -12,13 +12,16 @@ class TokenBase {
   TokenBase(int line, int column, tok::TokenType token_type, const std::string& strValue);
   virtual ~TokenBase() = default;
 
-  virtual std::string toString();
+  virtual std::string toString() const;
 
   int getLine() const { return line; }
   int getColumn() const { return column; }
   tok::TokenType getTokenType() const { return tokenType; }
 
-  virtual std::string getValueString() const = 0;
+  virtual std::string getValueString() const { return strValue; }
+
+ protected:
+  std::string beginOfString() const;
 
  private:
   int line, column;
@@ -27,13 +30,14 @@ class TokenBase {
 };
 
 template<typename T>
-class Token : public TokenBase {
+class NumberConstant : public TokenBase {
  public:
-  Token() = delete;
-  Token(int line, int column, tok::TokenType token_type, T value, const std::string& str_value);
-  ~Token() override = default;
+  NumberConstant() = delete;
+  NumberConstant(int line, int column, tok::TokenType token_type,
+                 T& value, const std::string& strValue);
+  ~NumberConstant() = default;
 
-  std::string toString() override;
+  std::string toString() const override;
 
   std::string getValueString() const override { return std::to_string(value); }
 
@@ -41,36 +45,20 @@ class Token : public TokenBase {
   T value;
 };
 
-template<>
-class Token<std::string> : public TokenBase {
+class StringConstant : public TokenBase {
  public:
-  Token() = delete;
-  Token(int line, int column, tok::TokenType tokenType,
-        const std::string& value, const std::string& str_value);
-  ~Token() override = default;
+  StringConstant() = delete;
 
-  std::string toString() override;
+  StringConstant(int line, int column, tok::TokenType token_type,
+                 const std::string& value, const std::string& strValue);
+  ~StringConstant() = default;
+
+  std::string toString() const override;
 
   std::string getValueString() const override { return value; }
 
  private:
   std::string value;
-};
-
-template<>
-class Token<tok::KeywordType> : public TokenBase {
- public:
-  Token() = delete;
-  Token(int line, int column, tok::TokenType tokenType,
-        tok::KeywordType value, const std::string& str_value);
-  ~Token() override = default;
-
-  std::string toString() override;
-
-  std::string getValueString() const override { return tok::toString(value); };
-
- private:
-  tok::KeywordType value;
 };
 
 } // namespace tok

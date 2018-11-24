@@ -18,7 +18,7 @@ void lexerTest(std::string& inputFileName, std::string& outputFileName) {
   lx::Lexer lex(inputFileName);
 
   try {
-    for (auto token = lex.next(); token != nullptr; token = lex.next()) {
+    for (auto token = lex.next(); token->getTokenType() != tok::TokenType::EndOfFile; token = lex.next()) {
       wfile << token->toString() << std::endl;
     }
   } catch(LexerException& e) {
@@ -72,5 +72,5 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
- parserTest(inputFileName, outputFileName);
+ lexerTest(inputFileName, outputFileName);
 }
