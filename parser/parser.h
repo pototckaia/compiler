@@ -14,7 +14,7 @@ class Parser {
  private:
   lx::LexerBuffer lexer;
   // increasing priority for binary operator
-  std::array<std::list<tok::TokenType>, 2> priority;
+  std::array<std::list<tok::TokenType>, 3> priority;
 
   std::unique_ptr<pr::ASTNode> parseFactor();
   std::unique_ptr<pr::ASTNode> parseTerm(int priority = 0);

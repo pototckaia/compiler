@@ -4,11 +4,15 @@
 using namespace pr;
 
 Parser::Parser(const std::string& s) : lexer(s) {
-  priority[0] = {tok::TokenType::Minus, tok::TokenType::Plus,
+  priority[0] = {tok::TokenType::StrictLess, tok::TokenType::StrictGreater,
+                 tok::TokenType::NotEquals, tok::TokenType::Equals,
+                 tok::TokenType::LessOrEquals, tok::TokenType::GreaterOrEquals};
+  priority[1] = {tok::TokenType::Minus, tok::TokenType::Plus,
                  tok::TokenType::Or, tok::TokenType::Xor};
-  priority[1] = {tok::TokenType::Asterisk, tok::TokenType::Slash,
+  priority[2] = {tok::TokenType::Asterisk, tok::TokenType::Slash,
+                 tok::TokenType::Div, tok::TokenType::Mod,
                  tok::TokenType::And,
-                 tok::TokenType::Shr, tok::TokenType::ShiftRight,
+                 tok::TokenType::Shr, tok::TokenType::ShiftRight, // TODO: replace one tokenType
                  tok::TokenType::Shl, tok::TokenType::ShiftLeft};
 }
 
