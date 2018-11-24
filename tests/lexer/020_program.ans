@@ -1,7 +1,7 @@
-1	1	Keyword	"program"		program
+1	1	Keyword	"program"		"program"
 1	9	Id	"hello"		"hello"
 1	14	;	";"		";"
-3	1	Keyword	"procedure"		procedure
+3	1	Keyword	"procedure"		"procedure"
 3	11	Id	"hey"		"hey"
 3	14	(	"("		"("
 3	15	Id	"x"		"x"
@@ -9,12 +9,12 @@
 3	18	Id	"Integer"		"integer"
 3	25	)	")"		")"
 3	26	;	";"		";"
-4	1	Keyword	"var"		var
+4	1	Keyword	"var"		"var"
 5	3	Id	"ans"		"ans"
 5	6	:	":"		":"
 5	8	Id	"Real"		"real"
 5	12	;	";"		";"
-6	1	Keyword	"begin"		begin
+6	1	Keyword	"begin"		"begin"
 7	3	Id	"WriteLn"		"writeln"
 7	10	(	"("		"("
 7	11	String	"'Hello'"		"hello"
@@ -25,9 +25,9 @@
 7	26	)	")"		")"
 7	27	)	")"		")"
 7	28	;	";"		";"
-8	1	Keyword	"end"		end
+8	1	Keyword	"end"		"end"
 8	4	;	";"		";"
-10	1	Keyword	"var"		var
+10	1	Keyword	"var"		"var"
 11	3	Id	"x"		"x"
 11	4	,	","		","
 11	6	Id	"y"		"y"
@@ -38,7 +38,7 @@
 12	6	:	":"		":"
 12	8	Id	"Real"		"real"
 12	12	;	";"		";"
-13	1	Keyword	"begin"		begin
+13	1	Keyword	"begin"		"begin"
 14	3	Id	"x"		"x"
 14	5	:=	":="		":="
 14	8	Int	"2"		2
@@ -68,5 +68,5 @@
 19	8	Id	"x"		"x"
 19	9	)	")"		")"
 19	10	;	";"		";"
-20	1	Keyword	"end"		end
+20	1	Keyword	"end"		"end"
 20	4	.	"."		"."

@@ -1,7 +1,7 @@
 4	1	Id	"ar"		"ar"
 4	3	:	":"		":"
-4	5	Keyword	"ArRaY"		array
-4	11	Keyword	"OF"		of
+4	5	Keyword	"ArRaY"		"array"
+4	11	Keyword	"OF"		"of"
 4	14	Id	"Integer"		"integer"
 4	21	;	";"		";"
 7	2	Id	"if34"		"if34"
