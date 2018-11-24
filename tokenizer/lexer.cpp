@@ -132,9 +132,11 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
   }
 
   column = numSymbol;
-  std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
-
   auto tokenType = toTokenType.at(newState);
+
+  if (tokenType ==  tok::TokenType::Id) {
+    std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
+  }
 
   if (newState == checkIdState && tok::isKeyword(valToken)) {
     tokenType = tok::getKeywordType(valToken);
