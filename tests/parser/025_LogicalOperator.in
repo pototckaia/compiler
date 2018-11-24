@@ -1,0 +1,1 @@
+(b shr 2) and 3 xor 1 xor (not 1) or (b << 1)

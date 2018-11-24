@@ -4,8 +4,12 @@
 using namespace pr;
 
 Parser::Parser(const std::string& s) : lexer(s) {
-  priority[0] = {tok::TokenType::Minus, tok::TokenType::Plus};
-  priority[1] = {tok::TokenType::Asterisk, tok::TokenType::Slash};
+  priority[0] = {tok::TokenType::Minus, tok::TokenType::Plus,
+                 tok::TokenType::Or, tok::TokenType::Xor};
+  priority[1] = {tok::TokenType::Asterisk, tok::TokenType::Slash,
+                 tok::TokenType::And,
+                 tok::TokenType::Shr, tok::TokenType::ShiftRight,
+                 tok::TokenType::Shl, tok::TokenType::ShiftLeft};
 }
 
 std::unique_ptr<ASTNode> Parser::parseFactor() {
