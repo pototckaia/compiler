@@ -13,6 +13,9 @@ class Visitor {
   virtual void visit(Literal&) = 0;
   virtual void visit(BinaryOperation&) = 0;
   virtual void visit(UnaryOperation&) = 0;
+  virtual void visit(ArrayAccess&) = 0;
+  virtual void visit(RecordAccess&) = 0;
+  virtual void visit(FunctionCall&) = 0;
 };
 
 class PrintVisitor : public Visitor {
@@ -23,10 +26,14 @@ class PrintVisitor : public Visitor {
   void visit(Literal&) override;
   void visit(BinaryOperation&) override;
   void visit(UnaryOperation&) override;
+  void visit(ArrayAccess&) override;
+  void visit(RecordAccess&) override;
+  void visit(FunctionCall&) override;
 
  private:
   std::ofstream& out;
   int depth;
+  void print(const std::string&);
 };
 
 } // namespace pr
