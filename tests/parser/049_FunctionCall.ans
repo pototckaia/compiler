@@ -1,0 +1,23 @@
++
+	1
+	*
+		2
+		Function Call
+			f
+			2
+			-
+				Function Call
+					g
+					4
+					-
+						-
+							5
+							6
+						7
+				Function Call
+					h
+					Record Access
+						Array Access
+							a
+							i
+						b

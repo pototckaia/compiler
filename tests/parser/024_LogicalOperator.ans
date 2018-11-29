@@ -1,12 +1,12 @@
 or
-	and
-		not
+	not
+		and
 			b
-		not
-			c
-	and
-		not
-			d
-		xor
+			not
+				c
+	xor
+		and
+			not
+				d
 			e
-			f
+		f
