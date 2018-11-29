@@ -68,7 +68,7 @@
 
 					<expression> ::= <simple expression> | <simple expression> <relational operator> <simple expression>
 
-						<relational operator> ::= = | "<>" | "<" | "<=" | ">=" | ">" 
+						<relational operator> ::= = | "<>" | "<" | "<=" | ">=" | ">" | "=" | "=="
 
 						<simple expression> ::= <term> | <simple expression> <adding operator> <term>
 
