@@ -3,32 +3,32 @@
 #include <fstream>
 #include <algorithm>
 
+#include "cxxopts.hpp"
+
 #include "lexer.h"
-
 #include "exception.h"
+#include "parser.h"
+#include "visitor.h"
 
-#include "parser/parser.h"
-#include "parser/visitor.h"
 
-
-void lexerTest(std::string& inputFileName, std::string& outputFileName) {
-  std::ofstream wfile;
-  wfile.open(outputFileName, std::ifstream::out);
+void lexerTest(const std::string& inputFileName,const std::string& outputFileName) {
+  std::ofstream out;
+  out.open(outputFileName, std::ifstream::out);
 
   lx::Lexer lex(inputFileName);
 
   try {
     for (auto token = lex.next(); token->getTokenType() != tok::TokenType::EndOfFile; token = lex.next()) {
-      wfile << token->toString() << std::endl;
+      out << token->toString() << std::endl;
     }
   } catch(LexerException& e) {
-    wfile << e.what() << std::endl;
+    out << e.what() << std::endl;
   }
 
-  wfile.close();
+  out.close();
 }
 
-void parserTest(std::string& inputFileName, std::string& outputFileName) {
+void parserTest(const std::string& inputFileName, const std::string& outputFileName) {
   std::ofstream out(outputFileName);
 
   pr::Parser p(inputFileName);
@@ -37,40 +37,61 @@ void parserTest(std::string& inputFileName, std::string& outputFileName) {
   try {
     auto tree = p.parse();
     tree->accept(v);
+    out << outputFileName;
   } catch(ParserException& e) {
     out << e.what();
   }
-
 }
 
+void parseCommandArgs(int args, char* argv[]);
+
 int main(int argc, char *argv[]) {
-  std::string inputFileName, outputFileName;
+  parseCommandArgs(argc, argv);
+}
 
-  if (argc < 2 || argc > 5 || argc == 3) {
-    std::cerr << "Error in params" << std::endl;
-    return 0;
-  }
+void parseCommandArgs(int args, char* argv[]) {
+	cxxopts::Options options(argv[0]);
 
-  if (argc == 2) {
-    inputFileName = argv[1];
-    outputFileName = inputFileName;
+	std::string input, output;
 
-    auto typeFile = std::find_if(outputFileName.rbegin(), outputFileName.rend(), [](int ch){ return ch == '.'; });
-    outputFileName.erase(typeFile.base() - 1, outputFileName.end());
-    outputFileName += ".out";
-  } else if (argv[1][0] == '-' || argv[2][0] == '-') {
-    int inIndex = 1, outIndex = 3;
+	options
+		.add_options()
+        ("i,input", "Input file", cxxopts::value<std::string>(input))
+				("o,output", "Output file", cxxopts::value<std::string>(output))
+        ("l,lexer", "Generate a stream of tokens", cxxopts::value<bool>())
+        ("e,expression", "Build Ast-tree simple pascal expression", cxxopts::value<bool>())
+        ("p,parser", "Build Ast-tree pascal program", cxxopts::value<bool>())
+	;
 
-    if (argv[1][0] == '-') {
-      inIndex = 3, outIndex = 2;
+	try {
+    auto result = options.parse(args, argv);
+
+    if (!result.count("i") || input.empty()) {
+      std::cout << "Error command argument: Not specify a input name";
+      return;
     }
 
-    inputFileName = argv[inIndex];
-    outputFileName = argv[outIndex];
-  } else {
-    std::cerr << "Error in params" << std::endl;
-    return 0;
-  }
+    if (!result.count("o")) {
+      output = input;
+      auto typeFile = std::find_if(output.rbegin(), output.rend(), [](int ch){ return ch == '.'; });
+      output.erase(typeFile.base() - 1, output.end());
+      output += ".out";
+    }
 
- parserTest(inputFileName, outputFileName);
+    if (result.count("l")) {
+      lexerTest(input, output + "lexer");
+    }
+
+    if (result.count("e")) {
+      parserTest(input, output + "expression");
+    }
+
+    if (result.count("p")) {
+      parserTest(input, output + "parser");
+    }
+
+  } catch (const cxxopts::OptionException& e) {
+    std::cout << "Error command argument: " << e.what() << std::endl;
+	  return;
+	}
 }

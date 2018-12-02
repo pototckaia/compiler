@@ -16,8 +16,6 @@ set(PAR_SOURCES
         parser/parser.cpp parser/parser.h
         parser/visitor.cpp parser/visitor.h exception.h)
 
-set(INCLUDE_DIRECTORIES tokenizer)
-
-include_directories(tokenizer)
+include_directories(tokenizer parser include-lib)
 
 add_executable(Compile ${MAIN_SOURCES} ${LEX_SOURCES} ${PAR_SOURCES})

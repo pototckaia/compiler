@@ -64,7 +64,7 @@ std::unique_ptr<pr::ASTNode> Parser::getTermOrFactor(int p) {
 }
 
 std::unique_ptr<pr::ASTNode> Parser::parse() {
-  return getTermOrFactor();
+  return parseTerm();
 }
 
 bool Parser::require(std::list<tok::TokenType>& listType) {
