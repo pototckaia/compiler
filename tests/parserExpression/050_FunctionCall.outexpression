@@ -1,0 +1,11 @@
+Array Access
+	Record Access
+		^
+			Function Call
+				f
+				a
+				b
+				c
+		d
+	i
+/home/@home/oem/Documents/Homeworks/Compiler/tests/parserExpression/050_FunctionCall.outexpression

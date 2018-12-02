@@ -1,0 +1,13 @@
+or
+	not
+		and
+			b
+			not
+				c
+	xor
+		and
+			not
+				d
+			e
+		f
+/home/@home/oem/Documents/Homeworks/Compiler/tests/parserExpression/024_LogicalOperator.outexpression

@@ -1,0 +1,12 @@
+=
+	mod
+		i
+		j
+	-
+		i
+		*
+			div
+				i
+				j
+			j
+/home/@home/oem/Documents/Homeworks/Compiler/tests/parserExpression/027_BooleanOperator.outexpression

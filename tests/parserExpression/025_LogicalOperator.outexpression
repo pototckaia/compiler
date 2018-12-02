@@ -1,0 +1,15 @@
+or
+	xor
+		xor
+			and
+				shr
+					b
+					2
+				3
+			1
+		not
+			1
+	<<
+		b
+		1
+/home/@home/oem/Documents/Homeworks/Compiler/tests/parserExpression/025_LogicalOperator.outexpression
