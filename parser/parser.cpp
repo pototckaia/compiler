@@ -136,7 +136,7 @@ ptr_Expr Parser::getExprByPriority(int p) {
 }
 
 std::unique_ptr<pr::ASTNode> Parser::parse() {
-  return parseTerm();
+  return parseBinaryOperator();
 }
 
 bool Parser::require(std::list<tok::TokenType>& listType) {
