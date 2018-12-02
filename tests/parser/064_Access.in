@@ -1,1 +1,1 @@
-recordAllPtr.(ptr_fun)^()
+recordAllPtr.ptr_fun^()
