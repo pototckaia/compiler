@@ -25,7 +25,7 @@ class ParserException : public std::exception {
 
   explicit ParserException(int line, int column, std::string except, std::string get)
     : s(std::to_string(line) + "," + std::to_string(column) + "\t" +
-        "Except: \""  + except + "\" but find \"" + get) {}
+        "Except: \""  + except + "\" but find \"" + get + "\"") {}
 
   explicit ParserException(int line, int column, tok::TokenType exceptType, tok::TokenType getType)
     : ParserException(line, column, tok::toString(exceptType), tok::toString(getType)) {}
