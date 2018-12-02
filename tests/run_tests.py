@@ -13,7 +13,10 @@ programName = 'Compile'
 compilePath = testsPath + os.sep + '..' + os.sep + cmakeDir + os.sep + programName
 
 lexPath = testsPath + os.sep + 'lexer'
-parserPath = testsPath + os.sep + 'parser'
+parserExpressionPath = testsPath + os.sep + 'parserExpression'
+
+options = {'l' : lexPath, 'e' : parserExpressionPath}
+
 
 def compareFiles(pos, receive, expect):
 	receiveBaseName = os.path.basename(receive)
@@ -37,7 +40,7 @@ def compareFiles(pos, receive, expect):
 	print('{0} Test "{1}" pass'.format(pos + 1, receiveBaseName))
 	return True
 
-def runTests(dirPath):
+def runTests(dirPath, options):
 	print(os.path.basename(dirPath), '...')
 
 	inputFiles = glob.glob(dirPath + os.sep + '*.in')
@@ -47,7 +50,7 @@ def runTests(dirPath):
 		foutput = os.path.splitext(finput)[0] + '.out'
 		fanswer = os.path.splitext(finput)[0] + '.ans'
 		
-		subprocess.run([compilePath, finput, '-o', foutput])
+		subprocess.run([compilePath, '-i', finput, '-o', foutput, options])
 
 		if not compareFiles(pos, foutput, fanswer):
 			sys.exit(0)
@@ -58,12 +61,12 @@ if __name__ == '__main__':
 	argsParser = argparse.ArgumentParser()
 
 	argsParser.add_argument('-l', '--lexer', help='Start lexer tests', action='store_true')
-	argsParser.add_argument('-p', '--parser', help='Start parser tests', action='store_true')
+	argsParser.add_argument('-e', '--expression', help='Start parser expression tests', action='store_true')
 
 	args = argsParser.parse_args()
 
 	if args.lexer:
-		runTests(lexPath)
+		runTests(options['l'], '-l')
 
-	if args.parser:
-		runTests(parserPath)
+	if args.expression:
+		runTests(options['e'], '-e')
