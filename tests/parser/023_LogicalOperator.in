@@ -1,0 +1,1 @@
+(((NOT b) AND NOT c) OR (NOT d AND (e XOR f)))

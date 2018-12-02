@@ -1,0 +1,12 @@
+or
+	not
+		and
+			b
+			not
+				c
+	xor
+		and
+			not
+				d
+			e
+		f
