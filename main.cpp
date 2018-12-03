@@ -28,20 +28,32 @@ void lexerTest(const std::string& inputFileName,const std::string& outputFileNam
   out.close();
 }
 
-void parserTest(const std::string& inputFileName, const std::string& outputFileName) {
-  std::ofstream out(outputFileName);
-
+void parserExpressionTest(const std::string& inputFileName, const std::string& outputFileName) {
   pr::Parser p(inputFileName);
-  pr::PrintVisitor v(out);
+  pr::PrintVisitor v(outputFileName);
 
   try {
-    auto tree = p.parse();
+    auto tree = p.parseExpression();
     tree->accept(v);
-    out << outputFileName;
   } catch(ParserException& e) {
+    std::ofstream out(outputFileName);
     out << e.what();
   }
 }
+
+void parserProgramTest(const std::string& inputFileName, const std::string& outputFileName) {
+  pr::Parser p(inputFileName);
+  pr::PrintVisitor v(outputFileName);
+
+  try {
+    auto tree = p.parseProgram();
+    tree->accept(v);
+  } catch(ParserException& e) {
+    std::ofstream out(outputFileName);
+    out << e.what();
+  }
+}
+
 
 void parseCommandArgs(int args, char* argv[]);
 
@@ -83,11 +95,11 @@ void parseCommandArgs(int args, char* argv[]) {
     }
 
     if (result.count("e")) {
-      parserTest(input, output + "expression");
+      parserExpressionTest(input, output + "expression");
     }
 
     if (result.count("p")) {
-      parserTest(input, output + "parser");
+      parserProgramTest(input, output + "parser");
     }
 
   } catch (const cxxopts::OptionException& e) {
