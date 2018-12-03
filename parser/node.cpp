@@ -21,12 +21,29 @@ ArrayAccess::ArrayAccess(ptr_Expr name, ListExpr i)
 FunctionCall::FunctionCall(ptr_Expr nameFunction, ListExpr listParam)
   : nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
 
+FunctionCallStmt::FunctionCallStmt(pr::ptr_Expr e) : functionCall(std::move(e)) {}
+
 RecordAccess::RecordAccess(ptr_Expr record, std::unique_ptr<tok::TokenBase> field)
   : record(std::move(record)), field(std::move(field)) {}
 
-AssignmentStmt::AssignmentStmt(std::unique_ptr<tok::TokenBase> op,
-                               pr::ptr_Expr left, pr::ptr_Expr right)
-  : BinaryOperation(std::move(op), std::move(left), std::move(right)) {}
+BlockStmt::BlockStmt(pr::ListStmt block) : stmts(std::move(block)) {}
+
+IfStmt::IfStmt(pr::ptr_Expr cond, pr::ptr_Stmt then_)
+  : condition(std::move(cond)), then_stmt(std::move(then_)) {}
+
+IfStmt::IfStmt(pr::ptr_Expr cond, pr::ptr_Stmt then_, pr::ptr_Stmt else_)
+  : condition(std::move(cond)),
+    then_stmt(std::move(then_)) , else_stmt(std::move(else_)) {}
+
+WhileStmt::WhileStmt(pr::ptr_Expr cond, pr::ptr_Stmt block)
+  : condition(std::move(cond)), block(std::move(block)) {}
+
+ForStmt::ForStmt(std::unique_ptr<pr::Variable> v,
+                 pr::ptr_Expr l, pr::ptr_Expr h, bool d,
+                 pr::ptr_Stmt block)
+  : var(std::move(v)), block(std::move(block)),
+    low(std::move(l)), high(std::move(h)), direct(d) {}
+
 
 void Variable::accept(pr::Visitor& v) { v.visit(*this); }
 void Literal::accept(pr::Visitor& v) { v.visit(*this); }
@@ -36,4 +53,11 @@ void ArrayAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void FunctionCall::accept(pr::Visitor& v) { v.visit(*this); }
 void RecordAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void AssignmentStmt::accept(pr::Visitor& v) { v.visit(*this); }
+void FunctionCallStmt::accept(pr::Visitor& v) { v.visit(*this); }
+void BlockStmt::accept(pr::Visitor& v)  { v.visit(*this); }
+void IfStmt::accept(pr::Visitor& v)  { v.visit(*this); }
+void WhileStmt::accept(pr::Visitor& v)  { v.visit(*this); }
+void ForStmt::accept(pr::Visitor& v)  { v.visit(*this); }
+void BreakStmt::accept(pr::Visitor& v)  { v.visit(*this); }
+void ContinueStmt::accept(pr::Visitor& v)  { v.visit(*this); }
 
