@@ -109,6 +109,8 @@ enum class TokenType {
 
 #undef MAKE_ENUM
 
+std::string toStringGroup(TokenType);
+
 std::string toString(TokenType t);
 
 TokenType getKeywordType(const std::string &);
