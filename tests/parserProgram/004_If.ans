@@ -1,0 +1,17 @@
+Block
+	If
+		=
+			a
+			b
+		Assigment
+			:=
+			a
+			b
+		Assigment
+			:=
+			b
+			a
+	Assigment
+		:=
+		c
+		d

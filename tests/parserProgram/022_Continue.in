@@ -1,0 +1,6 @@
+begin
+   if 1 then while 1 do begin end;
+   for i := 1 to 2 do begin end;
+
+   if 1 then begin end else continue
+end.	

@@ -1,0 +1,17 @@
+begin
+    if a = b then begin
+        a := b;
+        c := d;
+    end else begin
+        e += f;
+        f += g;
+    end;
+   if a = 30 then
+   begin
+      a := -5
+   end
+   else
+   begin
+      a := 5
+   end
+end.
