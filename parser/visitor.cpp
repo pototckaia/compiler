@@ -76,7 +76,7 @@ void PrintVisitor::visit(pr::AssignmentStmt& a) {
 }
 
 void PrintVisitor::visit(pr::FunctionCallStmt& f) {
-  f.accept(*this);
+  f.getFunctionCall()->accept(*this);
 }
 
 void PrintVisitor::visit(pr::BlockStmt& b) {
