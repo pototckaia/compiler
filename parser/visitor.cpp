@@ -126,9 +126,9 @@ void PrintVisitor::visit(pr::ForStmt& f) {
 }
 
 void PrintVisitor::visit(pr::BreakStmt&) {
-  print("Break");
+  print("break");
 }
 
 void PrintVisitor::visit(pr::ContinueStmt&) {
-  print("Continue");
+  print("continue");
 }
