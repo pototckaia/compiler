@@ -91,15 +91,15 @@ void parseCommandArgs(int args, char* argv[]) {
     }
 
     if (result.count("l")) {
-      lexerTest(input, output + "lexer");
+      lexerTest(input, output);
     }
 
     if (result.count("e")) {
-      parserExpressionTest(input, output + "expression");
+      parserExpressionTest(input, output);
     }
 
     if (result.count("p")) {
-      parserProgramTest(input, output + "parser");
+      parserProgramTest(input, output);
     }
 
   } catch (const cxxopts::OptionException& e) {
