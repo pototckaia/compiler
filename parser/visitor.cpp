@@ -116,7 +116,10 @@ void PrintVisitor::visit(pr::ForStmt& f) {
   ++depth;
   f.getVar()->accept(*this);
   f.getLow()->accept(*this);
-  print(std::to_string(f.getDirect()));
+  if (f.getDirect())
+    print("To");
+  else
+    print("DownTo");
   f.getHigh()->accept(*this);
   f.getBlock()->accept(*this);
   --depth;
