@@ -70,8 +70,8 @@ void PrintVisitor::visit(pr::AssignmentStmt& a) {
 
   ++depth;
   print(a.getOpr()->getValueString());
-  a.getRight()->accept(*this);
   a.getLeft()->accept(*this);
+  a.getRight()->accept(*this);
   --depth;
 }
 
