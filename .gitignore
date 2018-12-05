@@ -5,7 +5,7 @@
 # to specify a directory.
 cmake*/
 build/
-*.out
+*.out*
 .idea
 venv/
 

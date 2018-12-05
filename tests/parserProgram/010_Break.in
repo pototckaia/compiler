@@ -1,0 +1,16 @@
+begin
+	while 1 do
+		break;
+
+	for i := 0 to 1 do
+		break;
+
+	while 1 do begin
+		while 2 do begin
+			    break
+		end;
+		break;
+		Break;
+		BrEak
+	end;
+end.

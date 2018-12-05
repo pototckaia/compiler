@@ -1,136 +1,128 @@
 <program> ::= <main block> 
 
-<main block> ::= {<main block section>;}
-                  begin
-                  <statement part>
-                  end.
+<main block> ::= 
+				<main block declaration>
+				<compound statement> 
+                "."
 
-	<main block section> ::= <type definition part> | 
-	                         <variable declaration part> | 
-	                         <constant definition part> | 
-	                         <procedure and function declaration part>
+    <declaration part> ::= 
+	                    { (<constant definition part> | <type definition part> | <variable declaration part> ) }
 
-		<type definition part> ::= [ type <type definition> {; <type definition>} ]
+	<main block declaration> ::=  (<declaration part> | <procedure and function declaration part>
 
-			<type definition> ::= <identifier> = <type>
+______________________________________
 
-				<identifier> ::= <letter> {<letter> | <digit>}
+<type definition part> ::= "type" <type definition> ";" { <type definition> ";" }
 
-					<letter> ::= _ | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | 
-								 R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i |
-								 j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
+	<type definition> ::= <identifier> "=" <type>
+______________________________________
 
-					<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<constant definition part> ::= "const" <constant definition> ";" { <constant definition>  ";" }
 
-				<type> ::= <simple type> | <array type> | <pointer type> | <record type>
+	<constant definition> ::= <identifier> "=" <expression>
+______________________________________
 
-					<simple type> ::= <identifier>
+<variable declaration part> ::= "var" <variable declaration> ";" { <variable declaration>  ";" }
 
-					<array type> ::= array "[" <index ranges> "]" of <type>
+	<variable declaration> ::= <identifier list> ":" <type> | 
+								<identifier> ":" <type> "=" <expression>
+______________________________________
 
-						<index ranges> ::= <index range> {, <index range>}
+<procedure and function declaration part> ::= { (<procedure declaration> | <function declaration>) ";" }
+______________________________________
 
-							<index range> ::= <integer> .. <integer>
+<procedure declaration> ::= <procedure heading> ";" <subroutine block>
 
-								<integer> ::= [<sign>] <unsigned integer>
+	<procedure heading> ::= "procedure" <identifier> [ <formal parameter list> ]
+	
+	<block> ::= <declaration part> 
+				<compound statement>
 
-									<sign> ::= + | -
+	<subroutine block> ::= <block> | "forward" 
+______________________________________
 
-									<unsigned integer> ::= (<dec integer> | <bin integer> | <hex integer>)
+<function declaration> ::= <function heading> ";" <subroutine block>
 
-										<dec integer> ::= <digit> {<digit>}
+	<function heading> ::= "function" <identifier> [ <formal parameter list> ] ":" <type> ";"
+______________________________________
+<formal parameter list> ::= "(" <formal parameter section> {";" <formal parameter section> } ")"
 
-										<bin integer> ::= %(0|1){(0|1)}
+<formal parameter section> ::= [ <specification> ] <value parameter>
+	<value parameter> ::= <identifier list> ":" <type>
+	<specification> ::= "var" | "const" | "out"
+______________________________________
 
-										<hex integer> ::= $(<digit> | <hex letter>) {(<digit> | <hex letter>)}
+<identifier list> ::= <identifier> {"," <identifier> } 
 
-											<hex letter> ::= A | B | C | D | E | F | a | b | c | d | e | f 
+<expression> ::= <simple expression> | <simple expression> <relational operator> <simple expression>
+	<relational operator> ::= = | "<>" | "<" | "<=" | ">=" | ">" | "=" | "=="
 
-					<pointer type> ::= ^ <simple type>
+	<simple expression> ::= <term> | <simple expression> <adding operator> <term>
+		<adding operator> ::= "+" | "-" | "or" | "xor"
 
-					<record type> ::= record [<field list>] end
+		<term> ::= <simple term> | <term> <multiplying operator> <simple term>
+		<multiplying operator> ::= "*" | "/" | "div" | "mod" | "and" | "shr" | "shr" 
 
-						<field list> ::= <field section> {; <field section>}
+			<simple term> ::= <factor> | <unary operator> <simple term>
+			<unary operator> ::= "not" | "@" | sign
+								
+				<factor> ::= <identifier> | <unsigned number> | "(" <expression> ")" |  "Nil"
+							<function call> | <record access> | <array access>
 
-							<field section> ::=  <identifier> {, <identifier>} : <type>
+							<function call> ::= <factor> [ "(" <expression> {"," <expression>} ")" ]
 
-		<constant definition part> ::= [ const <constant definition> {; <constant definition> } ]
+							<array access> ::= <factor> "[" <expression> {","<expression>} "]"
 
-			<constant definition> ::= <identifier> : <type> = <initializer>
+							<record access> ::= <factor> "." <identifier>
 
-				<initializer> ::= <string literal> | <record constant> | <array constant> | [<sign>] <identifier> | <expression>
+______________________________________
 
-					<string literal> ::= <char literal> | <simple string literal> | [<char literal>]<string literal> | [<simple string literal>]<string literal>
+<type> ::= <simple type> | <array type> | <record type> | <pointer type> | <procedure type>
 
-						<char literal> ::= #<dec integer>
+	<simple type> ::= <identifier>
 
-						<simple string literal> ::= '<character> {<character>}'
+	<array type> ::= "array" "[" <index ranges> "]" "of" <type>
 
-					<expression> ::= <simple expression> | <simple expression> <relational operator> <simple expression>
+		<index ranges> ::= <index range> {"," <index range>}
 
-						<relational operator> ::= = | "<>" | "<" | "<=" | ">=" | ">" | "=" | "=="
+			<index range> ::= <integer> ".." <integer>
 
-						<simple expression> ::= <term> | <simple expression> <adding operator> <term>
+	<record type> ::= "record" [ <field list> ] "end"
 
-							<adding operator> ::= "+" | "-" | "or" | "xor"
+		<field list> ::= <field section> {";" <field section> }
 
-							<term> ::= <factor> | <term> <multiplying operator> <factor>
+			<field section> ::=  <identifier list> ":" <type>
 
-								<multiplying operator> ::= * | / | div | mod | and | shr | shr 
+				<identifier list> := <identifier> {"," <identifier>}
 
-								<factor> ::= <identifier> | <unsigned number> | ( <expression> ) | not <factor> | @ <identifier> | sign <factor>
-											 <function call> | <record access> | <array access>
+	<pointer type> ::= "^" <type>
 
-									<unsigned number> ::= <unsigned integer> | <unsigned float> | "Nil"
+	<procedure type> ::= <function heading> | <procedure heading>
+______________________________________
 
-										<unsigned float> ::= <unsigned integer> [. <unsigned integer>] [(E|e) <integer>] 
+<statement part> ::= [<statement> {";" <statement>}]
 
-									<function call> ::= <identifier> | <identifier "(" <expression> {, <expression>} ")"
+<statement> ::= <simple statement> | <structured statement>
 
-									<record access> ::= (<identifier> | <function call>) . <identifier>
+	<simple statement> ::= <assignment statement> | <function call>
 
-									<array access> ::= <identifier> "[" <expression> {,<expression>} "]"
+		<assignment statement> ::= <expression> <assignment symbol> <expression>
+			<assignment symbol> ::= ":=" | "+=" | "-=" | "*=" | "/="
 
-		<variable declaration part> ::= [ var <variable declaration> {; <variable declaration> } ]
+	<structured statement> ::= <compound statement> | 
+							<if statement> | 
+							<while statement> | 
+							<repeat statemant> | 
+							<for statement>
 
-			<variable declaration> ::= <identifier> {,<identifier>} : <type> | <identifier> : <type> = <initializer>
+		<compound statement> ::= "begin" <statement part> "end"
 
-		<procedure and function declaration part> ::= {<procedure declaration > | <function declaration > ;}
+		<if statement> ::= "if" <expression> "then" <statement> [ "else" <statement> ]
 
-			<procedure declaration> ::= <procedure heading> <block>
+		<while statement> ::= "while" <expression> "do" <statement>
 
-				<procedure heading> ::= procedure <identifier> ["(" <formal parameter section> {;<formal parameter section>}")"];
+		<repeat statement> ::= "repeat" <statement part> "until" <expression>
 
-					<formal parameter section> ::= [[var] <identifier> {, <identifier>} : <simple type>]
+		<for statement> ::= "for" <identifier> ":=" <for bounds> "do" <statement>
 
-				<block> ::= {<block section>;} <compound statement>
-
-					<block section> ::= <type definition part> | <variable declaration part> | <constant definition part>
-
-					<compound statement> ::= begin <statement part> end;
-
-						<statement part> ::= [<statement> {; <statement>}]
-
-							<statement> ::= <simple statement> | <structured statement>
-
-								<simple statement> ::= <assignment statement> | <function call>
-
-									<assignment statement> ::= <assignable> := <expression>
-
-										<assignable> := <identifier> | <expression>^
-
-								<structured statement> ::= <compound statement> | <if statement> | <while statement> | <repeat statemant> | <for statement>
-
-									<if statement> ::= if <expression> then <statement> [ else <statement> ]
-
-									<while statement> ::= while <expression> do <statement>
-
-									<repeat statement> ::= repeat <statement part> until <expression>
-
-									<for statement> ::= for <identifier> := <for bounds> do <statement>
-
-										<for bounds> ::= <expresion> (to | downto) <expression>
-
-			<function declaration> ::= <function heading> <block>
-
-				<function heading> ::= function <identifier> ["(" <formal parameter section> {;<formal parameter section>}")"] : <simple type>;
+			<for bounds> ::= <expression> ("to" | "downto") <expression>

@@ -14,8 +14,9 @@ compilePath = testsPath + os.sep + '..' + os.sep + cmakeDir + os.sep + programNa
 
 lexPath = testsPath + os.sep + 'lexer'
 parserExpressionPath = testsPath + os.sep + 'parserExpression'
+parserProgramPath = testsPath + os.sep + 'parserProgram'
 
-options = {'l' : lexPath, 'e' : parserExpressionPath}
+options = {'l' : lexPath, 'e' : parserExpressionPath, 'p' : parserProgramPath}
 
 
 def compareFiles(pos, receive, expect):
@@ -62,6 +63,7 @@ if __name__ == '__main__':
 
 	argsParser.add_argument('-l', '--lexer', help='Start lexer tests', action='store_true')
 	argsParser.add_argument('-e', '--expression', help='Start parser expression tests', action='store_true')
+	argsParser.add_argument('-p', '--program', help='Start parser pascal program tests', action='store_true')
 
 	args = argsParser.parse_args()
 
@@ -70,3 +72,6 @@ if __name__ == '__main__':
 
 	if args.expression:
 		runTests(options['e'], '-e')
+
+	if args.program:
+		runTests(options['p'], '-p')

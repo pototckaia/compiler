@@ -1,0 +1,23 @@
+Block
+	Assigment
+		:=
+		a
+		3
+	Assigment
+		:=
+		b
+		-
+			+
+				a
+				/
+					*
+						a
+						a
+					a
+			a
+	Assigment
+		-=
+		c
+		-
+			a
+			b

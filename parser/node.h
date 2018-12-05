@@ -9,11 +9,15 @@
 namespace pr {
 
 class ASTNode;
+class Expression;
 class ASTNodeStmt;
 
-using ptr_Expr = std::unique_ptr<pr::ASTNode>;
-using ListExpr = std::list<ptr_Expr>;
+using ptr_Node = std::unique_ptr<pr::ASTNode>;
+using ptr_Expr = std::unique_ptr<pr::Expression>;
 using ptr_Stmt = std::unique_ptr<pr::ASTNodeStmt>;
+
+using ListExpr = std::list<ptr_Expr>;
+using ListStmt = std::list<ptr_Stmt>;
 
 class Visitor;
 
@@ -26,7 +30,9 @@ class ASTNode {
 };
 
 
-class Variable : public ASTNode {
+class Expression : public ASTNode {};
+
+class Variable : public Expression {
  public:
   Variable(std::unique_ptr<tok::TokenBase>);
 
@@ -39,7 +45,7 @@ class Variable : public ASTNode {
 };
 
 
-class Literal : public ASTNode {
+class Literal : public Expression {
  public:
   Literal(std::unique_ptr<tok::TokenBase>);
 
@@ -52,11 +58,11 @@ class Literal : public ASTNode {
 };
 
 
-class BinaryOperation : public ASTNode {
+class BinaryOperation : public Expression {
  public:
   BinaryOperation(std::unique_ptr<tok::TokenBase>,
-                  std::unique_ptr<ASTNode>,
-                  std::unique_ptr<ASTNode>);
+                  ptr_Expr,
+                  ptr_Expr);
 
   const auto& getLeft() const { return left; }
   const auto& getRight() const { return right; }
@@ -70,9 +76,9 @@ class BinaryOperation : public ASTNode {
   std::unique_ptr<ASTNode> right;
 };
 
-class UnaryOperation : public ASTNode {
+class UnaryOperation : public Expression {
  public:
-  explicit UnaryOperation(std::unique_ptr<tok::TokenBase>, std::unique_ptr<ASTNode>);
+  UnaryOperation(std::unique_ptr<tok::TokenBase>, ptr_Expr);
 
   const auto& getOpr() const { return opr; }
   const auto& getExpr() const { return expr; }
@@ -84,7 +90,7 @@ class UnaryOperation : public ASTNode {
   std::unique_ptr<ASTNode> expr;
 };
 
-class ArrayAccess : public ASTNode {
+class ArrayAccess : public Expression {
  public:
   ArrayAccess(ptr_Expr, ListExpr);
 
@@ -98,7 +104,7 @@ class ArrayAccess : public ASTNode {
   ListExpr listIndex;
 };
 
-class FunctionCall : public ASTNode {
+class FunctionCall : public Expression {
  public:
   FunctionCall(ptr_Expr, ListExpr);
 
@@ -112,7 +118,7 @@ class FunctionCall : public ASTNode {
   ListExpr listParam;
 };
 
-class RecordAccess : public ASTNode {
+class RecordAccess : public Expression {
  public:
   RecordAccess(ptr_Expr, std::unique_ptr<tok::TokenBase>);
 
@@ -130,57 +136,103 @@ class ASTNodeStmt : public ASTNode {};
 
 class AssignmentStmt : public ASTNodeStmt, public BinaryOperation {
  public:
-  AssignmentStmt(std::unique_ptr<tok::TokenBase>,
-                 ptr_Expr left, ptr_Expr right);
+  using BinaryOperation::BinaryOperation;
 
   void accept(Visitor&) override;
 };
 
-//class BlockStmt : public ASTNodeStmt {
-// public:
-//
-// private:
-//  std::list<ptr_Stmt> stmts;
-//};
-//
-//class IfStmt : public ASTNodeStmt {
-// public:
-//
-// private:
-//  ptr_Expr condition;
-//  ptr_Stmt then_stmt;
-//  ptr_Stmt else_stmt;
-//};
-//
-//class WhileStmt : public ASTNodeStmt {
-// public:
-//
-// private:
-//  ptr_Expr condition;
-//  ptr_Stmt block;
-//};
-//
-//class ForStmt : public ASTNodeStmt {
-// public:
-//
-// private:
-//  std::unique_ptr<Variable> var;
-//  ptr_Expr low;
-//  ptr_Expr high;
-//  ptr_Stmt block;
-//  bool direct;
-//};
-//
-//class BreakStmt : public ASTNodeStmt {
-// public:
-// private:
-//  ptr_Stmt cycle;
-//};
-//
-//class ContinueStmt : public ASTNodeStmt {
-// public:
-// private:
-//  ptr_Stmt cycle;
-//};
+class FunctionCallStmt : public ASTNodeStmt {
+ public:
+  FunctionCallStmt(ptr_Expr);
+
+  const auto& getFunctionCall() { return functionCall; }
+
+  void accept(Visitor&) override;
+
+ private:
+  ptr_Expr functionCall;
+};
+
+class BlockStmt : public ASTNodeStmt {
+ public:
+  BlockStmt(ListStmt);
+
+  const auto& getBlock() const { return stmts; }
+
+  void accept(Visitor&) override;
+
+ private:
+  ListStmt stmts;
+};
+
+
+class IfStmt : public ASTNodeStmt {
+ public:
+  IfStmt(ptr_Expr, ptr_Stmt);
+  IfStmt(ptr_Expr, ptr_Stmt, ptr_Stmt);
+
+  const auto& getCondition() const { return condition; }
+  const auto& getThen() const { return then_stmt; }
+  const auto& getElse() const { return else_stmt; }
+
+  void accept(Visitor&) override;
+
+ private:
+  ptr_Expr condition;
+  ptr_Stmt then_stmt;
+  ptr_Stmt else_stmt = nullptr;
+};
+
+class LoopStmt : public ASTNodeStmt {};
+
+class WhileStmt : public LoopStmt {
+ public:
+  WhileStmt(ptr_Expr, ptr_Stmt);
+
+  const auto& getCondition() const { return condition; }
+  const auto& getBlock() const { return block; }
+
+  void accept(Visitor&) override;
+
+ private:
+  ptr_Expr condition;
+  ptr_Stmt block;
+};
+
+class ForStmt : public LoopStmt {
+ public:
+  ForStmt(std::unique_ptr<Variable>,
+          ptr_Expr, ptr_Expr, bool,
+          ptr_Stmt);
+
+  const auto& getVar() const { return var; }
+  const auto& getLow() const { return low; }
+  const auto& getHigh() const { return high; }
+  bool getDirect() const { return direct; }
+  const auto& getBlock() const { return block; }
+
+  void accept(Visitor&) override;
+
+ private:
+  std::unique_ptr<Variable> var;
+  ptr_Stmt block;
+  ptr_Expr low;
+  ptr_Expr high;
+  bool direct;
+};
+
+class BreakStmt : public ASTNodeStmt {
+ public:
+  BreakStmt() = default;
+
+  void accept(Visitor&) override;
+};
+
+class ContinueStmt : public ASTNodeStmt {
+ public:
+  ContinueStmt() = default;
+
+  void accept(Visitor&) override;
+};
 
 } // namespace pr

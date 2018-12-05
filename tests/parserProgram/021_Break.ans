@@ -1,0 +1,19 @@
+Block
+	For
+		i
+		10
+		To
+		50
+		Block
+			If
+				>
+					a
+					b
+				break
+				If
+					>
+						+
+							a
+							b
+						10
+					continue

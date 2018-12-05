@@ -6,10 +6,17 @@ namespace tok {
 #define MAKE_CASE_WITH_N(E, S, ...) case E: { return S; }
 #define MAKE_CASE_KEYWORD(E, S) case TokenType::E: { return "Keyword"; }
 
-std::string toString(TokenType t) {
+std::string toStringGroup(TokenType t) {
   switch (t) {
     TOKEN_TYPE(MAKE_CASE_TOKEN, MAKE_CASE_WITH_N)
     KEYWORD_TYPE(MAKE_CASE_KEYWORD)
+  }
+}
+
+std::string toString(TokenType t) {
+  switch (t) {
+    TOKEN_TYPE(MAKE_CASE_TOKEN, MAKE_CASE_WITH_N)
+    KEYWORD_TYPE(MAKE_CASE_TOKEN)
   }
 }
 

@@ -1,0 +1,5 @@
+
+begin
+   if then
+      a:=30;
+end.

@@ -1,0 +1,9 @@
+Block
+	For
+		k
+		*
+			2
+			2
+		DownTo
+		1
+		Block
