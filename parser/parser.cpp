@@ -42,7 +42,7 @@ ListExpr Parser::parseListExpression() {
   ListExpr list;
   list.push_back(parseBinaryOperator());
   while(match({tok::TokenType::Comma})) {
-    lexer.next();
+    ++lexer;
     list.push_back(parseBinaryOperator());
   }
   return list;
@@ -71,7 +71,7 @@ ptr_Expr Parser::parseFactor() {
     case tok::TokenType::OpenParenthesis: {
       auto expr = parseBinaryOperator();
       require(tok::TokenType::CloseParenthesis);
-      lexer.next();
+      ++lexer;
       return expr;
     }
     default:
@@ -85,24 +85,24 @@ ptr_Expr Parser::parseAccess(int p) {
   while (match(priority[p])) {
     switch (lexer.get()->getTokenType()) {
       case tok::TokenType::Dot: {
-        lexer.next();
+        ++lexer;
         require(tok::TokenType::Id);
         left = std::make_unique<RecordAccess>(std::move(left), lexer.next());
         break;
       }
       case tok::TokenType::OpenParenthesis: {
-        lexer.next();
+        ++lexer;
         auto list = parseActualParameter();
         require(tok::TokenType::CloseParenthesis);
-        lexer.next();
+        ++lexer;
         left = std::make_unique<FunctionCall>(std::move(left), std::move(list));
         break;
       }
       case tok::TokenType::OpenSquareBracket: {
-        lexer.next();
+        ++lexer;
         auto list = parseListExpression();
         require(tok::TokenType::CloseSquareBracket);
-        lexer.next();
+        ++lexer;
         left = std::make_unique<ArrayAccess>(std::move(left), std::move(list));
         break;
       }
@@ -161,6 +161,18 @@ ptr_Stmt Parser::parseStatement() {
     case tok::TokenType::For: {
       return parseFor();
     }
+    case tok::TokenType::Break: case tok::TokenType::Continue: {
+      auto t = lexer.next();
+      if (isInsideLoop) {
+        if (t->getTokenType() == tok::TokenType::Break) {
+          return std::make_unique<BreakStmt>();
+        }
+        else {
+          return std::make_unique<ContinueStmt>();
+        }
+      }
+      throw ParserException(t->getLine(), t->getColumn(), t->getValueString() + " out of cycle");
+    }
     default: {
       auto right = parseExpression();
       if (match(assigment)) {
@@ -206,7 +218,11 @@ ptr_Stmt Parser::parseWhile() {
   auto cond = parseExpression();
   require(tok::TokenType::Do);
   ++lexer;
-  return std::make_unique<WhileStmt>(std::move(cond), parseStatementForLoop());
+  bool isFirstLoop = !isInsideLoop;
+  isInsideLoop = true;
+  auto block = parseStatement();
+  isInsideLoop = !isFirstLoop;
+  return std::make_unique<WhileStmt>(std::move(cond), std::move(block));
 }
 
 ptr_Stmt Parser::parseFor() {
@@ -223,27 +239,12 @@ ptr_Stmt Parser::parseFor() {
   auto high = parseExpression();
   require(tok::TokenType::Do);
   ++lexer;
+  bool isFirstLoop = !isInsideLoop;
+  isInsideLoop = true;
+  auto block = parseStatement();
+  isInsideLoop = !isFirstLoop;
   return std::make_unique<ForStmt>(std::move(var), std::move(low),
-                                   std::move(high), dir, parseStatementForLoop());
-}
-
-ptr_Stmt Parser::parseStatementForLoop() {
-  if (match({tok::TokenType::Id})) {
-    auto idName = lexer.get()->getValueString();
-
-    if (idName == "break") {
-      ++lexer;
-      return std::make_unique<BreakStmt>();
-    } else if (idName == "continue") {
-      ++lexer;
-      return std::make_unique<ContinueStmt>();
-    } else {
-      return parseStatement();
-    }
-
-  } else {
-    return parseStatement();
-  }
+                                   std::move(high), dir, std::move(block));
 }
 
 ptr_Stmt Parser::parseMainBlock() {

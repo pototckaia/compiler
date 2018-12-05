@@ -23,6 +23,8 @@ class Parser {
   int priorityAccess;
   std::list<tok::TokenType> assigment;
 
+  bool isInsideLoop = false;
+
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
 
@@ -38,7 +40,6 @@ class Parser {
   ptr_Stmt parseIf();
   ptr_Stmt parseWhile();
   ptr_Stmt parseFor();
-  ptr_Stmt parseStatementForLoop();
 
   ptr_Stmt parseMainBlock();
 //  ptr_Stmt parseMainDecl();
