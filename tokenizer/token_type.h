@@ -62,7 +62,7 @@
   X(Function, "function") \
   X(Goto, "goto") \
   X(If, "if") \
-  X(implementation, "implementation") \
+  X(Implementation, "implementation") \
   X(In, "in") \
   X(Inherited, "inherited") \
   X(Inline, "inline") \
@@ -72,7 +72,7 @@
   X(Nil, "nil") \
   X(Not, "not") \
   X(Object, "object") \
-  X(of, "of") \
+  X(Of, "of") \
   X(Operator, "operator") \
   X(Or, "or") \
   X(Packed, "packed") \
@@ -95,7 +95,9 @@
   X(Var, "var") \
   X(While, "while") \
   X(With, "with") \
-  X(Xor, "xor")
+  X(Xor, "xor") \
+  X(Break, "break") \
+  X(Continue, "continue")
 
 namespace tok {
 
