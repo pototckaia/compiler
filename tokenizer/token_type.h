@@ -97,7 +97,8 @@
   X(With, "with") \
   X(Xor, "xor") \
   X(Break, "break") \
-  X(Continue, "continue")
+  X(Continue, "continue") \
+  X(Out, "out")
 
 namespace tok {
 
