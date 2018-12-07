@@ -43,9 +43,9 @@ ______________________________________
 
 <function declaration> ::= <function heading> ";" <subroutine block>
 
-	<function heading> ::= "function" <identifier> [ <formal parameter list> ] ":" <type> ";"
+	<function heading> ::= "function" <identifier> [ <formal parameter list> ] ":" <type>
 ______________________________________
-<formal parameter list> ::= "(" <formal parameter section> {";" <formal parameter section> } ")"
+<formal parameter list> ::= "(" [ <formal parameter section> {";" <formal parameter section> } ] ")"
 
 <formal parameter section> ::= [ <specification> ] <value parameter>
 	<value parameter> ::= <identifier list> ":" <type>
@@ -97,7 +97,10 @@ ______________________________________
 
 	<pointer type> ::= "^" <type>
 
-	<procedure type> ::= <function heading> | <procedure heading>
+	<procedure type> ::= <function signature> | <procedure signature>
+
+		<function signature> ::= "function" [ <formal parameter list> ] ":" <type>
+		<procedure signature> ::= "procedure" [ <formal parameter list> ]
 ______________________________________
 
 <statement part> ::= [<statement> {";" <statement>}]
