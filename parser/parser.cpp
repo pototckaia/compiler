@@ -41,19 +41,42 @@ ptr_Expr Parser::parseExpression() {
 ListExpr Parser::parseListExpression() {
   ListExpr list;
   list.push_back(parseBinaryOperator());
-  while(match({tok::TokenType::Comma})) {
+  while(match(tok::TokenType::Comma)) {
     ++lexer;
     list.push_back(parseBinaryOperator());
   }
   return list;
 }
 
+void Parser::parseListId() {
+  requireAndSkip(tok::TokenType::Id);
+  while (match(tok::TokenType::Comma)) {
+    ++lexer;
+    requireAndSkip(tok::TokenType::Id);
+  }
+}
+
 ListExpr Parser::parseActualParameter() {
   ListExpr list;
-  if (lexer.get()->getTokenType() == tok::TokenType::CloseParenthesis) {
+  if (match(tok::TokenType::CloseParenthesis)) {
     return list;
   }
   return parseListExpression();
+}
+
+void Parser::parseFormalParameterList() {
+  requireAndSkip(tok::TokenType::OpenParenthesis);
+  if (match(tok::TokenType::CloseParenthesis)) {
+    ++lexer;
+    return ;
+  }
+  parseFormalParamSection();
+  while (match(tok::TokenType::Comma)) {
+    ++lexer;
+    parseFormalParamSection();
+  }
+  requireAndSkip(tok::TokenType::CloseParenthesis);
+  return;
 }
 
 ptr_Expr Parser::parseFactor() {
@@ -70,8 +93,7 @@ ptr_Expr Parser::parseFactor() {
     }
     case tok::TokenType::OpenParenthesis: {
       auto expr = parseBinaryOperator();
-      require(tok::TokenType::CloseParenthesis);
-      ++lexer;
+      requireAndSkip(tok::TokenType::CloseParenthesis);
       return expr;
     }
     default:
@@ -93,16 +115,14 @@ ptr_Expr Parser::parseAccess(int p) {
       case tok::TokenType::OpenParenthesis: {
         ++lexer;
         auto list = parseActualParameter();
-        require(tok::TokenType::CloseParenthesis);
-        ++lexer;
+        requireAndSkip(tok::TokenType::CloseParenthesis);
         left = std::make_unique<FunctionCall>(std::move(left), std::move(list));
         break;
       }
       case tok::TokenType::OpenSquareBracket: {
         ++lexer;
         auto list = parseListExpression();
-        require(tok::TokenType::CloseSquareBracket);
-        ++lexer;
+        requireAndSkip(tok::TokenType::CloseSquareBracket);
         left = std::make_unique<ArrayAccess>(std::move(left), std::move(list));
         break;
       }
@@ -185,27 +205,23 @@ ptr_Stmt Parser::parseStatement() {
 }
 
 ptr_Stmt Parser::parseCompound() {
-  require(tok::TokenType::Begin);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Begin);
   ListStmt list;
-  while (!match({tok::TokenType::End})) {
+  while (!match(tok::TokenType::End)) {
     list.push_back(parseStatement());
-    if (!match({tok::TokenType::Semicolon})) { break; }
+    if (!match(tok::TokenType::Semicolon)) { break; }
     ++lexer;
   }
-  require(tok::TokenType::End);
-  ++lexer;
+  requireAndSkip(tok::TokenType::End);
   return std::make_unique<BlockStmt>(std::move(list));
 }
 
 ptr_Stmt Parser::parseIf() {
-  require(tok::TokenType::If);
-  ++lexer;
+  requireAndSkip(tok::TokenType::If);
   auto cond = parseExpression();
-  require(tok::TokenType::Then);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Then);
   auto then = parseStatement();
-  if (lexer.get()->getTokenType() == tok::TokenType::Else) {
+  if (match(tok::TokenType::Else)) {
     ++lexer;
     return std::make_unique<IfStmt>(std::move(cond), std::move(then), parseStatement());
   }
@@ -213,11 +229,9 @@ ptr_Stmt Parser::parseIf() {
 }
 
 ptr_Stmt Parser::parseWhile() {
-  require(tok::TokenType::While);
-  ++lexer;
+  requireAndSkip(tok::TokenType::While);
   auto cond = parseExpression();
-  require(tok::TokenType::Do);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Do);
   bool isFirstLoop = !isInsideLoop;
   isInsideLoop = true;
   auto block = parseStatement();
@@ -226,19 +240,16 @@ ptr_Stmt Parser::parseWhile() {
 }
 
 ptr_Stmt Parser::parseFor() {
-  require(tok::TokenType::For);
-  ++lexer;
+  requireAndSkip(tok::TokenType::For);
   require(tok::TokenType::Id);
   auto var = std::make_unique<Variable>(lexer.next());
-  require(tok::TokenType::Assignment);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Assignment);
   auto low = parseExpression();
   require({tok::TokenType::To, tok::TokenType::Downto}, "\"to\" or \"downto\"");
-  bool dir = match({tok::TokenType::To});
+  bool dir = match(tok::TokenType::To);
   ++lexer;
   auto high = parseExpression();
-  require(tok::TokenType::Do);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Do);
   bool isFirstLoop = !isInsideLoop;
   isInsideLoop = true;
   auto block = parseStatement();
@@ -249,18 +260,140 @@ ptr_Stmt Parser::parseFor() {
 
 ptr_Stmt Parser::parseMainBlock() {
   auto main = parseCompound();
-  require(tok::TokenType::Dot);
-  ++lexer;
+  requireAndSkip(tok::TokenType::Dot);
   return main;
 }
 
+void Parser::parseType() {
+  switch (lexer.get()->getTokenType()) {
+    case tok::TokenType::Id: {
+      ++lexer;
+      return;
+    }
+    case tok::TokenType::Array: {
+      parseArrayType();
+      return;
+    }
+    case tok::TokenType::Record: {
+      parseRecordType();
+      return;
+    }
+    case tok::TokenType::Function: {
+      ++lexer;
+      parseFunctionSignature();
+      return;
+    }
+    case tok::TokenType::Procedure: {
+      ++lexer;
+      parseFunctionSignature(true);
+      return;
+    }
+    case tok::TokenType::Caret: {
+      ++lexer;
+      parseType();
+      return;
+    }
+    default : {
+      auto& g = lexer.get();
+      throw ParserException(g->getLine(), g->getColumn(), g->getTokenType());
+    }
+  }
+}
+
+void Parser::parseRangeType() {
+  require(tok::TokenType::Int);
+  ++lexer;
+  requireAndSkip(tok::TokenType::DoubleDot);
+  require(tok::TokenType::Int);
+  ++lexer;
+  return;
+}
+
+void Parser::parseArrayType() {
+  requireAndSkip(tok::TokenType::Array);
+  if (!match(tok::TokenType::Of)) {
+    requireAndSkip(tok::TokenType::OpenSquareBracket);
+    parseRangeType();
+    while (match(tok::TokenType::Comma)) {
+      ++lexer;
+      parseRangeType();
+    }
+    requireAndSkip(tok::TokenType::CloseSquareBracket);
+  }
+  requireAndSkip(tok::TokenType::Of);
+  parseType();
+
+  return;
+}
+
+void Parser::parseRecordType() {
+  requireAndSkip(tok::TokenType::Record);
+  while (!match(tok::TokenType::End)) {
+    parseIdListAndType();
+    if (!match(tok::TokenType::Semicolon)) {
+      break;
+    }
+    ++lexer;
+  }
+  requireAndSkip(tok::TokenType::End);
+  return;
+}
+
+void Parser::parseFunctionSignature(bool isProcedure) {
+  if (isProcedure) {
+    if (match(tok::TokenType::OpenParenthesis)) {
+      parseFormalParameterList();
+    }
+  }
+  else {
+    if (!match(tok::TokenType::Colon)) {
+      parseFormalParameterList();
+    }
+    requireAndSkip(tok::TokenType::Colon);
+    parseType();
+  }
+
+}
+
+void Parser::parseIdListAndType() {
+  parseListId();
+  requireAndSkip(tok::TokenType::Colon);
+  parseType();
+}
+
+void Parser::parseFormalParamSection() {
+  switch (lexer.get()->getTokenType()) {
+    case tok::TokenType::Var: {
+      ++lexer;
+      parseIdListAndType();
+      return;
+    }
+    case tok::TokenType::Const: {
+      ++lexer;
+      parseIdListAndType();
+      return;
+    }
+    case tok::TokenType::Out: {
+      ++lexer;
+      parseIdListAndType();
+      return;
+    }
+    default: {
+      parseIdListAndType();
+      return;
+    }
+  }
+}
+
 bool Parser::match(const std::list<tok::TokenType>& listType) {
-  auto& get = lexer.get();
-  if (get == nullptr) { return false; }
   for (auto& exceptType: listType) {
-    if (get->getTokenType() == exceptType) { return true; }
+    if (match(exceptType)) { return true; }
   }
   return false;
+}
+
+bool Parser::match(tok::TokenType t) {
+  return t == lexer.get()->getTokenType();
 }
 
 void Parser::require(tok::TokenType type) {
@@ -275,4 +408,9 @@ void Parser::require(const std::list<tok::TokenType>& listType, const std::strin
     auto& g = lexer.get();
     throw ParserException(g->getLine(), g->getColumn(), s, tok::toString(g->getTokenType()));
   }
+}
+
+void Parser::requireAndSkip(tok::TokenType t) {
+  require(t);
+  ++lexer;
 }

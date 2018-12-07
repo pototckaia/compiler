@@ -27,6 +27,8 @@ class Parser {
 
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
+  void parseFormalParameterList();
+  void parseListId();
 
   ptr_Expr parseFactor();
   ptr_Expr parseAccess(int p);
@@ -41,6 +43,15 @@ class Parser {
   ptr_Stmt parseWhile();
   ptr_Stmt parseFor();
 
+  void parseType();
+  void parseArrayType();
+  void parseRecordType();
+  void parseRangeType();
+
+  void parseFunctionSignature(bool isProcedure = false);
+  void parseIdListAndType();
+  void parseFormalParamSection();
+
   ptr_Stmt parseMainBlock();
 //  ptr_Stmt parseMainDecl();
 //  ptr_Stmt parseFunctionDecl();
@@ -48,7 +59,9 @@ class Parser {
 
   void require(tok::TokenType);
   void require(const std::list<tok::TokenType>& listType, const std::string&);
+  bool match(tok::TokenType);
   bool match(const std::list<tok::TokenType>& listType);
+  void requireAndSkip(tok::TokenType);
 };
 
 } // namespace pr
