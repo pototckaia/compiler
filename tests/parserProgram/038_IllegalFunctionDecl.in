@@ -1,0 +1,10 @@
+procedure foo;
+var i : integer;
+type Real = double;
+const b = 144;
+procedure bee; forward;
+begin
+end;
+
+begin
+end.

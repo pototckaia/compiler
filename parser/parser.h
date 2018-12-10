@@ -6,6 +6,7 @@
 namespace pr {
 
 using ptr_Token = std::unique_ptr<tok::TokenBase>;
+using ListToken = std::list<ptr_Token>;
 
 class Parser {
  public:
@@ -28,7 +29,7 @@ class Parser {
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
   void parseFormalParameterList();
-  void parseListId();
+  ListToken parseListId();
 
   ptr_Expr parseFactor();
   ptr_Expr parseAccess(int p);
@@ -44,17 +45,24 @@ class Parser {
   ptr_Stmt parseFor();
 
   void parseType();
+  void parseSimpleType();
   void parseArrayType();
   void parseRecordType();
   void parseRangeType();
+  void parseParameterType();
 
   void parseFunctionSignature(bool isProcedure = false);
   void parseIdListAndType();
   void parseFormalParamSection();
 
   ptr_Stmt parseMainBlock();
-//  ptr_Stmt parseMainDecl();
-//  ptr_Stmt parseFunctionDecl();
+  void parseBlock();
+  void parseDecl(bool isMainBlock = false);
+  void parseTypeDecl();
+  void parseConstDecl();
+  void parseVarDecl();
+  void parseVariableDecl();
+  void parseFunctionDecl(bool isProcedure = false);
 
 
   void require(tok::TokenType);

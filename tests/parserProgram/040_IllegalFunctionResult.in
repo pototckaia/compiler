@@ -1,0 +1,6 @@
+function foo : record end;
+begin
+end;
+
+begin
+end.

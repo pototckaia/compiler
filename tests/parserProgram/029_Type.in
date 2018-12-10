@@ -1,0 +1,8 @@
+type Real = double;
+    TPoint = pointer;
+
+type YY = char;
+type Arr = array of char;
+
+begin
+end.

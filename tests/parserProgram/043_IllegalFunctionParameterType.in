@@ -1,0 +1,6 @@
+procedure foo (dd : record end);
+begin
+end;
+
+begin
+end.

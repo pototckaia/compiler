@@ -1,0 +1,4 @@
+type Real = double
+    TPoint = pointer;
+begin
+end.

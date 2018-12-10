@@ -1,0 +1,6 @@
+function foo : array [1..2] of char;
+begin
+end;
+
+begin
+end.

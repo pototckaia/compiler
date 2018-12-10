@@ -1,0 +1,17 @@
+procedure foo;
+var i : integer;
+type Real = double;
+const b = 144;
+begin
+end;
+
+
+function bee (i : integer) : char;
+begin
+end;
+
+procedure bar; forward;
+function hoo : char; forward;
+
+begin
+end.

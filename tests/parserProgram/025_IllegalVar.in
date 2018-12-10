@@ -1,0 +1,4 @@
+var a, b, c : integer = 12;
+
+begin
+end.

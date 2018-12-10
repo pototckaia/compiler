@@ -1,0 +1,4 @@
+var ppoint: ^^integer;
+
+begin
+end.

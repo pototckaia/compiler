@@ -48,12 +48,16 @@ ListExpr Parser::parseListExpression() {
   return list;
 }
 
-void Parser::parseListId() {
-  requireAndSkip(tok::TokenType::Id);
+ListToken Parser::parseListId() {
+  ListToken list;
+  require(tok::TokenType::Id);
+  list.push_back(lexer.next());
   while (match(tok::TokenType::Comma)) {
     ++lexer;
-    requireAndSkip(tok::TokenType::Id);
+    require(tok::TokenType::Id);
+    list.push_back(lexer.next());
   }
+  return list;
 }
 
 ListExpr Parser::parseActualParameter() {
@@ -84,6 +88,7 @@ ptr_Expr Parser::parseFactor() {
   auto type = token->getTokenType();
   switch (type) {
     case tok::TokenType::Int:
+    case tok::TokenType::String:
     case tok::TokenType::Double:
     case tok::TokenType::Nil: {
       return std::make_unique<Literal>(std::move(token));
@@ -130,6 +135,8 @@ ptr_Expr Parser::parseAccess(int p) {
         left = std::make_unique<UnaryOperation>(lexer.next(), std::move(left));
         break;
       }
+      default:
+        break;
     }
   }
 
@@ -259,15 +266,119 @@ ptr_Stmt Parser::parseFor() {
 }
 
 ptr_Stmt Parser::parseMainBlock() {
+  parseDecl(true);
   auto main = parseCompound();
   requireAndSkip(tok::TokenType::Dot);
   return main;
 }
 
+void Parser::parseBlock() {
+  parseDecl();
+  parseCompound();
+}
+
+void Parser::parseDecl(bool isMainBlock) {
+  while(true) {
+    switch (lexer.get()->getTokenType()) {
+      case tok::TokenType::Var: {
+        parseVarDecl();
+        break;
+      }
+      case tok::TokenType::Const: {
+        parseConstDecl();
+        break;
+      }
+      case tok::TokenType::Type: {
+        parseTypeDecl();
+        break;
+      }
+      case tok::TokenType::Function:
+      case tok::TokenType::Procedure: {
+        auto t = lexer.next();
+        if (!isMainBlock) {
+          throw ParserException(t->getLine(), t->getColumn(), tok::toString(t->getTokenType()));
+        }
+        bool isP = t->getTokenType() == tok::TokenType::Procedure;
+        lexer.push_back(std::move(t));
+        parseFunctionDecl(isP);
+        break;
+      }
+      default: {
+        return;
+      }
+    }
+  }
+}
+
+void Parser::parseVarDecl() {
+  requireAndSkip(tok::TokenType::Var);
+  require(tok::TokenType::Id);
+  while (match(tok::TokenType::Id)) {
+    parseVariableDecl();
+    requireAndSkip(tok::TokenType::Semicolon);
+  }
+}
+
+void Parser::parseVariableDecl() {
+  auto listId = parseListId();
+  requireAndSkip(tok::TokenType::Colon);
+  parseType();
+  if (match(tok::TokenType::Equals)) {
+    if (listId.size() > 1) {
+      throw ParserException(lexer.get()->getLine(), lexer.get()->getColumn(), lexer.get()->getTokenType());
+    }
+    ++lexer;
+    parseExpression();
+  }
+}
+
+void Parser::parseConstDecl() {
+  requireAndSkip(tok::TokenType::Const);
+  require(tok::TokenType::Id);
+  while (match(tok::TokenType::Id)) {
+    ++lexer;
+    requireAndSkip(tok::TokenType::Equals);
+    parseExpression();
+    requireAndSkip(tok::TokenType::Semicolon);
+  }
+}
+
+void Parser::parseTypeDecl() {
+  requireAndSkip(tok::TokenType::Type);
+  require(tok::TokenType::Id);
+  while (match(tok::TokenType::Id)) {
+    ++lexer;
+    requireAndSkip(tok::TokenType::Equals);
+    parseType();
+    requireAndSkip(tok::TokenType::Semicolon);
+  }
+}
+
+void Parser::parseFunctionDecl(bool isProcedure) {
+  require({tok::TokenType::Function, tok::TokenType::Procedure}, "\"procedure\" or \"function\"");
+  ++lexer;
+  require(tok::TokenType::Id);
+  ++lexer;
+  parseFunctionSignature(isProcedure);
+  requireAndSkip(tok::TokenType::Semicolon);
+  if (match(tok::TokenType::Id)) {
+    auto id(lexer.next());
+    if (id->getValueString() == "forward") {
+    }
+    else  {
+      throw ParserException(id->getLine(), id->getColumn(), "forward", id->getValueString());
+    }
+  } else {
+    parseBlock();
+
+  }
+  requireAndSkip(tok::TokenType::Semicolon);
+}
+
 void Parser::parseType() {
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Id: {
-      ++lexer;
+      parseSimpleType();
       return;
     }
     case tok::TokenType::Array: {
@@ -290,7 +401,7 @@ void Parser::parseType() {
     }
     case tok::TokenType::Caret: {
       ++lexer;
-      parseType();
+      parseSimpleType();
       return;
     }
     default : {
@@ -298,6 +409,11 @@ void Parser::parseType() {
       throw ParserException(g->getLine(), g->getColumn(), g->getTokenType());
     }
   }
+}
+
+void Parser::parseSimpleType() {
+  require(tok::TokenType::Id);
+  ++lexer;
 }
 
 void Parser::parseRangeType() {
@@ -339,6 +455,25 @@ void Parser::parseRecordType() {
   return;
 }
 
+void Parser::parseParameterType() {
+  switch (lexer.get()->getTokenType()) {
+    case tok::TokenType::Id: {
+      parseSimpleType();
+      return;
+    }
+    case tok::TokenType::Array: {
+      ++lexer;
+      requireAndSkip(tok::TokenType::Of);
+      parseParameterType();
+      return;
+    }
+    default: {
+      auto g = lexer.next();
+      throw ParserException(g->getLine(), g->getColumn(), tok::TokenType::CloseParenthesis, g->getTokenType());
+    }
+  }
+}
+
 void Parser::parseFunctionSignature(bool isProcedure) {
   if (isProcedure) {
     if (match(tok::TokenType::OpenParenthesis)) {
@@ -350,7 +485,7 @@ void Parser::parseFunctionSignature(bool isProcedure) {
       parseFormalParameterList();
     }
     requireAndSkip(tok::TokenType::Colon);
-    parseType();
+    parseSimpleType();
   }
 
 }
@@ -358,7 +493,7 @@ void Parser::parseFunctionSignature(bool isProcedure) {
 void Parser::parseIdListAndType() {
   parseListId();
   requireAndSkip(tok::TokenType::Colon);
-  parseType();
+  parseParameterType();
 }
 
 void Parser::parseFormalParamSection() {
