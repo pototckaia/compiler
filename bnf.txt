@@ -28,10 +28,10 @@ ______________________________________
 								<identifier> ":" <type> "=" <expression>
 ______________________________________
 
-<procedure and function declaration part> ::= { (<procedure declaration> | <function declaration>) ";" }
+<procedure and function declaration part> ::= { (<procedure declaration> | <function declaration>) }
 ______________________________________
 
-<procedure declaration> ::= <procedure heading> ";" <subroutine block>
+<procedure declaration> ::= <procedure heading> ";" <subroutine block> ";"
 
 	<procedure heading> ::= "procedure" <identifier> [ <formal parameter list> ]
 	
@@ -41,15 +41,21 @@ ______________________________________
 	<subroutine block> ::= <block> | "forward" 
 ______________________________________
 
-<function declaration> ::= <function heading> ";" <subroutine block>
+<function declaration> ::= <function heading> ";" <subroutine block> ";"
 
-	<function heading> ::= "function" <identifier> [ <formal parameter list> ] ":" <type>
+	<function heading> ::= "function" <identifier> [ <formal parameter list> ] ":" <result type>
+
+	<result type> ::= <simple type>
 ______________________________________
 <formal parameter list> ::= "(" [ <formal parameter section> {";" <formal parameter section> } ] ")"
 
 <formal parameter section> ::= [ <specification> ] <value parameter>
-	<value parameter> ::= <identifier list> ":" <type>
+	<value parameter> ::= <identifier list> ":" <parameter type>
 	<specification> ::= "var" | "const" | "out"
+
+	<parameter type> ::= <simple type> | <conformant array>
+
+	<conformant array> ::= "array of " (<simple type> | <conformant array>)
 ______________________________________
 
 <identifier list> ::= <identifier> {"," <identifier> } 
@@ -95,11 +101,11 @@ ______________________________________
 
 				<identifier list> := <identifier> {"," <identifier>}
 
-	<pointer type> ::= "^" <type>
+	<pointer type> ::= "^" <simple type>
 
 	<procedure type> ::= <function signature> | <procedure signature>
 
-		<function signature> ::= "function" [ <formal parameter list> ] ":" <type>
+		<function signature> ::= "function" [ <formal parameter list> ] ":" <result type>
 		<procedure signature> ::= "procedure" [ <formal parameter list> ]
 ______________________________________
 
