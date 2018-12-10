@@ -17,7 +17,7 @@ class LexerBuffer {
 
   const std::unique_ptr<tok::TokenBase>& get();
 
-  void push_back(std::unique_ptr<tok::TokenBase>& token);
+  void push_back(std::unique_ptr<tok::TokenBase> token);
 
   LexerBuffer& operator++();
 
