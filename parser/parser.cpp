@@ -95,7 +95,9 @@ ptr_Expr Parser::parseFactor() {
     case tok::TokenType::Int:
     case tok::TokenType::String:
     case tok::TokenType::Double:
-    case tok::TokenType::Nil: {
+    case tok::TokenType::Nil:
+    case tok::TokenType::False:
+    case tok::TokenType::True: {
       return std::make_unique<Literal>(std::move(token));
     }
     case tok::TokenType::Id: {

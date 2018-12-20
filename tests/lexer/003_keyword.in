@@ -55,3 +55,8 @@ var
 while  
 with  
 xor
+break
+continue
+out
+True
+False

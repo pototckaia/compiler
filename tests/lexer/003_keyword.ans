@@ -51,3 +51,8 @@
 55	1	Keyword	"while"		"while"
 56	1	Keyword	"with"		"with"
 57	1	Keyword	"xor"		"xor"
+58	1	Keyword	"break"		"break"
+59	1	Keyword	"continue"		"continue"
+60	1	Keyword	"out"		"out"
+61	1	Keyword	"True"		"true"
+62	1	Keyword	"False"		"false"
