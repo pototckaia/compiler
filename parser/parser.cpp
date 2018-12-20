@@ -1,11 +1,15 @@
-#include <iostream>
 #include "parser.h"
+
+#include <iostream>
+#include <utility>
+
 #include "../exception.h"
 
 using namespace pr;
 
 Parser::Parser(const std::string& s)
-  : lexer(s) {
+  : lexer(s),
+    stackTable(createGlobalTable()) {
   assigment = {tok::TokenType::Assignment, tok::TokenType::AssignmentWithMinus,
                tok::TokenType::AssignmentWithPlus,
                tok::TokenType::AssignmentWithAsterisk,
@@ -68,19 +72,20 @@ ListExpr Parser::parseActualParameter() {
   return parseListExpression();
 }
 
-void Parser::parseFormalParameterList() {
+ListSymbol Parser::parseFormalParameterList() {
   requireAndSkip(tok::TokenType::OpenParenthesis);
   if (match(tok::TokenType::CloseParenthesis)) {
     ++lexer;
-    return ;
+    return ListSymbol();
   }
-  parseFormalParamSection();
+  TableSymbol paramTable;
+  ListSymbol paramList(parseFormalParamSection(paramTable));
   while (match(tok::TokenType::Comma)) {
     ++lexer;
-    parseFormalParamSection();
+    paramList.splice(paramList.end(), parseFormalParamSection(paramTable));
   }
   requireAndSkip(tok::TokenType::CloseParenthesis);
-  return;
+  return paramList;
 }
 
 ptr_Expr Parser::parseFactor() {
@@ -265,16 +270,18 @@ ptr_Stmt Parser::parseFor() {
                                    std::move(high), dir, std::move(block));
 }
 
-ptr_Stmt Parser::parseMainBlock() {
+ptr_Symbol Parser::parseMainBlock() {
+  auto main = std::make_shared<MainFunction>();
   parseDecl(true);
-  auto main = parseCompound();
+  main->decl = stackTable.top();
+
+  stackTable.pop();
+  if (!stackTable.isEmpty()) {
+    throw std::logic_error("Table Symbol not empty by the end");
+  }
+  main->body = parseCompound();
   requireAndSkip(tok::TokenType::Dot);
   return main;
-}
-
-void Parser::parseBlock() {
-  parseDecl();
-  parseCompound();
 }
 
 void Parser::parseDecl(bool isMainBlock) {
@@ -347,11 +354,24 @@ void Parser::parseTypeDecl() {
   requireAndSkip(tok::TokenType::Type);
   require(tok::TokenType::Id);
   while (match(tok::TokenType::Id)) {
-    ++lexer;
+    auto id = lexer.next();
+    auto alias = std::make_shared<Alias>(id);
     requireAndSkip(tok::TokenType::Equals);
-    parseType();
+    alias->type = parseType(true);
     requireAndSkip(tok::TokenType::Semicolon);
+
+    if (!stackTable.checkContain(alias->name)) {
+      stackTable.top().tableType.insert(alias);
+
+    } else if (stackTable.top().tableType.checkContain(alias->name) &
+               stackTable.top().tableType.find(alias->name)->isForward) {
+      stackTable.top().tableType.replace(alias);
+
+    } else {
+      throw AlreadyDefinedException(id);
+    }
   }
+  stackTable.top().resolveForwardType();
 }
 
 void Parser::parseFunctionDecl(bool isProcedure) {
@@ -369,40 +389,33 @@ void Parser::parseFunctionDecl(bool isProcedure) {
       throw ParserException(id->getLine(), id->getColumn(), "forward", id->getValueString());
     }
   } else {
-    parseBlock();
-
+    parseDecl();
+    parseCompound();
   }
   requireAndSkip(tok::TokenType::Semicolon);
 }
 
-void Parser::parseType() {
+ptr_Symbol Parser::parseType(bool isTypeDecl) {
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Id: {
-      parseSimpleType();
-      return;
+      return parseSimpleType();
     }
     case tok::TokenType::Array: {
-      parseArrayType();
-      return;
+      return parseArrayType();
     }
     case tok::TokenType::Record: {
-      parseRecordType();
-      return;
+      return parseRecordType();
     }
     case tok::TokenType::Function: {
       ++lexer;
-      parseFunctionSignature();
-      return;
+      return parseFunctionSignature();
     }
     case tok::TokenType::Procedure: {
       ++lexer;
-      parseFunctionSignature(true);
-      return;
+      return parseFunctionSignature(true);
     }
     case tok::TokenType::Caret: {
-      ++lexer;
-      parseSimpleType();
-      return;
+      return parsePointer(isTypeDecl);
     }
     default : {
       auto& g = lexer.get();
@@ -411,113 +424,161 @@ void Parser::parseType() {
   }
 }
 
-void Parser::parseSimpleType() {
+ptr_Symbol Parser::parseSimpleType() {
   require(tok::TokenType::Id);
-  ++lexer;
+  auto t = lexer.next();
+  if (stackTable.isType(t->getValueString())) {
+    return stackTable.findType(t->getValueString());
+  } else {
+    throw NotDefinedException(t);
+  }
 }
 
-void Parser::parseRangeType() {
+ptr_Symbol Parser::parsePointer(bool isTypeDecl) {
+  auto p = std::make_shared<Pointer>(lexer.get());
+  requireAndSkip(tok::TokenType::Caret);
+  require(tok::TokenType::Id);
+  auto token = lexer.next();
+
+  if (stackTable.isType(token->getValueString())) {
+    p->typeBase = stackTable.findType(token->getValueString());
+    return p;
+
+  } else if (!stackTable.checkContain(token->getValueString()) && isTypeDecl) {
+    auto forward = std::make_shared<ForwardType>(token);
+    stackTable.top().insert(forward);
+    p->typeBase = forward;
+    return p;
+
+  } else {
+    throw NotDefinedException(token);
+  }
+}
+
+std::pair<int, int> Parser::parseRangeType() {
   require(tok::TokenType::Int);
-  ++lexer;
+  int low = lexer.next()->getInt();
   requireAndSkip(tok::TokenType::DoubleDot);
   require(tok::TokenType::Int);
-  ++lexer;
-  return;
+  int high = lexer.next()->getInt();
+  return std::make_pair(low, high);
 }
 
-void Parser::parseArrayType() {
+std::shared_ptr<Symbol> Parser::parseArrayType() {
+  auto staticArray = std::make_shared<StaticArray>(lexer.get());
+
   requireAndSkip(tok::TokenType::Array);
-  if (!match(tok::TokenType::Of)) {
-    requireAndSkip(tok::TokenType::OpenSquareBracket);
-    parseRangeType();
-    while (match(tok::TokenType::Comma)) {
-      ++lexer;
-      parseRangeType();
-    }
-    requireAndSkip(tok::TokenType::CloseSquareBracket);
-  }
-  requireAndSkip(tok::TokenType::Of);
-  parseType();
+  requireAndSkip(tok::TokenType::OpenSquareBracket);
 
-  return;
+  staticArray->bounds.push_back(parseRangeType());
+  while (match(tok::TokenType::Comma)) {
+    ++lexer;
+    staticArray->bounds.push_back(parseRangeType());
+  }
+  requireAndSkip(tok::TokenType::CloseSquareBracket);
+  requireAndSkip(tok::TokenType::Of);
+  staticArray->typeElem = parseType();
+  return staticArray;
 }
 
-void Parser::parseRecordType() {
+std::shared_ptr<Symbol> Parser::parseRecordType() {
+  auto record = std::make_shared<Record>(lexer.get());
+
   requireAndSkip(tok::TokenType::Record);
   while (!match(tok::TokenType::End)) {
-    parseIdListAndType();
+    ListToken listId = parseListId();
+    requireAndSkip(tok::TokenType::Colon);
+    auto type = parseType();
+
+    for (auto& e : listId) {
+     if (record->fields.checkContain(e->getValueString())) {
+       throw AlreadyDefinedException(e);
+     }
+     record->fields.insert(std::make_shared<LocalVar>(e, type));
+    }
+
     if (!match(tok::TokenType::Semicolon)) {
       break;
     }
     ++lexer;
   }
   requireAndSkip(tok::TokenType::End);
-  return;
+  return record;
 }
 
-void Parser::parseParameterType() {
+ptr_Symbol Parser::parseParameterType() {
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Id: {
-      parseSimpleType();
-      return;
+      return parseSimpleType();
     }
     case tok::TokenType::Array: {
-      ++lexer;
+      auto openArray = std::make_shared<OpenArray>(lexer.next());
       requireAndSkip(tok::TokenType::Of);
-      parseParameterType();
-      return;
+      openArray->typeElem =  parseParameterType();
+      return openArray;
     }
     default: {
       auto g = lexer.next();
-      throw ParserException(g->getLine(), g->getColumn(), tok::TokenType::CloseParenthesis, g->getTokenType());
+      throw ParserException(g->getLine(), g->getColumn(),
+        tok::TokenType::CloseParenthesis, g->getTokenType());
     }
   }
 }
 
-void Parser::parseFunctionSignature(bool isProcedure) {
+ptr_Symbol Parser::parseFunctionSignature(bool isProcedure) {
+  auto proc = std::make_shared<FunctionSignature>(lexer.get());
   if (isProcedure) {
     if (match(tok::TokenType::OpenParenthesis)) {
-      parseFormalParameterList();
+      proc->setParamsList(parseFormalParameterList());
     }
   }
   else {
     if (!match(tok::TokenType::Colon)) {
-      parseFormalParameterList();
+      proc->setParamsList(parseFormalParameterList());
     }
     requireAndSkip(tok::TokenType::Colon);
-    parseSimpleType();
+    proc->returnType = parseSimpleType();
   }
-
+  return proc;
 }
 
-void Parser::parseIdListAndType() {
-  parseListId();
-  requireAndSkip(tok::TokenType::Colon);
-  parseParameterType();
-}
-
-void Parser::parseFormalParamSection() {
+ListSymbol Parser::parseFormalParamSection(TableSymbol& paramTable) {
+  ParamSpec paramSpec;
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Var: {
       ++lexer;
-      parseIdListAndType();
-      return;
+      paramSpec = ParamSpec::Var;
+      break;
     }
     case tok::TokenType::Const: {
       ++lexer;
-      parseIdListAndType();
-      return;
+      paramSpec = ParamSpec::Const;
+      break;
     }
     case tok::TokenType::Out: {
       ++lexer;
-      parseIdListAndType();
-      return;
+      paramSpec = ParamSpec::Out;
+      break;
     }
     default: {
-      parseIdListAndType();
-      return;
+      paramSpec = ParamSpec::NotSpec;
+      break;
     }
   }
+  auto listId = parseListId();
+  ListSymbol paramList;
+  requireAndSkip(tok::TokenType::Colon);
+  auto type = parseParameterType();
+  for (auto& e : listId) {
+    if (paramTable.checkContain(e->getValueString())) {
+      throw AlreadyDefinedException(e);
+    }
+    auto param = std::make_shared<ParamVar>(e, type);
+    param->spec = paramSpec;
+    paramTable.insert(param);
+    paramList.push_back(param);
+  }
+  return paramList;
 }
 
 bool Parser::match(const std::list<tok::TokenType>& listType) {

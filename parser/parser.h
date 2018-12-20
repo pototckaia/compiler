@@ -2,10 +2,10 @@
 
 #include "node.h"
 #include "lexerBuffer.h"
+#include "symbol.h"
 
 namespace pr {
 
-using ptr_Token = std::unique_ptr<tok::TokenBase>;
 using ListToken = std::list<ptr_Token>;
 
 class Parser {
@@ -24,11 +24,13 @@ class Parser {
   int priorityAccess;
   std::list<tok::TokenType> assigment;
 
+  StackTable stackTable;
+
   bool isInsideLoop = false;
 
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
-  void parseFormalParameterList();
+  ListSymbol parseFormalParameterList();
   ListToken parseListId();
 
   ptr_Expr parseFactor();
@@ -44,19 +46,18 @@ class Parser {
   ptr_Stmt parseWhile();
   ptr_Stmt parseFor();
 
-  void parseType();
-  void parseSimpleType();
-  void parseArrayType();
-  void parseRecordType();
-  void parseRangeType();
-  void parseParameterType();
+  ptr_Symbol parseType(bool isTypeDecl = false);
+  ptr_Symbol parseSimpleType();
+  ptr_Symbol parseArrayType();
+  ptr_Symbol parseRecordType();
+  ptr_Symbol parsePointer(bool isTypeDecl = false);
+  std::pair<int, int> parseRangeType();
+  ptr_Symbol parseParameterType();
 
-  void parseFunctionSignature(bool isProcedure = false);
-  void parseIdListAndType();
-  void parseFormalParamSection();
+  ptr_Symbol parseFunctionSignature(bool isProcedure = false);
+  ListSymbol parseFormalParamSection(TableSymbol&);
 
-  ptr_Stmt parseMainBlock();
-  void parseBlock();
+  ptr_Symbol parseMainBlock();
   void parseDecl(bool isMainBlock = false);
   void parseTypeDecl();
   void parseConstDecl();

@@ -4,7 +4,7 @@ project(Compile)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
-set(MAIN_SOURCES main.cpp)
+set(MAIN_SOURCES main.cpp exception.h)
 set(LEX_SOURCES
         tokenizer/lexerBuffer.cpp   tokenizer/lexerBuffer.cpp
         tokenizer/token_type.h tokenizer/token_type.cpp
@@ -14,7 +14,8 @@ set(LEX_SOURCES
 set(PAR_SOURCES
         parser/node.cpp parser/node.h
         parser/parser.cpp parser/parser.h
-        parser/visitor.cpp parser/visitor.h exception.h)
+        parser/visitor.cpp parser/visitor.h
+        parser/symbol.cpp parser/symbol.h parser/astnode.h)
 
 include_directories(tokenizer parser include-lib)
 
