@@ -1,0 +1,14 @@
+type
+pchar = ^char;
+A =  function : integer;
+B = function () : integer;
+D = function (t : integer) : char;
+E =  function (c, d, t : char) : char;
+F = function(c, d, t, e : pchar, a : array of double) : integer;
+G = procedure;
+H = procedure ();
+I =  procedure (var a : integer, out c : char, const d, e : pcHar);
+
+
+begin
+end.

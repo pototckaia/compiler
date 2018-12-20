@@ -1,0 +1,6 @@
+type int = integer;
+    long = integer;
+    unsigned = integer;
+
+begin
+end.

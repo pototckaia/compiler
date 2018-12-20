@@ -1,0 +1,7 @@
+type
+C = function ();
+
+begin
+end.
+
+

@@ -1,0 +1,5 @@
+type
+B = array [1.1..1.1] of char;
+
+begin
+end.

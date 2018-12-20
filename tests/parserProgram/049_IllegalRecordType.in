@@ -1,0 +1,5 @@
+type
+record a end
+
+begin
+end.

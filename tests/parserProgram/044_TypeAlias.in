@@ -1,0 +1,9 @@
+type
+    C = char;
+    I = integer;
+    B = Boolean;
+    D = double;
+    P = pointer;
+
+begin
+end.

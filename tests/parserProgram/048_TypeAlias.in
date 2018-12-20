@@ -1,0 +1,20 @@
+type
+A = record end;
+B = record a : integer end;
+C = record a : integer; end;
+D = record a, b, c, d : double; end;
+E = record a, b, c, d: array [0..1] of char end;
+F = record
+    y : record
+            a : integer;
+            b : double;
+            c : array [0..100] of char;
+        end;
+    d : record
+            i : ^integer;
+        end
+end;
+
+
+begin
+end.

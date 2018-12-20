@@ -1,0 +1,9 @@
+type
+A = array [1..2] of integer;
+C = array [1..2, 2..3] of boolean;
+D = array [0..100, 0..100, 0..100] of double;
+W = array[1..100] of array[1..3] of double;
+E = array [0..1] of record a : integer end;
+
+begin
+end.

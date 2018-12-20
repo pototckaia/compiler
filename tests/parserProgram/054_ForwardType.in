@@ -1,0 +1,16 @@
+type
+	TTLIstP = ^Tree;
+ 	List = record
+			data : integer;
+			next : TTListP;
+			end;
+
+	T = ^Tree;
+	B = ^Tree;
+	Tree = record
+		end;
+
+begin
+end.
+
+

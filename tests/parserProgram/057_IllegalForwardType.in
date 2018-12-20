@@ -1,0 +1,10 @@
+type
+	TListP = ^List;
+
+type
+    List = record end;
+
+begin
+end.
+
+
