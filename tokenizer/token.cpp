@@ -38,8 +38,16 @@ std::string NumberConstant<T>::toString() const {
   return TokenBase::beginOfString() + "\t" + std::to_string(value);
 }
 
-template
-class NumberConstant<long long int>;
+std::string tok::getPoint(int line, int column) {
+  return std::to_string(line) + "," + std::to_string(column) +"\t";
+}
+
+std::string tok::getPoint(const tok::ptr_Token& t) {
+  return tok::getPoint(t->getLine(), t->getColumn());
+}
 
 template
-class NumberConstant<long double>;
+class tok::NumberConstant<long long int>;
+
+template
+class tok::NumberConstant<long double>;

@@ -1,10 +1,20 @@
 #pragma once
 
 #include <string>
+#include <memory>
+#include <stdexcept>
 
 #include "token_type.h"
 
 namespace tok {
+
+class TokenBase;
+
+using ptr_Token = std::unique_ptr<tok::TokenBase>;
+
+std::string getPoint(int line, int column);
+
+std::string getPoint(const tok::ptr_Token& t);
 
 class TokenBase {
  public:
@@ -18,6 +28,8 @@ class TokenBase {
   int getColumn() const { return column; }
   tok::TokenType getTokenType() const { return tokenType; }
 
+  virtual int getInt() const { throw std::logic_error("Token type not Int"); }
+  virtual double getDouble() const { throw std::logic_error("Token type not Double"); }
   virtual std::string getValueString() const { return strValue; }
 
  protected:
@@ -40,6 +52,16 @@ class NumberConstant : public TokenBase {
   std::string toString() const override;
 
   std::string getValueString() const override { return std::to_string(value); }
+
+  int getInt() const override {
+    if (getTokenType() == tok::TokenType::Int) { return (int) value; }
+    return TokenBase::getInt();
+  }
+
+  double getDouble() const override {
+    if (getTokenType() == tok::TokenType::Double) { return (double) value; }
+    return TokenBase::getDouble();
+  }
 
  private:
   T value;
