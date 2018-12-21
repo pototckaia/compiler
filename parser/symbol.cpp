@@ -1,27 +1,11 @@
-#include "symbol.h"
+#include "table_symbol.h"
+#include "symbol_type.h"
+#include "symbol_var.h"
+#include "symbol_fun.h"
 
 #include "exception"
 #include "../exception.h"
 #include "visitor.h"
-
-void TableSymbol::replace(const ptr_Symbol& t) {
-  table[t->name] = t;
-}
-
-void TableSymbol::insert(const ptr_Symbol& t) {
-  if (checkContain(t->name) && !find(t->name)->isForward) {
-    throw AlreadyDefinedException(t->line, t->column, t->name);
-  }
-  table[t->name] = t;
-}
-
-bool TableSymbol::checkContain(const std::string& n) {
-  return table.count(n) > 0;
-}
-
-ptr_Symbol TableSymbol::find(const std::string& n) const {
-  return table.at(n);
-}
 
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) & tableVariable.checkContain(t) &
@@ -77,7 +61,7 @@ bool StackTable::isType(const std::string& n) {
   return false;
 }
 
-ptr_Symbol StackTable::findType(const std::string& n) {
+ptr_Type StackTable::findType(const std::string& n) {
   for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
     if (iter->tableType.checkContain(n)) {
       return iter->tableType.find(n);
@@ -86,51 +70,14 @@ ptr_Symbol StackTable::findType(const std::string& n) {
   throw NotDefinedException(n);
 }
 
-Symbol::Symbol() : name(), line(1), column(1) {}
-Symbol::Symbol(const std::string& n) : name(n), line(1), column(1) {}
-Symbol::Symbol(const tok::ptr_Token& t)
-  : name(t->getValueString()), line(t->getLine()), column(t->getColumn()) {}
-
-Alias::Alias(const tok::ptr_Token& t) : SymType(t), type(nullptr) {}
-Alias::Alias(const tok::ptr_Token& t, const ptr_Symbol& p)
-  : SymType(t), type(p) {}
-
-Pointer::Pointer(const tok::ptr_Token& t) : SymType(t), typeBase(nullptr) {}
-Pointer::Pointer(const tok::ptr_Token& t, const ptr_Symbol& p)
-  : SymType(t), typeBase(p) {}
-
-StaticArray::StaticArray(const tok::ptr_Token& t) : SymType(t), typeElem(nullptr) {}
-OpenArray::OpenArray(const tok::ptr_Token& t)
-  : SymType(t), typeElem(nullptr) {}
-
-Record::Record(const tok::ptr_Token& t) : SymType(t) {}
-
-FunctionSignature::FunctionSignature(const tok::ptr_Token& t) : SymType(t) {}
-void FunctionSignature::setParamsList(const ListSymbol& t) {
+void FunctionSignature::setParamsList(ListParam t) {
   paramsList = t;
   for (auto& e : t) {
     paramsTable.insert(e);
   }
 }
 
-ForwardType::ForwardType(const tok::ptr_Token& t) : SymType(t) {
-  SymType::isForward = true;
-}
-
-
-SymVar::SymVar(const tok::ptr_Token& n, const ptr_Symbol& t)
-  : Symbol(n), type(t) {}
-
-
-Tables createGlobalTable() {
-  Tables t;
-  t.tableType.insert(std::make_shared<Int>());
-  t.tableType.insert(std::make_shared<Double>());
-  t.tableType.insert(std::make_shared<Char>());
-  t.tableType.insert(std::make_shared<TPointer>());
-  t.tableType.insert(std::make_shared<Boolean>());
-  return t;
-}
+Function::~Function() = default;
 
 std::string toString(ParamSpec p) {
   switch (p) {
@@ -138,7 +85,7 @@ std::string toString(ParamSpec p) {
       return "Not specification";
     }
     case ParamSpec::Var: {
-      return "var";
+      return "Var";
     }
     case ParamSpec::Const: {
       return "Const";
@@ -149,12 +96,108 @@ std::string toString(ParamSpec p) {
   }
 }
 
+// type equals
+
+bool SymType::checkAlias(SymType* s) const {
+  if (dynamic_cast<Alias*>(s)) {
+    return equals(dynamic_cast<Alias*>(s)->type.get());
+  } else if (dynamic_cast<ForwardType*>(s)) {
+    return equals(dynamic_cast<ForwardType*>(s)->resolveType.get());
+  }
+  return false;
+}
+
+bool Int::equals(SymType* s) const {
+  return dynamic_cast<Int*>(s) || checkAlias(s);
+}
+
+bool Double::equals(SymType* s) const {
+  return dynamic_cast<Double*>(s) || checkAlias(s);
+}
+
+bool Char::equals(SymType* s) const {
+  return dynamic_cast<Char*>(s) || checkAlias(s);
+}
+
+bool Boolean::equals(SymType* s) const {
+  return dynamic_cast<Boolean*>(s) || checkAlias(s);
+}
+
+bool TPointer::equals(SymType* s) const {
+  return dynamic_cast<TPointer*>(s) || checkAlias(s);
+}
+
+bool Alias::equals(SymType* s) const {
+  return type->equals(s);
+}
+
+bool Pointer::equals(SymType* s) const {
+  if (dynamic_cast<Pointer*>(s)) {
+    return typeBase->equals(dynamic_cast<Pointer*>(s)->typeBase.get());
+  }
+  return checkAlias(s);
+}
+
+bool StaticArray::equals(SymType* s) const {
+  if (dynamic_cast<StaticArray*>(s)) {
+    auto p = dynamic_cast<StaticArray*>(s);
+    return p->bounds == bounds && typeElem->equals(p->typeElem.get());
+  }
+  return checkAlias(s);
+}
+
+bool OpenArray::equals(SymType* s) const {
+  if (dynamic_cast<OpenArray*>(s)) {
+    auto p = dynamic_cast<OpenArray*>(s);
+    return typeElem->equals(p->typeElem.get());
+  }
+  return checkAlias(s);
+}
+
+bool Record::equals(SymType* s) const {
+  if (dynamic_cast<Record*>(s)) {
+    auto record = dynamic_cast<Record*>(s);
+    return (!isAnonymous() && s->name == name) ||
+           (isAnonymous() && this == record);
+  }
+  return checkAlias(s);
+}
+
+bool FunctionSignature::equals(SymType* s) const  {
+  if (dynamic_cast<FunctionSignature*>(s)) {
+    auto p = dynamic_cast<FunctionSignature*>(s);
+    bool eq = (isProcedure() && p->isProcedure()) || returnType->equals(p->returnType.get());
+    eq &= paramsList.size() == p->paramsList.size();
+    auto first = paramsList.begin();
+    auto second = p->paramsList.begin();
+    for (; eq && first != paramsList.end(); ++first, ++second) {
+      eq &= (*first)->equals(**second);
+    }
+    return eq;
+  }
+  return checkAlias(s);
+}
+
+bool ForwardType::equals(SymType* s) const {
+  if (dynamic_cast<ForwardType*>(s)) {
+    auto p = dynamic_cast<ForwardType*>(s);
+    return resolveType->equals(p->resolveType.get());
+  }
+  return checkAlias(s);
+}
+
+bool ParamVar::equals(ParamVar& p) const {
+  return spec == p.spec && type->equals(p.type.get());
+}
+
+// accept
+
 void Int::accept(pr::Visitor& v) { v.visit(*this); }
 void Double::accept(pr::Visitor& v) { v.visit(*this); }
 void Char::accept(pr::Visitor& v) { v.visit(*this); }
 void Boolean::accept(pr::Visitor& v) { v.visit(*this); }
-void TPointer::accept(pr::Visitor& v) { v.visit(*this); }
 
+void TPointer::accept(pr::Visitor& v) { v.visit(*this); }
 void Alias::accept(pr::Visitor& v) { v.visit(*this); }
 void Pointer::accept(pr::Visitor& v) { v.visit(*this); }
 void StaticArray::accept(pr::Visitor& v) { v.visit(*this); }
@@ -171,3 +214,15 @@ void Const::accept(pr::Visitor& v) { v.visit(*this); }
 void ForwardFunction::accept(pr::Visitor& v) { v.visit(*this); }
 void Function::accept(pr::Visitor& v) { v.visit(*this); }
 void MainFunction::accept(pr::Visitor& v) { v.visit(*this); }
+
+void Write::accept(pr::Visitor& v) { v.visit(*this); }
+void Read::accept(pr::Visitor& v) { v.visit(*this); }
+void Trunc::accept(pr::Visitor& v) { v.visit(*this); }
+void Round::accept(pr::Visitor& v) { v.visit(*this); }
+void Succ::accept(pr::Visitor& v) { v.visit(*this); }
+void Prev::accept(pr::Visitor& v) { v.visit(*this); }
+void Chr::accept(pr::Visitor& v) { v.visit(*this); }
+void Ord::accept(pr::Visitor& v) { v.visit(*this); }
+void High::accept(pr::Visitor& v) { v.visit(*this); }
+void Low::accept(pr::Visitor& v) { v.visit(*this); }
+void StaticCast::accept(pr::Visitor& v) { v.visit(*this); }

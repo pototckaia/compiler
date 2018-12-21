@@ -2,14 +2,18 @@
 
 #include <iostream>
 #include <utility>
+#include <algorithm>
+#include <bits/move.h>
+#include <stack>
 
 #include "../exception.h"
+#include "visitor_type.h"
 
 using namespace pr;
 
 Parser::Parser(const std::string& s)
   : lexer(s),
-    stackTable(createGlobalTable()) {
+    semanticDecl() {
   assigment = {tok::TokenType::Assignment, tok::TokenType::AssignmentWithMinus,
                tok::TokenType::AssignmentWithPlus,
                tok::TokenType::AssignmentWithAsterisk,
@@ -52,8 +56,8 @@ ListExpr Parser::parseListExpression() {
   return list;
 }
 
-ListToken Parser::parseListId() {
-  ListToken list;
+tok::ListToken Parser::parseListId() {
+  tok::ListToken list;
   require(tok::TokenType::Id);
   list.push_back(lexer.next());
   while (match(tok::TokenType::Comma)) {
@@ -72,14 +76,14 @@ ListExpr Parser::parseActualParameter() {
   return parseListExpression();
 }
 
-ListSymbol Parser::parseFormalParameterList() {
+ListParam Parser::parseFormalParameterList() {
   requireAndSkip(tok::TokenType::OpenParenthesis);
   if (match(tok::TokenType::CloseParenthesis)) {
     ++lexer;
-    return ListSymbol();
+    return ListParam();
   }
-  TableSymbol paramTable;
-  ListSymbol paramList(parseFormalParamSection(paramTable));
+  TableSymbol<ptr_Var> paramTable;
+  ListParam paramList(parseFormalParamSection(paramTable));
   while (match(tok::TokenType::Comma)) {
     ++lexer;
     paramList.splice(paramList.end(), parseFormalParamSection(paramTable));
@@ -272,18 +276,12 @@ ptr_Stmt Parser::parseFor() {
                                    std::move(high), dir, std::move(block));
 }
 
-ptr_Symbol Parser::parseMainBlock() {
+std::shared_ptr<MainFunction> Parser::parseMainBlock() {
   auto main = std::make_shared<MainFunction>();
   parseDecl(true);
-  main->decl = stackTable.top();
-
-  stackTable.pop();
-  if (!stackTable.isEmpty()) {
-    throw std::logic_error("Table Symbol not empty by the end");
-  }
-  main->body = parseCompound();
+  auto body = parseCompound();
   requireAndSkip(tok::TokenType::Dot);
-  return main;
+  return semanticDecl.parseMainBlock(std::move(body));
 }
 
 void Parser::parseDecl(bool isMainBlock) {
@@ -353,27 +351,18 @@ void Parser::parseConstDecl() {
 }
 
 void Parser::parseTypeDecl() {
+  std::list<std::pair<ptr_Token, ptr_Type>> declsType;
+
   requireAndSkip(tok::TokenType::Type);
   require(tok::TokenType::Id);
   while (match(tok::TokenType::Id)) {
     auto id = lexer.next();
-    auto alias = std::make_shared<Alias>(id);
     requireAndSkip(tok::TokenType::Equals);
-    alias->type = parseType(true);
+    auto type = parseType(true);
     requireAndSkip(tok::TokenType::Semicolon);
-
-    if (!stackTable.checkContain(alias->name)) {
-      stackTable.top().tableType.insert(alias);
-
-    } else if (stackTable.top().tableType.checkContain(alias->name) &
-               stackTable.top().tableType.find(alias->name)->isForward) {
-      stackTable.top().tableType.replace(alias);
-
-    } else {
-      throw AlreadyDefinedException(id);
-    }
+    declsType.push_back(std::make_pair(std::move(id), std::move(type)));
   }
-  stackTable.top().resolveForwardType();
+  semanticDecl.parseTypeDecl(declsType);
 }
 
 void Parser::parseFunctionDecl(bool isProcedure) {
@@ -397,7 +386,7 @@ void Parser::parseFunctionDecl(bool isProcedure) {
   requireAndSkip(tok::TokenType::Semicolon);
 }
 
-ptr_Symbol Parser::parseType(bool isTypeDecl) {
+ptr_Type Parser::parseType(bool isTypeDecl) {
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Id: {
       return parseSimpleType();
@@ -426,35 +415,17 @@ ptr_Symbol Parser::parseType(bool isTypeDecl) {
   }
 }
 
-ptr_Symbol Parser::parseSimpleType() {
+ptr_Type Parser::parseSimpleType() {
   require(tok::TokenType::Id);
-  auto t = lexer.next();
-  if (stackTable.isType(t->getValueString())) {
-    return stackTable.findType(t->getValueString());
-  } else {
-    throw NotDefinedException(t);
-  }
+  return semanticDecl.parseSimpleType(lexer.next());
 }
 
-ptr_Symbol Parser::parsePointer(bool isTypeDecl) {
-  auto p = std::make_shared<Pointer>(lexer.get());
-  requireAndSkip(tok::TokenType::Caret);
+ptr_Type Parser::parsePointer(bool isTypeDecl) {
+  require(tok::TokenType::Caret);
+  auto declPoint = lexer.next();
   require(tok::TokenType::Id);
   auto token = lexer.next();
-
-  if (stackTable.isType(token->getValueString())) {
-    p->typeBase = stackTable.findType(token->getValueString());
-    return p;
-
-  } else if (!stackTable.checkContain(token->getValueString()) && isTypeDecl) {
-    auto forward = std::make_shared<ForwardType>(token);
-    stackTable.top().insert(forward);
-    p->typeBase = forward;
-    return p;
-
-  } else {
-    throw NotDefinedException(token);
-  }
+  return semanticDecl.parsePointer(std::move(declPoint), std::move(token), isTypeDecl);
 }
 
 std::pair<int, int> Parser::parseRangeType() {
@@ -466,58 +437,51 @@ std::pair<int, int> Parser::parseRangeType() {
   return std::make_pair(low, high);
 }
 
-std::shared_ptr<Symbol> Parser::parseArrayType() {
-  auto staticArray = std::make_shared<StaticArray>(lexer.get());
-
-  requireAndSkip(tok::TokenType::Array);
+ptr_Type Parser::parseArrayType() {
+  require(tok::TokenType::Array);
+  auto declPoint = lexer.next();
   requireAndSkip(tok::TokenType::OpenSquareBracket);
-
-  staticArray->bounds.push_back(parseRangeType());
+  StaticArray::BoundsType bounds;
+  bounds.push_back(parseRangeType());
   while (match(tok::TokenType::Comma)) {
     ++lexer;
-    staticArray->bounds.push_back(parseRangeType());
+    bounds.push_back(parseRangeType());
   }
   requireAndSkip(tok::TokenType::CloseSquareBracket);
   requireAndSkip(tok::TokenType::Of);
-  staticArray->typeElem = parseType();
-  return staticArray;
+  auto typeElem = parseType();
+  return semanticDecl.parseArrayType(std::move(declPoint), std::move(bounds), std::move(typeElem));
 }
 
-std::shared_ptr<Symbol> Parser::parseRecordType() {
-  auto record = std::make_shared<Record>(lexer.get());
-
-  requireAndSkip(tok::TokenType::Record);
+ptr_Type Parser::parseRecordType() {
+  require(tok::TokenType::Record);
+  auto declPoint = lexer.next();
+  std::list<std::pair<std::unique_ptr<tok::ListToken>, ptr_Type>> listVar;
   while (!match(tok::TokenType::End)) {
-    ListToken listId = parseListId();
+    auto listId = std::make_unique<tok::ListToken>(parseListId());
     requireAndSkip(tok::TokenType::Colon);
     auto type = parseType();
-
-    for (auto& e : listId) {
-     if (record->fields.checkContain(e->getValueString())) {
-       throw AlreadyDefinedException(e);
-     }
-     record->fields.insert(std::make_shared<LocalVar>(e, type));
-    }
-
+    auto pair = std::make_pair(std::move(listId), type);
+    listVar.push_back(std::move(pair));
     if (!match(tok::TokenType::Semicolon)) {
       break;
     }
     ++lexer;
   }
   requireAndSkip(tok::TokenType::End);
-  return record;
+  return semanticDecl.parseRecordType(std::move(declPoint), std::move(listVar));
 }
 
-ptr_Symbol Parser::parseParameterType() {
+ptr_Type Parser::parseParameterType() {
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Id: {
       return parseSimpleType();
     }
     case tok::TokenType::Array: {
-      auto openArray = std::make_shared<OpenArray>(lexer.next());
+      auto declPoint = lexer.next();
       requireAndSkip(tok::TokenType::Of);
-      openArray->typeElem =  parseParameterType();
-      return openArray;
+      auto typeElem =  parseParameterType();
+      return semanticDecl.parseOpenArray(std::move(declPoint), std::move(typeElem));
     }
     default: {
       auto g = lexer.next();
@@ -527,24 +491,27 @@ ptr_Symbol Parser::parseParameterType() {
   }
 }
 
-ptr_Symbol Parser::parseFunctionSignature(bool isProcedure) {
-  auto proc = std::make_shared<FunctionSignature>(lexer.get());
+std::shared_ptr<FunctionSignature> Parser::parseFunctionSignature(bool isProcedure) {
+  ListParam param;
+  int line = lexer.get()->getLine();
+  int column = lexer.get()->getColumn();
   if (isProcedure) {
     if (match(tok::TokenType::OpenParenthesis)) {
-      proc->setParamsList(parseFormalParameterList());
+      param = parseFormalParameterList();
     }
+    return semanticDecl.parseFunctionSignature(line, column, std::move(param));
   }
   else {
     if (!match(tok::TokenType::Colon)) {
-      proc->setParamsList(parseFormalParameterList());
+      param = parseFormalParameterList();
     }
     requireAndSkip(tok::TokenType::Colon);
-    proc->returnType = parseSimpleType();
+    auto returnType = parseSimpleType();
+    return semanticDecl.parseFunctionSignature(line, column, std::move(param), std::move(returnType));
   }
-  return proc;
 }
 
-ListSymbol Parser::parseFormalParamSection(TableSymbol& paramTable) {
+ListParam Parser::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable) {
   ParamSpec paramSpec;
   switch (lexer.get()->getTokenType()) {
     case tok::TokenType::Var: {
@@ -568,19 +535,9 @@ ListSymbol Parser::parseFormalParamSection(TableSymbol& paramTable) {
     }
   }
   auto listId = parseListId();
-  ListSymbol paramList;
   requireAndSkip(tok::TokenType::Colon);
   auto type = parseParameterType();
-  for (auto& e : listId) {
-    if (paramTable.checkContain(e->getValueString())) {
-      throw AlreadyDefinedException(e);
-    }
-    auto param = std::make_shared<ParamVar>(e, type);
-    param->spec = paramSpec;
-    paramTable.insert(param);
-    paramList.push_back(param);
-  }
-  return paramList;
+  return semanticDecl.parseFormalParamSection(paramTable, paramSpec, std::move(listId), std::move(type));
 }
 
 bool Parser::match(const std::list<tok::TokenType>& listType) {

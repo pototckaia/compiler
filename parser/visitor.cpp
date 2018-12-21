@@ -272,8 +272,44 @@ void PrintVisitor::visit(MainFunction& m) {
   m.body->accept(*this);
 }
 
-void PrintVisitor::visit(TableSymbol& t) {
-  print("Table Symbol");
+void PrintVisitor::visit(TableSymbol<ptr_Type>& t) {
+  print("Table Symbol Type");
+  ++depth;
+  for (auto& e : t) {
+    print(e.first);
+    ++depth;
+    e.second->accept(*this);
+    --depth;
+  }
+  --depth;
+}
+
+void PrintVisitor::visit(TableSymbol<ptr_Var>& t) {
+  print("Table Symbol Variable");
+  ++depth;
+  for (auto& e : t) {
+    print(e.first);
+    ++depth;
+    e.second->accept(*this);
+    --depth;
+  }
+  --depth;
+}
+
+void PrintVisitor::visit(TableSymbol<std::shared_ptr<Const>>& t) {
+  print("Table Symbol Const");
+  ++depth;
+  for (auto& e : t) {
+    print(e.first);
+    ++depth;
+    e.second->accept(*this);
+    --depth;
+  }
+  --depth;
+}
+
+void PrintVisitor::visit(TableSymbol<std::shared_ptr<SymFun>>& t) {
+  print("Table Symbol Function");
   ++depth;
   for (auto& e : t) {
     print(e.first);
@@ -291,5 +327,52 @@ void PrintVisitor::visit(Tables& t) {
   visit(t.tableConst);
   visit(t.tableVariable);
   visit(t.tableFunction);
+  --depth;
+}
+
+void PrintVisitor::visit(Read&) {
+  print("Read");
+}
+
+void PrintVisitor::visit(Write&) {
+  print("Write");
+}
+
+void PrintVisitor::visit(Trunc&) {
+  print("Trunc");
+}
+
+void PrintVisitor::visit(Round&) {
+  print("Round");
+}
+
+void PrintVisitor::visit(Succ&) {
+  print("Succ");
+}
+
+void PrintVisitor::visit(Prev&) {
+  print("Prev");
+}
+
+void PrintVisitor::visit(Chr&) {
+  print("Chr");
+}
+
+void PrintVisitor::visit(Ord&) {
+  print("Ord");
+}
+
+void PrintVisitor::visit(High&) {
+  print("High");
+}
+
+void PrintVisitor::visit(Low&) {
+  print("Low");
+}
+
+void PrintVisitor::visit(StaticCast& t) {
+  print("Static cast to ");
+  ++depth;
+  t.typeConvert->accept(*this);
   --depth;
 }

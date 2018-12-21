@@ -2,11 +2,13 @@
 
 #include "node.h"
 #include "lexerBuffer.h"
-#include "symbol.h"
+#include "table_symbol.h"
+#include "symbol_type.h"
+#include "symbol_var.h"
+#include "symbol_fun.h"
+#include "semantic_decl.h"
 
 namespace pr {
-
-using ListToken = std::list<ptr_Token>;
 
 class Parser {
  public:
@@ -24,14 +26,14 @@ class Parser {
   int priorityAccess;
   std::list<tok::TokenType> assigment;
 
-  StackTable stackTable;
+  SemanticDecl semanticDecl;
 
   bool isInsideLoop = false;
 
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
-  ListSymbol parseFormalParameterList();
-  ListToken parseListId();
+  ListParam parseFormalParameterList();
+  tok::ListToken parseListId();
 
   ptr_Expr parseFactor();
   ptr_Expr parseAccess(int p);
@@ -46,18 +48,18 @@ class Parser {
   ptr_Stmt parseWhile();
   ptr_Stmt parseFor();
 
-  ptr_Symbol parseType(bool isTypeDecl = false);
-  ptr_Symbol parseSimpleType();
-  ptr_Symbol parseArrayType();
-  ptr_Symbol parseRecordType();
-  ptr_Symbol parsePointer(bool isTypeDecl = false);
+  ptr_Type parseType(bool isTypeDecl = false);
+  ptr_Type parseSimpleType();
+  ptr_Type parseArrayType();
+  ptr_Type parseRecordType();
+  ptr_Type parsePointer(bool isTypeDecl = false);
   std::pair<int, int> parseRangeType();
-  ptr_Symbol parseParameterType();
+  ptr_Type parseParameterType();
 
-  ptr_Symbol parseFunctionSignature(bool isProcedure = false);
-  ListSymbol parseFormalParamSection(TableSymbol&);
+  std::shared_ptr<FunctionSignature> parseFunctionSignature(bool isProcedure = false);
+  ListParam parseFormalParamSection(TableSymbol<ptr_Var>&);
 
-  ptr_Symbol parseMainBlock();
+  std::shared_ptr<MainFunction> parseMainBlock();
   void parseDecl(bool isMainBlock = false);
   void parseTypeDecl();
   void parseConstDecl();

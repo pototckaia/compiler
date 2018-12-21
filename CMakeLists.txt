@@ -12,10 +12,13 @@ set(LEX_SOURCES
         tokenizer/lexer.h tokenizer/lexer.cpp tokenizer/state_table.h)
 
 set(PAR_SOURCES
+        parser/astnode.h
         parser/node.cpp parser/node.h
         parser/parser.cpp parser/parser.h
         parser/visitor.cpp parser/visitor.h
-        parser/symbol.cpp parser/symbol.h parser/astnode.h)
+        parser/table_symbol.h parser/symbol_type.h parser/symbol_fun.h parser/symbol_var.h parser/symbol.cpp
+        parser/visitor_type.cpp parser/visitor_type.h
+        parser/semantic_decl.h parser/semantic_decl.cpp)
 
 include_directories(tokenizer parser include-lib)
 

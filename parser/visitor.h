@@ -3,55 +3,74 @@
 #include <fstream>
 
 #include "node.h"
-#include "symbol.h"
+#include "table_symbol.h"
+#include "symbol_fun.h"
+#include "symbol_var.h"
+#include "symbol_type.h"
 
 namespace pr {
 
 
 class Visitor {
  public:
-  virtual void visit(Variable&) = 0;
-  virtual void visit(Literal&) = 0;
-  virtual void visit(BinaryOperation&) = 0;
-  virtual void visit(UnaryOperation&) = 0;
-  virtual void visit(ArrayAccess&) = 0;
-  virtual void visit(RecordAccess&) = 0;
-  virtual void visit(FunctionCall&) = 0;
+  virtual void visit(Variable&) {};
+  virtual void visit(Literal&) {};
+  virtual void visit(BinaryOperation&)  {};
+  virtual void visit(UnaryOperation&)  {};
+  virtual void visit(ArrayAccess&) {};
+  virtual void visit(RecordAccess&) {};
+  virtual void visit(FunctionCall&) {};
 
-  virtual void visit(AssignmentStmt&) = 0;
-  virtual void visit(FunctionCallStmt&) = 0;
-  virtual void visit(BlockStmt&) = 0;
-  virtual void visit(IfStmt&) = 0;
-  virtual void visit(WhileStmt&) = 0;
-  virtual void visit(ForStmt&) = 0;
-  virtual void visit(BreakStmt&) = 0;
-  virtual void visit(ContinueStmt&) = 0;
+  virtual void visit(AssignmentStmt&) {};
+  virtual void visit(FunctionCallStmt&) {};
+  virtual void visit(BlockStmt&) {};
+  virtual void visit(IfStmt&) {};
+  virtual void visit(WhileStmt&) {};
+  virtual void visit(ForStmt&) {};
+  virtual void visit(BreakStmt&) {};
+  virtual void visit(ContinueStmt&) {};
 
-  virtual void visit(Int&) = 0;
-  virtual void visit(Double&) = 0;
-  virtual void visit(Char&) = 0;
-  virtual void visit(Boolean&) = 0;
-  virtual void visit(TPointer&) = 0;
+  virtual void visit(Int&) {};
+  virtual void visit(Double&) {};
+  virtual void visit(Char&) {};
+  virtual void visit(Boolean&) {};
+  virtual void visit(TPointer&) {};
 
-  virtual void visit(Alias&) = 0;
-  virtual void visit(Pointer&) = 0;
-  virtual void visit(StaticArray&) = 0;
-  virtual void visit(OpenArray&) = 0;
-  virtual void visit(Record&) = 0;
-  virtual void visit(FunctionSignature&) = 0;
-  virtual void visit(ForwardType&) = 0;
+  virtual void visit(Alias&) {};
+  virtual void visit(Pointer&) {};
+  virtual void visit(StaticArray&) {};
+  virtual void visit(OpenArray&) {};
+  virtual void visit(Record&) {};
+  virtual void visit(FunctionSignature&) {};
+  virtual void visit(ForwardType&) {};
 
-  virtual void visit(LocalVar&) = 0;
-  virtual void visit(GlobalVar&) = 0;
-  virtual void visit(ParamVar&) = 0;
-  virtual void visit(Const&) = 0;
+  virtual void visit(LocalVar&) {};
+  virtual void visit(GlobalVar&) {};
+  virtual void visit(ParamVar&) {};
+  virtual void visit(Const&) {};
 
-  virtual void visit(ForwardFunction&) = 0;
-  virtual void visit(Function&) = 0;
-  virtual void visit(MainFunction&) = 0;
+  virtual void visit(ForwardFunction&) {};
+  virtual void visit(Function&) {};
+  virtual void visit(MainFunction&) {};
 
-  virtual void visit(TableSymbol&) = 0;
-  virtual void visit(Tables&) = 0;
+  virtual void visit(Read&) {};
+  virtual void visit(Write&) {};
+  virtual void visit(Trunc&) {};
+  virtual void visit(Round&) {};
+  virtual void visit(Succ&) {};
+  virtual void visit(Prev&) {};
+  virtual void visit(Chr&) {};
+  virtual void visit(Ord&) {};
+  virtual void visit(High&) {};
+  virtual void visit(Low&) {};
+  virtual void visit(StaticCast&) {};
+
+
+  virtual void visit(TableSymbol<std::shared_ptr<SymType>>&) {};
+  virtual void visit(TableSymbol<std::shared_ptr<SymVar>>&) {};
+  virtual void visit(TableSymbol<std::shared_ptr<Const>>&) {};
+  virtual void visit(TableSymbol<std::shared_ptr<SymFun>>&) {};
+  virtual void visit(Tables&) {};
 };
 
 class PrintVisitor : public Visitor {
@@ -97,8 +116,22 @@ class PrintVisitor : public Visitor {
   void visit(ForwardFunction&) override;
   void visit(Function&) override;
   void visit(MainFunction&) override;
+  void visit(Read&) override;
+  void visit(Write&) override;
+  void visit(Trunc&) override;
+  void visit(Round&) override;
+  void visit(Succ&) override;
+  void visit(Prev&) override;
+  void visit(Chr&) override;
+  void visit(Ord&) override;
+  void visit(High&) override;
+  void visit(Low&) override;
+  void visit(StaticCast&) override;
 
-  void visit(TableSymbol&) override;
+  void visit(TableSymbol<std::shared_ptr<SymType>>&) override;
+  void visit(TableSymbol<std::shared_ptr<SymVar>>&) override;
+  void visit(TableSymbol<std::shared_ptr<Const>>&) override;
+  void visit(TableSymbol<std::shared_ptr<SymFun>>&) override;
   void visit(Tables&) override;
 
  private:

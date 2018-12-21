@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <list>
 
 #include "token_type.h"
 
@@ -11,6 +12,7 @@ namespace tok {
 class TokenBase;
 
 using ptr_Token = std::unique_ptr<tok::TokenBase>;
+using ListToken = std::list<ptr_Token>;
 
 std::string getPoint(int line, int column);
 
