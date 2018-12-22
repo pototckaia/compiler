@@ -1,0 +1,17 @@
+function bar() : integer;
+forward;
+
+procedure foo;
+begin
+    bar()
+end;
+
+function bar() : integer;
+begin
+	foo();
+	exit(0)
+end;
+
+begin
+	bar;
+end.

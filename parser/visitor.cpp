@@ -253,7 +253,7 @@ void PrintVisitor::visit(ParamVar& p) {
 void PrintVisitor::visit(ForwardFunction& f) {
   print("Forward function: " + f.name + " point: " + tok::getPoint(f.line, f.column));
   ++depth;
-  f.forwardSignature->accept(*this);
+  f.signature->accept(*this);
   f.function->accept(*this);
   --depth;
 }

@@ -21,15 +21,19 @@ class SemanticDecl {
   ptr_Type parseOpenArray(tok::ptr_Token declPoint, ptr_Type);
 
   std::shared_ptr<FunctionSignature>
-  parseFunctionSignature(int line, int column, ListParam, ptr_Type returnType = nullptr);
+  parseFunctionSignature(int line, int column, ListParam, ptr_Type returnType);
 
   ListParam parseFormalParamSection(TableSymbol<ptr_Var>&, ParamSpec, tok::ListToken, ptr_Type);
 
   void parseTypeDecl(std::list<std::pair<pr::ptr_Token, ptr_Type>>&);
-  void parseConstDecl();
-  void parseVarDecl();
-  void parseVariableDecl();
-  void parseFunctionDecl(bool isProcedure = false);
+  void parseConstDecl(const tok::ptr_Token& decl, pr::ptr_Expr);
+
+  void parseVariableDecl(tok::ListToken, ptr_Type, bool isGlobal);
+  void parseVariableDecl(tok::ListToken id, ptr_Type, pr::ptr_Expr, bool isGlobal);
+
+  void parseFunctionForward(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature>);
+  void parseFunctionDeclBegin(std::shared_ptr<FunctionSignature>);
+  void parseFunctionDeclEnd(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature>, pr::ptr_Stmt);
 
   std::shared_ptr<MainFunction> parseMainBlock(pr::ptr_Stmt body);
 

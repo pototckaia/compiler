@@ -9,8 +9,18 @@ class SymType : public Symbol {
   virtual bool equals(SymType* s) const = 0;
   bool isAnonymous() const { return name.empty(); }
 
+  virtual bool isVoid() const { return true; }
+
  protected:
   bool checkAlias(SymType* s) const;
+};
+
+class Void : public SymType {
+ public:
+  Void() : SymType("void") {}
+  bool isVoid() const override { return true; }
+  void accept(pr::Visitor& v) override {}
+  bool equals(SymType* s) const override { return false; }
 };
 
 class Int : public SymType {
@@ -62,12 +72,11 @@ class Alias : public SymType {
 
 class ForwardType : public SymType {
  public:
-  ForwardType(const tok::ptr_Token& t) : SymType(t) {
-    SymType::isForward = true;
-  }
+  ForwardType(const tok::ptr_Token& t) : SymType(t) {}
 
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isForward() const override { return true; }
 
   ptr_Type resolveType;
 };
@@ -120,11 +129,11 @@ class FunctionSignature : public SymType {
   using SymType::SymType;
 
   void setParamsList(ListParam t);
-  bool isProcedure() const { return returnType == nullptr; }
+  bool isProcedure() const { return returnType->isVoid(); }
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
 
   TableSymbol<std::shared_ptr<ParamVar>> paramsTable;
   ListParam paramsList;
-  ptr_Type returnType = nullptr;
+  ptr_Type returnType;
 };

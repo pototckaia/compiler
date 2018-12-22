@@ -63,8 +63,8 @@ class Parser {
   void parseDecl(bool isMainBlock = false);
   void parseTypeDecl();
   void parseConstDecl();
-  void parseVarDecl();
-  void parseVariableDecl();
+  void parseVarDecl(bool isMainBlock = false);
+  void parseVariableDecl(bool isMainBlock = false);
   void parseFunctionDecl(bool isProcedure = false);
 
 

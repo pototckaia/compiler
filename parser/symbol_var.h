@@ -33,6 +33,8 @@ class ParamVar : public SymVar {
   bool equals(ParamVar&) const;
 };
 
+
+
 class Const : public SymVar {
  public:
   using SymVar::SymVar;

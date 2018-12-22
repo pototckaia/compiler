@@ -9,12 +9,12 @@ class ForwardFunction : public SymFun {
  public:
   using SymFun::SymFun;
   ForwardFunction(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
-    : SymFun(t), forwardSignature(std::move(f)) {}
+    : SymFun(t, std::move(f)) {}
 
   void accept(pr::Visitor& v) override;
   void setFunction(const std::shared_ptr<SymFun>& f)  { function = f; }
+  bool isForward() const override { return true; }
 
-  std::shared_ptr<FunctionSignature> forwardSignature;
   std::shared_ptr<SymFun> function;
 };
 
@@ -23,12 +23,10 @@ class Function : public SymFun {
   using SymFun::SymFun;
   Function(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f,
           pr::ptr_Stmt p, Tables l)
-    : SymFun(t),
-      signature(std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
+    : SymFun(t, std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
 
   ~Function() override;
 
-  std::shared_ptr<FunctionSignature> signature;
   Tables localVar;
   pr::ptr_Stmt body;
   void accept(pr::Visitor& v) override;

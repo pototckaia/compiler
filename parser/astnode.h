@@ -34,6 +34,7 @@ class ASTNode {
 class Symbol;
 class SymVar;
 class SymType;
+class FunctionSignature;
 using ptr_Symbol = std::shared_ptr<Symbol>;
 using ptr_Var = std::shared_ptr<SymVar>;
 using ptr_Type = std::shared_ptr<SymType>;
@@ -50,14 +51,19 @@ class Symbol : public pr::ASTNode {
     line = t->getLine();
     column = t->getColumn();
   }
+  virtual bool isForward() const { return false; }
 
   std::string name;
   int line, column;
-  bool isForward = false;
 };
 
 class SymFun : public Symbol {
+ public:
   using Symbol::Symbol;
+  SymFun(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
+    : Symbol(t), signature(std::move(f)) {}
+
+  std::shared_ptr<FunctionSignature> signature;
 };
 
 class SymVar : public Symbol {
@@ -67,4 +73,5 @@ class SymVar : public Symbol {
     : Symbol(n), type(t) {}
 
   ptr_Type type;
+  pr::ptr_Expr defaultValue;
 };

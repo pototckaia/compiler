@@ -288,7 +288,7 @@ void Parser::parseDecl(bool isMainBlock) {
   while(true) {
     switch (lexer.get()->getTokenType()) {
       case tok::TokenType::Var: {
-        parseVarDecl();
+        parseVarDecl(isMainBlock);
         break;
       }
       case tok::TokenType::Const: {
@@ -317,36 +317,40 @@ void Parser::parseDecl(bool isMainBlock) {
   }
 }
 
-void Parser::parseVarDecl() {
+void Parser::parseVarDecl(bool isMainBlock) {
   requireAndSkip(tok::TokenType::Var);
   require(tok::TokenType::Id);
   while (match(tok::TokenType::Id)) {
-    parseVariableDecl();
+    parseVariableDecl(isMainBlock);
     requireAndSkip(tok::TokenType::Semicolon);
   }
 }
 
-void Parser::parseVariableDecl() {
+void Parser::parseVariableDecl(bool isMainBlock) {
   auto listId = parseListId();
   requireAndSkip(tok::TokenType::Colon);
-  parseType();
+  auto type = parseType();
   if (match(tok::TokenType::Equals)) {
     if (listId.size() > 1) {
       throw ParserException(lexer.get()->getLine(), lexer.get()->getColumn(), lexer.get()->getTokenType());
     }
     ++lexer;
-    parseExpression();
+    auto def = parseExpression();
+    semanticDecl.parseVariableDecl(std::move(listId), type, std::move(def), isMainBlock);
+    return;
   }
+  semanticDecl.parseVariableDecl(std::move(listId), type, isMainBlock);
 }
 
 void Parser::parseConstDecl() {
   requireAndSkip(tok::TokenType::Const);
   require(tok::TokenType::Id);
   while (match(tok::TokenType::Id)) {
-    ++lexer;
+    auto id = lexer.next();
     requireAndSkip(tok::TokenType::Equals);
-    parseExpression();
+    auto expression = parseExpression();
     requireAndSkip(tok::TokenType::Semicolon);
+    semanticDecl.parseConstDecl(id, std::move(expression));
   }
 }
 
@@ -369,19 +373,22 @@ void Parser::parseFunctionDecl(bool isProcedure) {
   require({tok::TokenType::Function, tok::TokenType::Procedure}, "\"procedure\" or \"function\"");
   ++lexer;
   require(tok::TokenType::Id);
-  ++lexer;
-  parseFunctionSignature(isProcedure);
+  auto declPoint =lexer.next();
+  auto signature = parseFunctionSignature(isProcedure);
   requireAndSkip(tok::TokenType::Semicolon);
   if (match(tok::TokenType::Id)) {
-    auto id(lexer.next());
-    if (id->getValueString() == "forward") {
+    auto idType = lexer.next();
+    if (idType->getValueString() == "forward") {
+      semanticDecl.parseFunctionForward(std::move(declPoint), std::move(signature));
     }
     else  {
-      throw ParserException(id->getLine(), id->getColumn(), "forward", id->getValueString());
+      throw ParserException(idType->getLine(), idType->getColumn(), "forward", idType->getValueString());
     }
   } else {
+    semanticDecl.parseFunctionDeclBegin(signature);
     parseDecl();
-    parseCompound();
+    auto body = parseCompound();
+    semanticDecl.parseFunctionDeclEnd(declPoint, signature, std::move(body));
   }
   requireAndSkip(tok::TokenType::Semicolon);
 }
@@ -499,7 +506,7 @@ std::shared_ptr<FunctionSignature> Parser::parseFunctionSignature(bool isProcedu
     if (match(tok::TokenType::OpenParenthesis)) {
       param = parseFormalParameterList();
     }
-    return semanticDecl.parseFunctionSignature(line, column, std::move(param));
+    return semanticDecl.parseFunctionSignature(line, column, std::move(param), std::make_shared<Void>());
   }
   else {
     if (!match(tok::TokenType::Colon)) {

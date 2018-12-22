@@ -43,6 +43,7 @@ class Tables {
   void insert(const std::shared_ptr<ForwardFunction>&);
 
   void resolveForwardType();
+  void resolveForwardFunction();
   TableSymbol<std::shared_ptr<SymType>> tableType;
   TableSymbol<std::shared_ptr<SymVar>> tableVariable;
   TableSymbol<std::shared_ptr<Const>> tableConst;
@@ -59,6 +60,7 @@ class StackTable {
   StackTable(const Tables& global);
 
   void push(const Tables& t) { stack.push_back(t); }
+  void pushEmpty() { stack.push_back(Tables()); }
   void pop() { stack.pop_back(); }
   Tables& top() { return stack.back(); }
   bool isEmpty() { return stack.empty(); }
@@ -66,7 +68,14 @@ class StackTable {
   bool checkContain(const std::string& n);
 
   bool isType(const std::string& n);
+  bool isFunction(const std::string& n);
+  bool isConst(const std::string& n);
+  bool isVar(const std::string& n);
+
   ptr_Type findType(const std::string&);
+  std::shared_ptr<SymFun> findFunction(const std::string&);
+  std::shared_ptr<Const> findConst(const std::string&);
+  ptr_Var findVar(const std::string&);
 
   std::list<Tables> stack;
 };
@@ -79,7 +88,7 @@ void TableSymbol<T>::replace(T t) {
 
 template<class T>
 void TableSymbol<T>::insert(T t) {
-  if (checkContain(t->name) && !find(t->name)->isForward) {
+  if (checkContain(t->name)) {
     throw std::logic_error("Already defined " + t->name);
   }
   table[t->name] = std::forward<T>(t);
