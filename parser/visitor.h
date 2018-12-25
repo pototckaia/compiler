@@ -20,6 +20,7 @@ class Visitor {
   virtual void visit(ArrayAccess&) {};
   virtual void visit(RecordAccess&) {};
   virtual void visit(FunctionCall&) {};
+  virtual void visit(StaticCast&) {};
 
   virtual void visit(AssignmentStmt&) {};
   virtual void visit(FunctionCallStmt&) {};
@@ -35,6 +36,7 @@ class Visitor {
   virtual void visit(Char&) {};
   virtual void visit(Boolean&) {};
   virtual void visit(TPointer&) {};
+  virtual void visit(String&) {};
 
   virtual void visit(Alias&) {};
   virtual void visit(Pointer&) {};
@@ -63,8 +65,7 @@ class Visitor {
   virtual void visit(Ord&) {};
   virtual void visit(High&) {};
   virtual void visit(Low&) {};
-  virtual void visit(StaticCast&) {};
-
+  virtual void visit(Exit& e) {};
 
   virtual void visit(TableSymbol<std::shared_ptr<SymType>>&) {};
   virtual void visit(TableSymbol<std::shared_ptr<SymVar>>&) {};
@@ -84,6 +85,7 @@ class PrintVisitor : public Visitor {
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
   void visit(FunctionCall&) override;
+  void visit(StaticCast&) override;
 
   void visit(AssignmentStmt&) override;
   void visit(FunctionCallStmt&) override;
@@ -99,6 +101,7 @@ class PrintVisitor : public Visitor {
   void visit(Char&) override;
   void visit(TPointer&) override;
   void visit(Boolean&) override;
+  void visit(String&) override;
 
   void visit(Alias&) override;
   void visit(Pointer&) override;
@@ -126,7 +129,7 @@ class PrintVisitor : public Visitor {
   void visit(Ord&) override;
   void visit(High&) override;
   void visit(Low&) override;
-  void visit(StaticCast&) override;
+  void visit(Exit&) override;
 
   void visit(TableSymbol<std::shared_ptr<SymType>>&) override;
   void visit(TableSymbol<std::shared_ptr<SymVar>>&) override;

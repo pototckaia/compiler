@@ -44,15 +44,6 @@ class MainFunction : public SymFun {
   Tables decl;
 };
 
-class StaticCast : public SymFun {
- public:
-  using SymFun::SymFun;
-  StaticCast(ptr_Type to) : typeConvert(std::move(to)) {}
-
-  void accept(pr::Visitor& v) override;
-  ptr_Type typeConvert;
-};
-
 class Write : public SymFun {
  public:
   Write(bool newLine = false) {
@@ -121,4 +112,11 @@ class Low : public SymFun {
  public:
   Low() : SymFun("low") {}
   void accept(pr::Visitor& v) override;
+};
+
+class Exit : public SymFun {
+ public:
+  Exit(ptr_Type returnType) : returnType(std::move(returnType)) {};
+  void accept(pr::Visitor& v) override;
+  ptr_Type returnType;
 };

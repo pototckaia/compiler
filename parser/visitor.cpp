@@ -9,36 +9,40 @@ void PrintVisitor::print(const std::string& s) {
   out << std::string(depth, '\t') << s << std::endl;
 }
 
+// Expression
+
 void PrintVisitor::visit(pr::Literal& l) {
   print(l.getValue()->getValueString());
+  l.typeExpression->accept(*this);
 }
 
 void PrintVisitor::visit(pr::Variable& v) {
   print(v.getName()->getValueString());
+  v.typeExpression->accept(*this);
 }
 
 void PrintVisitor::visit(pr::BinaryOperation& b) {
   print(b.getOpr()->getValueString());
-
   ++depth;
-  b.getLeft()->accept(*this);
+  b.typeExpression->accept(*this);
   b.getRight()->accept(*this);
+  b.getLeft()->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(pr::UnaryOperation& u) {
   print(u.getOpr()->getValueString());
-
   ++depth;
+  u.typeExpression->accept(*this);
   u.getExpr()->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(pr::ArrayAccess& a) {
   print("Array Access");
-
   ++depth;
   a.getName()->accept(*this);
+  a.typeExpression->accept(*this);
   for (auto& e: a.getListIndex()) {
     e->accept(*this);
   }
@@ -47,9 +51,9 @@ void PrintVisitor::visit(pr::ArrayAccess& a) {
 
 void PrintVisitor::visit(pr::FunctionCall& f) {
   print("Function Call");
-
   ++depth;
   f.getName()->accept(*this);
+  f.typeExpression->accept(*this);
   for (auto& e: f.getParam()) {
     e->accept(*this);
   }
@@ -58,16 +62,23 @@ void PrintVisitor::visit(pr::FunctionCall& f) {
 
 void PrintVisitor::visit(pr::RecordAccess& r) {
   print("Record Access");
-
   ++depth;
   r.getRecord()->accept(*this);
   print(r.getField()->getValueString());
+  r.typeExpression->accept(*this);
   --depth;
 }
 
+void PrintVisitor::visit(StaticCast& t) {
+  print("Static cast");
+  t.typeExpression->accept(*this);
+  t.expr->accept(*this);
+}
+
+// Stmt
+
 void PrintVisitor::visit(pr::AssignmentStmt& a) {
   print("Assigment");
-
   ++depth;
   print(a.getOpr()->getValueString());
   a.getLeft()->accept(*this);
@@ -154,22 +165,29 @@ void PrintVisitor::visit(TPointer& i) {
   print(i.name);
 }
 
+void PrintVisitor::visit(String& s) {
+  print(s.name);
+}
+
 void PrintVisitor::visit(Alias& a) {
-  print("Type alias: " + a.name + " point: " + tok::getPoint(a.line, a.column));
+  print("Type alias: " + a.name);
+  print("Decl point: " + tok::getPoint(a.line, a.column));
   ++depth;
   a.type->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(Pointer& p) {
-  print("Pointer  point: " + tok::getPoint(p.line, p.column));
+  print("Pointer");
+  print("Decl point: " + tok::getPoint(p.line, p.column));
   ++depth;
   p.typeBase->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(StaticArray& a) {
-  print("Static array  point: " + tok::getPoint(a.line, a.column));
+  print("Static array");
+  print("Decl point: " + tok::getPoint(a.line, a.column));
   ++depth;
 
   print("Size");
@@ -184,14 +202,16 @@ void PrintVisitor::visit(StaticArray& a) {
 }
 
 void PrintVisitor::visit(OpenArray& o) {
-  print("Open array  point: " + tok::getPoint(o.line, o.column));
+  print("Open array");
+  print("Decl point: " + tok::getPoint(o.line, o.column));
   ++depth;
   o.typeElem->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(Record& r) {
-  print("Record  point: " + tok::getPoint(r.line, r.column));
+  print("Record");
+  print("Decl point: " + tok::getPoint(r.line, r.column));
   ++depth;
   visit(r.fields);
   --depth;
@@ -199,11 +219,11 @@ void PrintVisitor::visit(Record& r) {
 
 void PrintVisitor::visit(FunctionSignature& s) {
   if (s.returnType == nullptr) {
-    print("Procedure  point: " + tok::getPoint(s.line, s.column));
+    print("Procedure");
   } else {
-    print ("Function  point: " + tok::getPoint(s.line, s.column));
+    print ("Function");
   }
-
+  print("Decl point: " + tok::getPoint(s.line, s.column));
   ++depth;
   for (auto& e : s.paramsList) {
    e->accept(*this);
@@ -215,35 +235,40 @@ void PrintVisitor::visit(FunctionSignature& s) {
 }
 
 void PrintVisitor::visit(ForwardType& f) {
-  print("Forward type decl: " + f.name + " point: " + tok::getPoint(f.line, f.column));
+  print("Forward type " + f.name);
+  print("Decl point: " + tok::getPoint(f.line, f.column));
   ++depth;
-  f.resolveType->accept(*this);
+  f.type->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(LocalVar& l) {
-  print("Local variable: " + l.name + " point: " + tok::getPoint(l.line, l.column));
+  print("Local variable: " + l.name);
+  print("Decl point: " + tok::getPoint(l.line, l.column));
   ++depth;
   l.type->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(GlobalVar& l) {
-  print("Global variable: " + l.name + " point: " + tok::getPoint(l.line, l.column));
+  print("Global variable: " + l.name);
+  print("Decl point: " + tok::getPoint(l.line, l.column));
   ++depth;
   l.type->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(Const& c) {
-  print("Const value: " + c.name + " point: " + tok::getPoint(c.line, c.column));
+  print("Const value: " + c.name);
+  print("Decl point: " + tok::getPoint(c.line, c.column));
   ++depth;
   c.value->accept(*this);
   --depth;
 }
 
 void PrintVisitor::visit(ParamVar& p) {
-  print("Param value: " + p.name + " point: " + tok::getPoint(p.line, p.column));
+  print("Param value: " + p.name);
+  print("Decl point: " + tok::getPoint(p.line, p.column));
   ++depth;
   print(toString(p.spec));
   p.type->accept(*this);
@@ -251,7 +276,8 @@ void PrintVisitor::visit(ParamVar& p) {
 }
 
 void PrintVisitor::visit(ForwardFunction& f) {
-  print("Forward function: " + f.name + " point: " + tok::getPoint(f.line, f.column));
+  print("Forward function: " + f.name);
+  print("Decl point: " + tok::getPoint(f.line, f.column));
   ++depth;
   f.signature->accept(*this);
   f.function->accept(*this);
@@ -259,7 +285,8 @@ void PrintVisitor::visit(ForwardFunction& f) {
 }
 
 void PrintVisitor::visit(Function& f) {
-  print("Function decl: " + f.name + " point: " + tok::getPoint(f.line, f.column));
+  print("Function decl: " + f.name);
+  print("Decl point: " + tok::getPoint(f.line, f.column));
   ++depth;
   f.signature->accept(*this);
   visit(f.localVar);
@@ -370,9 +397,9 @@ void PrintVisitor::visit(Low&) {
   print("Low");
 }
 
-void PrintVisitor::visit(StaticCast& t) {
-  print("Static cast to ");
+void PrintVisitor::visit(Exit& e) {
+  print("Exit");
   ++depth;
-  t.typeConvert->accept(*this);
+  e.returnType->accept(*this);
   --depth;
 }

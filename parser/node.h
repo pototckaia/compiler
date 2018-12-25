@@ -9,7 +9,13 @@
 
 namespace pr {
 
-class Expression : public ASTNode {};
+class Expression : public ASTNode {
+ public:
+  Expression() = default;
+  Expression(ptr_Type t) : typeExpression(std::move(t)) {}
+
+  ptr_Type typeExpression;
+};
 
 class Variable : public Expression {
  public:
@@ -33,7 +39,7 @@ class Literal : public Expression {
   void accept(Visitor&) override;
 
  private:
-  std::unique_ptr<tok::TokenBase> value;
+  ptr_Token value;
 };
 
 
@@ -49,10 +55,9 @@ class BinaryOperation : public Expression {
 
   void accept(Visitor&) override ;
 
- private:
-  std::unique_ptr<tok::TokenBase> opr;
-  std::unique_ptr<ASTNode> left;
-  std::unique_ptr<ASTNode> right;
+  ptr_Token opr;
+  ptr_Expr left;
+  ptr_Expr right;
 };
 
 class UnaryOperation : public Expression {
@@ -65,8 +70,8 @@ class UnaryOperation : public Expression {
   void accept(Visitor&) override;
 
  private:
-  std::unique_ptr<tok::TokenBase> opr;
-  std::unique_ptr<ASTNode> expr;
+  ptr_Token opr;
+  ptr_Expr expr;
 };
 
 class ArrayAccess : public Expression {
@@ -95,6 +100,15 @@ class FunctionCall : public Expression {
  private:
   ptr_Expr nameFunction;
   ListExpr listParam;
+};
+
+class StaticCast : public Expression {
+ public:
+  StaticCast(ptr_Type to, ptr_Expr expr)
+    : Expression(std::move(to)), expr(std::move(expr)) {}
+
+  void accept(pr::Visitor& v) override;
+  ptr_Expr expr;
 };
 
 class RecordAccess : public Expression {

@@ -9,7 +9,15 @@ class SymType : public Symbol {
   virtual bool equals(SymType* s) const = 0;
   bool isAnonymous() const { return name.empty(); }
 
-  virtual bool isVoid() const { return true; }
+  virtual bool isVoid() const { return false; }
+  virtual bool isString() const { return false; }
+  virtual bool isInt() const { return false; }
+  virtual bool isDouble() const { return false; }
+  virtual bool isBool() const { return false; }
+  virtual bool isChar() const { return false; }
+  virtual bool isPurePointer() const { return false; }
+  virtual bool isTypePointer() const { return false; }
+  virtual bool isPointer() const { return isTypePointer() || isPurePointer(); }
 
  protected:
   bool checkAlias(SymType* s) const;
@@ -28,6 +36,7 @@ class Int : public SymType {
   Int() : SymType("integer") {}
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isInt() const override { return true; }
 };
 
 class Double : public SymType {
@@ -35,6 +44,7 @@ class Double : public SymType {
   Double() : SymType("double") {}
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isDouble() const override { return true; }
 };
 
 class Char : public SymType {
@@ -42,6 +52,15 @@ class Char : public SymType {
   Char() : SymType("char") {}
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isChar() const override { return true; }
+};
+
+class String : public SymType {
+ public:
+  String() : SymType("string") {}
+  void accept(pr::Visitor& v) override;
+  bool equals(SymType* s) const override { return s->isString(); }
+  bool isString() const override { return true;}
 };
 
 class Boolean : public SymType {
@@ -49,6 +68,7 @@ class Boolean : public SymType {
   Boolean() : SymType("boolean") {}
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isBool() const override { return true; }
 };
 
 class TPointer : public SymType {
@@ -56,6 +76,7 @@ class TPointer : public SymType {
   TPointer() : SymType("pointer") {}
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isPurePointer() const override { return true; }
 };
 
 class Alias : public SymType {
@@ -67,18 +88,24 @@ class Alias : public SymType {
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
 
+  bool isInt() const override { return type->isInt(); }
+  bool isDouble() const override { return type->isDouble(); }
+  bool isBool() const override { return type->isBool(); }
+  bool isChar() const override { return type->isChar(); }
+  bool isPurePointer() const override { return type->isPurePointer(); }
+  bool isTypePointer() const override { return type->isTypePointer(); }
+
   ptr_Type type;
 };
 
-class ForwardType : public SymType {
+class ForwardType : public Alias {
  public:
-  ForwardType(const tok::ptr_Token& t) : SymType(t) {}
+  ForwardType(const tok::ptr_Token& t) : Alias(t) {}
 
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
-  bool isForward() const override { return true; }
 
-  ptr_Type resolveType;
+  bool isForward() const override { return true; }
 };
 
 
@@ -90,6 +117,7 @@ class Pointer : public SymType {
 
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isTypePointer() const override { return true; }
 
   ptr_Type typeBase;
 };

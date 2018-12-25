@@ -37,7 +37,7 @@ void Tables::resolveForwardType() {
     if (tableType.find(e->name)->isForward()) {
       throw SemanticException(e->line, e->column, "Type \"" + e->name + "\" not resolve");
     }
-    e->resolveType = tableType.find(e->name);
+    e->type = tableType.find(e->name);
   }
   forwardType.clear();
 }
@@ -175,7 +175,7 @@ bool SymType::checkAlias(SymType* s) const {
   if (dynamic_cast<Alias*>(s)) {
     return equals(dynamic_cast<Alias*>(s)->type.get());
   } else if (dynamic_cast<ForwardType*>(s)) {
-    return equals(dynamic_cast<ForwardType*>(s)->resolveType.get());
+    return equals(dynamic_cast<ForwardType*>(s)->type.get());
   }
   return false;
 }
@@ -254,7 +254,7 @@ bool FunctionSignature::equals(SymType* s) const  {
 bool ForwardType::equals(SymType* s) const {
   if (dynamic_cast<ForwardType*>(s)) {
     auto p = dynamic_cast<ForwardType*>(s);
-    return resolveType->equals(p->resolveType.get());
+    return type->equals(p->type.get());
   }
   return checkAlias(s);
 }
@@ -269,6 +269,7 @@ void Int::accept(pr::Visitor& v) { v.visit(*this); }
 void Double::accept(pr::Visitor& v) { v.visit(*this); }
 void Char::accept(pr::Visitor& v) { v.visit(*this); }
 void Boolean::accept(pr::Visitor& v) { v.visit(*this); }
+void String::accept(pr::Visitor& v) { v.visit(*this); }
 
 void TPointer::accept(pr::Visitor& v) { v.visit(*this); }
 void Alias::accept(pr::Visitor& v) { v.visit(*this); }
@@ -298,4 +299,3 @@ void Chr::accept(pr::Visitor& v) { v.visit(*this); }
 void Ord::accept(pr::Visitor& v) { v.visit(*this); }
 void High::accept(pr::Visitor& v) { v.visit(*this); }
 void Low::accept(pr::Visitor& v) { v.visit(*this); }
-void StaticCast::accept(pr::Visitor& v) { v.visit(*this); }

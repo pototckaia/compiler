@@ -51,6 +51,7 @@ void BinaryOperation::accept(pr::Visitor& v) { v.visit(*this); }
 void UnaryOperation::accept(pr::Visitor& v) { v.visit(*this); }
 void ArrayAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void FunctionCall::accept(pr::Visitor& v) { v.visit(*this); }
+void StaticCast::accept(pr::Visitor& v) { v.visit(*this); }
 void RecordAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void AssignmentStmt::accept(pr::Visitor& v) { v.visit(*this); }
 void FunctionCallStmt::accept(pr::Visitor& v) { v.visit(*this); }
