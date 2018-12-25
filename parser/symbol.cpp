@@ -227,6 +227,14 @@ bool OpenArray::equals(SymType* s) const {
   return checkAlias(s);
 }
 
+bool OpenArray::equalsForCheckArgument(SymType* s) const {
+  if (dynamic_cast<StaticArray*>(s)) {
+    auto p = dynamic_cast<StaticArray*>(s);
+    return typeElem->equalsForCheckArgument(p->typeElem.get());
+  }
+  return equals(s);
+}
+
 bool Record::equals(SymType* s) const {
   if (dynamic_cast<Record*>(s)) {
     auto record = dynamic_cast<Record*>(s);
@@ -262,6 +270,92 @@ bool ForwardType::equals(SymType* s) const {
 bool ParamVar::equals(ParamVar& p) const {
   return spec == p.spec && type->equals(p.type.get());
 }
+
+Write::Write(bool newLine)  {
+  if (newLine)
+    name =  "write";
+  else
+    name = "writeln";
+}
+
+Read::Read(bool newLine) {
+  if (newLine)
+    name =  "read";
+  else
+    name = "readln";
+}
+
+Round::Round() : SymFun("round") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Double>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Trunc::Trunc() : SymFun("trunc") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Double>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+};
+
+Succ::Succ() : SymFun("succ") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Int>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Prev::Prev()  : SymFun("prev") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Int>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Chr::Chr() : SymFun("chr") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Char>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Ord::Ord() : SymFun("ord") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Char>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>();
+  var->type = std::make_shared<Int>();
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+High::High() : SymFun("high") {}
+
+Low::Low() : SymFun("low") {}
+
+Exit::Exit(ptr_Type returnType) : returnType(std::move(returnType)) {  };
 
 // accept
 
@@ -299,3 +393,4 @@ void Chr::accept(pr::Visitor& v) { v.visit(*this); }
 void Ord::accept(pr::Visitor& v) { v.visit(*this); }
 void High::accept(pr::Visitor& v) { v.visit(*this); }
 void Low::accept(pr::Visitor& v) { v.visit(*this); }
+void Exit::accept(pr::Visitor& v) { v.visit(*this); }

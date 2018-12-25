@@ -12,6 +12,7 @@ class ForwardFunction : public SymFun {
     : SymFun(t, std::move(f)) {}
 
   void accept(pr::Visitor& v) override;
+  bool isEmbedded() const override { return false; }
   void setFunction(const std::shared_ptr<SymFun>& f)  { function = f; }
   bool isForward() const override { return true; }
 
@@ -30,6 +31,7 @@ class Function : public SymFun {
   Tables localVar;
   pr::ptr_Stmt body;
   void accept(pr::Visitor& v) override;
+  bool isEmbedded() const override { return false; }
 };
 
 class MainFunction : public SymFun {
@@ -39,6 +41,7 @@ class MainFunction : public SymFun {
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
   void accept(pr::Visitor& v) override;
+  bool isEmbedded() const override { return false; }
 
   pr::ptr_Stmt body;
   Tables decl;
@@ -46,77 +49,67 @@ class MainFunction : public SymFun {
 
 class Write : public SymFun {
  public:
-  Write(bool newLine = false) {
-    if (newLine)
-      name =  "write";
-    else
-      name = "writeln";
-  }
+  Write(bool newLine = false);
   void accept(pr::Visitor& v) override;
 };
 
 class Read: public SymFun {
  public:
-  Read(bool newLine = false) {
-    if (newLine)
-      name =  "read";
-    else
-      name = "readln";
-  }
+  Read(bool newLine = false);
   void accept(pr::Visitor& v) override;
 };
 
 class Trunc : public SymFun {
  public:
-  Trunc() : SymFun("trunc") {};
+  Trunc();
   void accept(pr::Visitor& v) override;
 };
 
 class Round : public SymFun {
  public:
-  Round() : SymFun("round") {}
+  Round();
   void accept(pr::Visitor& v) override;
 };
 
 class Succ : public SymFun {
  public:
-  Succ(): SymFun("succ") {}
+  Succ();
   void accept(pr::Visitor& v) override;
 };
 
 class Prev : public SymFun {
  public:
-  Prev() : SymFun("prev") {}
+  Prev();
   void accept(pr::Visitor& v) override;
 };
 
 class Chr : public SymFun {
  public:
-  Chr() : SymFun("chr") {}
+  Chr();
   void accept(pr::Visitor& v) override;
 };
 
 class Ord : public SymFun {
  public:
-  Ord() : SymFun("ord") {}
+  Ord();
   void accept(pr::Visitor& v) override;
 };
 
 class High : public SymFun {
  public:
-  High() : SymFun("high") {}
+  High();
   void accept(pr::Visitor& v) override;
 };
 
 class Low : public SymFun {
  public:
-  Low() : SymFun("low") {}
+  Low();
   void accept(pr::Visitor& v) override;
 };
 
 class Exit : public SymFun {
  public:
-  Exit(ptr_Type returnType) : returnType(std::move(returnType)) {};
+  Exit(ptr_Type returnType);
   void accept(pr::Visitor& v) override;
   ptr_Type returnType;
 };

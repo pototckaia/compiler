@@ -23,6 +23,10 @@ FunctionCall::FunctionCall(ptr_Expr nameFunction, ListExpr listParam)
 
 FunctionCallStmt::FunctionCallStmt(pr::ptr_Expr e) : functionCall(std::move(e)) {}
 
+StaticCast::StaticCast(ptr_Type to, pr::ptr_Expr expr)
+ : Expression(std::move(to)), expr(std::move(expr)) {}
+
+
 RecordAccess::RecordAccess(ptr_Expr record, std::unique_ptr<tok::TokenBase> field)
   : record(std::move(record)), field(std::move(field)) {}
 

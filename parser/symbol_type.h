@@ -7,6 +7,7 @@ class SymType : public Symbol {
  public:
   using Symbol::Symbol;
   virtual bool equals(SymType* s) const = 0;
+  virtual bool equalsForCheckArgument(SymType* s) const { return equals(s); } // вызывет paramenter передается argument
   bool isAnonymous() const { return name.empty(); }
 
   virtual bool isVoid() const { return false; }
@@ -18,6 +19,9 @@ class SymType : public Symbol {
   virtual bool isPurePointer() const { return false; }
   virtual bool isTypePointer() const { return false; }
   virtual bool isPointer() const { return isTypePointer() || isPurePointer(); }
+  virtual bool isProcedureType() const { return false; }
+  virtual bool isOpenArray() const { return false; }
+  virtual bool isStaticArray() const { return false; }
 
  protected:
   bool checkAlias(SymType* s) const;
@@ -94,6 +98,9 @@ class Alias : public SymType {
   bool isChar() const override { return type->isChar(); }
   bool isPurePointer() const override { return type->isPurePointer(); }
   bool isTypePointer() const override { return type->isTypePointer(); }
+  bool isProcedureType() const override { return type->isProcedureType(); }
+  bool isStaticArray() const override { return type->isStaticArray(); }
+  bool isOpenArray() const override { return type->isOpenArray(); }
 
   ptr_Type type;
 };
@@ -112,6 +119,7 @@ class ForwardType : public Alias {
 class Pointer : public SymType {
  public:
   using SymType::SymType;
+  Pointer(ptr_Type p) : SymType(), typeBase(p) {}
   Pointer(const tok::ptr_Token& t, ptr_Type p)
     : SymType(t), typeBase(std::move(p)) {}
 
@@ -122,6 +130,7 @@ class Pointer : public SymType {
   ptr_Type typeBase;
 };
 
+
 class StaticArray : public SymType {
  public:
   using SymType::SymType;
@@ -131,9 +140,10 @@ class StaticArray : public SymType {
   ptr_Type typeElem;
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool isStaticArray() const override { return true; }
 };
 
-class OpenArray : public SymType {
+class OpenArray : public SymType{
  public:
   OpenArray(const tok::ptr_Token& decl, ptr_Type type)
     : SymType(decl->getLine(), decl->getColumn()), typeElem(std::move(type)) {}
@@ -141,6 +151,8 @@ class OpenArray : public SymType {
   ptr_Type typeElem;
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
+  bool equalsForCheckArgument(SymType* s) const override;
+  bool isOpenArray() const override { return false; }
 };
 
 class Record : public SymType {
@@ -157,6 +169,7 @@ class FunctionSignature : public SymType {
   using SymType::SymType;
 
   void setParamsList(ListParam t);
+  bool isProcedureType() const override { return true; }
   bool isProcedure() const { return returnType->isVoid(); }
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;

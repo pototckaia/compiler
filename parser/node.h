@@ -15,6 +15,7 @@ class Expression : public ASTNode {
   Expression(ptr_Type t) : typeExpression(std::move(t)) {}
 
   ptr_Type typeExpression;
+  std::shared_ptr<SymFun> embeddedFunction;
 };
 
 class Variable : public Expression {
@@ -26,7 +27,7 @@ class Variable : public Expression {
   void accept(Visitor&) override;
 
  private:
-  std::unique_ptr<tok::TokenBase> name;
+  ptr_Token name;
 };
 
 
@@ -97,16 +98,13 @@ class FunctionCall : public Expression {
 
   void accept(Visitor&) override;
 
- private:
   ptr_Expr nameFunction;
   ListExpr listParam;
 };
 
 class StaticCast : public Expression {
  public:
-  StaticCast(ptr_Type to, ptr_Expr expr)
-    : Expression(std::move(to)), expr(std::move(expr)) {}
-
+  StaticCast(ptr_Type to, ptr_Expr expr);
   void accept(pr::Visitor& v) override;
   ptr_Expr expr;
 };
@@ -122,7 +120,7 @@ class RecordAccess : public Expression {
 
  private:
   ptr_Expr record;
-  std::unique_ptr<tok::TokenBase> field;
+  ptr_Token field;
 };
 
 class ASTNodeStmt : public ASTNode {};

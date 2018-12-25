@@ -63,6 +63,7 @@ class SymFun : public Symbol {
   SymFun(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
     : Symbol(t), signature(std::move(f)) {}
 
+  virtual bool isEmbedded() const { return true; }
   std::shared_ptr<FunctionSignature> signature;
 };
 
