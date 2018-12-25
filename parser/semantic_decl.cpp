@@ -1,7 +1,7 @@
-#include <iostream>
 #include "semantic_decl.h"
 
 #include "../exception.h"
+#include "visitor_type.h"
 
 SemanticDecl::SemanticDecl() : stackTable(Tables()) {
   auto& t = stackTable.top();
@@ -120,6 +120,8 @@ ListParam SemanticDecl::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable
 
 std::shared_ptr<MainFunction> SemanticDecl::parseMainBlock(pr::ptr_Stmt body) {
   stackTable.top().resolveForwardFunction();
+  CheckType checkType(stackTable);
+  body->accept(checkType);
   auto main = std::make_shared<MainFunction>(stackTable.top(), std::move(body));
   stackTable.pop();
   if (!stackTable.isEmpty()) {
@@ -146,6 +148,8 @@ void SemanticDecl::parseFunctionDeclBegin(std::shared_ptr<FunctionSignature> s) 
 
 void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
                                         std::shared_ptr<FunctionSignature> s, pr::ptr_Stmt b) {
+  CheckType checkType(stackTable);
+  b->accept(checkType);
   auto declTable = stackTable.top();
   stackTable.pop();
   stackTable.pop();

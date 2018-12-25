@@ -6,14 +6,17 @@
 using namespace pr;
 
 class CheckType : public Visitor {
+ public:
+  CheckType(StackTable s);
 
-  void visit(Variable&) override;
   void visit(Literal&) override;
+  void visit(Variable&) override;
   void visit(BinaryOperation&) override;
   void visit(UnaryOperation&) override;
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
   void visit(FunctionCall&) override;
+  void visit(StaticCast&) override;
 
   void visit(AssignmentStmt&) override;
   void visit(FunctionCallStmt&) override;
@@ -21,27 +24,6 @@ class CheckType : public Visitor {
   void visit(IfStmt&) override;
   void visit(WhileStmt&) override;
   void visit(ForStmt&) override;
-  void visit(BreakStmt&) override;
-  void visit(ContinueStmt&) override;
-
-  void visit(Int&) override;
-  void visit(Double&) override;
-  void visit(Char&) override;
-  void visit(TPointer&) override;
-  void visit(Boolean&) override;
-
-  void visit(Alias&) override;
-  void visit(Pointer&) override;
-  void visit(StaticArray&) override;
-  void visit(OpenArray&) override;
-  void visit(Record&) override;
-  void visit(FunctionSignature&) override;
-  void visit(ForwardType&) override;
-
-  void visit(LocalVar&) override;
-  void visit(GlobalVar&) override;
-  void visit(ParamVar&) override;
-  void visit(Const&) override;
 
   void visit(ForwardFunction&) override;
   void visit(Function&) override;
@@ -56,6 +38,12 @@ class CheckType : public Visitor {
   void visit(Ord&) override;
   void visit(High&) override;
   void visit(Low&) override;
-  void visit(StaticCast&) override;
+
+
+ private:
+  StackTable stackTable;
+
+  bool implicitCastInt(BinaryOperation& b);
+  bool checkTypePlusMinus(BinaryOperation& b);
 
 };
