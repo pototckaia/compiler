@@ -75,6 +75,8 @@ class NotDefinedException: public std::exception {
 
 class SemanticException : public std::exception {
  public:
+  explicit SemanticException(const tok::ptr_Token& t, std::string n)
+    : SemanticException(t->getLine(), t->getColumn(), n) {}
   explicit SemanticException(int line, int column, std::string n)
     : s(tok::getPoint(line, column) + " " + n) {}
 
