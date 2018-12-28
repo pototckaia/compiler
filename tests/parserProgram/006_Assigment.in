@@ -1,3 +1,5 @@
+var a, c, b : double;
+
 begin
     a := 3;
     b := (a + a*a/a)-a;

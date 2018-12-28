@@ -1,0 +1,68 @@
+
+function max(): integer;
+const a=12;
+begin
+    max := 112;
+end;
+
+type ints = array[0..2] of integer;
+ 	 Tmax = function : integer;
+ 	 Tp = procedure ();
+
+type AllType = Record
+ 	ar : ints;
+ 	fun : Tmax;
+ 	end;
+
+var proc: Tmax;
+var ptr_proc: ^Tmax;
+
+type AllPtrType = Record
+	ptr_ar : ^ints;
+ 	ptr_fun : ^Tmax;
+ 	end;
+
+var recordAll : AllType;
+var ptr_recordAll : ^AllType;
+var recordAllPtr : AllPtrType;
+
+var ar: ints;
+var ptr_ar : ^ints;
+
+type TArrayFunction = array [0..1] of Tmax;
+
+var ar_fun : TArrayFunction;
+var ptr_ar_fun : ^TArrayFunction;
+var f:integer;
+
+begin
+	recordAll.ar[0] := 120;
+	recordAll.fun := @max;
+	ptr_recordAll  := @recordAll;
+	writeln(ptr_recordAll^.ar[0]);
+	writeln(ptr_recordAll^.fun());
+
+	recordAllPtr.ptr_ar := @recordAll.ar;
+	recordAllPtr.ptr_fun := @recordAll.fun;
+	writeln('ptr');
+	writeln(recordAllPtr.ptr_ar^[0]);
+	writeln(recordAllPtr.ptr_fun^());
+
+	ar_fun[0] := @max;
+	ar_fun[1] := @max;
+	ptr_ar_fun := @ar_fun;
+	writeln(ptr_ar_fun^[1]());
+
+ 	ptr_ar := @(ar);
+ 	(ptr_ar)^[0] := 12;
+ 	write(ptr_ar^[0]);
+ 	writeln();
+
+ 	ar[1] := (ar)[0];
+
+	proc := @max;
+	ptr_proc := @proc;
+ 	f := ptr_proc^();
+ 	write(f);
+ 	writeln();
+end.

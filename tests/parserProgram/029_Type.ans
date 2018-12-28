@@ -1,1 +1,63 @@
+Decl
+	Table Symbol Type
+		arr
+			Type alias: arr
+			Decl point: 5,6	
+				Static array
+				Decl point: 5,12	
+					Size
+						low: 1 high: 2
+					yy
+		boolean
+			boolean
+		char
+			yy
+		double
+			real
+		integer
+			integer
+		pointer
+			tpoint
+		real
+			Type alias: real
+			Decl point: 1,6	
+				real
+		tpoint
+			Type alias: tpoint
+			Decl point: 2,5	
+				tpoint
+		yy
+			Type alias: yy
+			Decl point: 4,6	
+				yy
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
 Block

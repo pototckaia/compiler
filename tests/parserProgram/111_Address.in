@@ -1,0 +1,14 @@
+procedure MyProc;
+	begin
+	end;
+
+
+Var
+  P : procedure;
+  pint : ^integer;
+  i : integer;
+
+begin
+   P := @MyProc;
+   pint := @i;
+end.

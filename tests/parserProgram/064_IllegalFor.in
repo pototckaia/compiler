@@ -1,0 +1,7 @@
+var k : integer;
+var i : char;
+
+begin
+  for k := i to 2*2 do begin
+  end;
+end.

@@ -1,0 +1,10 @@
+type Arr = array [0..1] of char;
+var c : Arr;
+
+procedure TestArr(r : array of char);
+begin
+   r := c;
+end;
+
+begin
+end.

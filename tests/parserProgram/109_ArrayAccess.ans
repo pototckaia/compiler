@@ -1,0 +1,367 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pl
+			Type alias: pl
+			Decl point: 9,6	
+				Pointer
+				Decl point: 9,11	
+					integer
+		pointer
+			pointer
+		ppl
+			Type alias: ppl
+			Decl point: 10,2	
+				Pointer
+				Decl point: 10,8	
+					pl
+		pta
+			Type alias: pta
+			Decl point: 11,2	
+				Pointer
+				Decl point: 11,8	
+					ta
+		ta
+			Type alias: ta
+			Decl point: 2,3	
+				Static array
+				Decl point: 2,8	
+					Size
+						low: 0 high: 9
+						low: 0 high: 9
+					integer
+		tb
+			Type alias: tb
+			Decl point: 3,3	
+				Static array
+				Decl point: 3,8	
+					Size
+						low: 0 high: 9
+					integer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 6,3	
+				Type alias: ta
+				Decl point: 2,3	
+					Static array
+					Decl point: 2,8	
+						Size
+							low: 0 high: 9
+							low: 0 high: 9
+						integer
+		b
+			Global variable: b
+			Decl point: 6,5	
+				Type alias: ta
+				Decl point: 2,3	
+					Static array
+					Decl point: 2,8	
+						Size
+							low: 0 high: 9
+							low: 0 high: 9
+						integer
+		c
+			Global variable: c
+			Decl point: 7,3	
+				Type alias: tb
+				Decl point: 3,3	
+					Static array
+					Decl point: 3,8	
+						Size
+							low: 0 high: 9
+						integer
+		i
+			Global variable: i
+			Decl point: 16,6	
+				integer
+		p1
+			Global variable: p1
+			Decl point: 13,6	
+				Pointer
+				Decl point: 13,14	
+					integer
+		p2
+			Global variable: p2
+			Decl point: 13,9	
+				Pointer
+				Decl point: 13,14	
+					integer
+		pp
+			Global variable: pp
+			Decl point: 14,6	
+				pointer
+		ppp
+			Global variable: ppp
+			Decl point: 18,6	
+				Type alias: ppl
+				Decl point: 10,2	
+					Pointer
+					Decl point: 10,8	
+						pl
+		tpta
+			Global variable: tpta
+			Decl point: 19,6	
+				Type alias: pta
+				Decl point: 11,2	
+					Pointer
+					Decl point: 11,8	
+						ta
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			Array Access
+				a
+				Type expression
+					Type alias: ta
+					Decl point: 2,3	
+						Static array
+						Decl point: 2,8	
+							Size
+								low: 0 high: 9
+								low: 0 high: 9
+							integer
+				Type expression
+					Static array
+					Decl point: 2,8	
+						Size
+							low: 0 high: 9
+						integer
+				1
+				Type expression
+					integer
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			a
+			Type expression
+				Type alias: ta
+				Decl point: 2,3	
+					Static array
+					Decl point: 2,8	
+						Size
+							low: 0 high: 9
+							low: 0 high: 9
+						integer
+			Type expression
+				integer
+			+
+				Type expression
+					integer
+				1
+				Type expression
+					integer
+				+
+					Type expression
+						integer
+					i
+					Type expression
+						integer
+					0
+					Type expression
+						integer
+			-
+				Type expression
+					integer
+				1
+				Type expression
+					integer
+	Assigment
+		:=
+		c
+		Type expression
+			Type alias: tb
+			Decl point: 3,3	
+				Static array
+				Decl point: 3,8	
+					Size
+						low: 0 high: 9
+					integer
+		Array Access
+			a
+			Type expression
+				Type alias: ta
+				Decl point: 2,3	
+					Static array
+					Decl point: 2,8	
+						Size
+							low: 0 high: 9
+							low: 0 high: 9
+						integer
+			Type expression
+				Static array
+				Decl point: 2,8	
+					Size
+						low: 0 high: 9
+					integer
+			1
+			Type expression
+				integer
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			ppp
+			Type expression
+				Type alias: ppl
+				Decl point: 10,2	
+					Pointer
+					Decl point: 10,8	
+						pl
+			Type expression
+				integer
+			10
+			Type expression
+				integer
+			1
+			Type expression
+				integer
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			+
+				Type expression
+					Type alias: pta
+					Decl point: 11,2	
+						Pointer
+						Decl point: 11,8	
+							ta
+				12
+				Type expression
+					integer
+				tpta
+				Type expression
+					Type alias: pta
+					Decl point: 11,2	
+						Pointer
+						Decl point: 11,8	
+							ta
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			^
+				Type expression
+					Type alias: ta
+					Decl point: 2,3	
+						Static array
+						Decl point: 2,8	
+							Size
+								low: 0 high: 9
+								low: 0 high: 9
+							integer
+				+
+					Type expression
+						Type alias: pta
+						Decl point: 11,2	
+							Pointer
+							Decl point: 11,8	
+								ta
+					12
+					Type expression
+						integer
+					tpta
+					Type expression
+						Type alias: pta
+						Decl point: 11,2	
+							Pointer
+							Decl point: 11,8	
+								ta
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Assigment
+		:=
+		i
+		Type expression
+			integer
+		Array Access
+			tpta
+			Type expression
+				Type alias: pta
+				Decl point: 11,2	
+					Pointer
+					Decl point: 11,8	
+						ta
+			Type expression
+				integer
+			1
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+			0
+			Type expression
+				integer

@@ -32,7 +32,7 @@ def compareFiles(pos, receive, expect):
 			wr = next(allWordsReceive, '')
 			if we != wr:
 				print('____________________________________')
-				print('{0} Test "{1}" not pass in line {0}'.format(pos + 1, receiveBaseName, i + 1))
+				print('{0} Test "{1}" not pass in line {2}'.format(pos + 1, receiveBaseName, i + 1))
 				print("Expect:\n{0}\nBut find:\n{1}".format(we, wr))
 				return False
 			i += 1

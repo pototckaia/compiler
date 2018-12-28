@@ -1,0 +1,8 @@
+function f(i, k: integer, var c: char):integer;
+begin
+end;
+var c:^char;
+
+begin
+f(1, 2, c^)
+end.

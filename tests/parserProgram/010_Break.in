@@ -1,5 +1,7 @@
+var i : integer;
+
 begin
-	while 1 do
+	while True do
 		break;
 
 	for i := 0 to 1 do

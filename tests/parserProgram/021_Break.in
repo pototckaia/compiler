@@ -1,3 +1,6 @@
+var a, b : double;
+    i : integer;
+
 begin
 	for i := 10 to 50 do begin
 		if (a > b) then

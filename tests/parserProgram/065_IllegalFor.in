@@ -1,0 +1,7 @@
+var k : integer;
+var i : char;
+
+begin
+  for k := -1 to i do begin
+  end;
+end.

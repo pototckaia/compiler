@@ -1,0 +1,7 @@
+ Var  
+  I : Integer;  
+   P : ^char;  
+ 
+begin  
+  P:=@I;  
+end.

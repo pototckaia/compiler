@@ -1,0 +1,9 @@
+type
+	PInt = ^integer;
+
+var
+	b:PInt;
+	a: integer;
+begin
+	(b + 1)^ := 10;
+end.

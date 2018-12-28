@@ -1,0 +1,13 @@
+type
+	PInt = ^integer;
+
+var
+	b:PInt;
+	a: integer;
+    c:pointer;
+begin
+PInt(b) := @a;
+INteger(a) := a;
+PInt(c) := @a;
+Double(a) := a;
+end.

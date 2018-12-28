@@ -1,1 +1,178 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			real
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		bee
+			Function or Procedure: bee
+			Decl point: 10,10	
+				Function
+				Decl point: 10,14	
+					Param value: i
+					Decl point: 10,15	
+						Not specification
+						integer
+					Return:
+						char
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						bee
+							Local variable: bee
+							Decl point: -1,-1	
+								char
+					Table Symbol Function
+						exit
+							Exit
+								char
+				Block
+					Assigment
+						:=
+						bee
+						Type expression
+							char
+						
+						Type expression
+							char
+					Function Call
+						exit
+						Exit
+							char
+						Type expression
+							void
+						
+						Type expression
+							char
+		chr
+			Chr
+		exit
+			Exit
+				void
+		foo
+			Function or Procedure: foo
+			Decl point: 1,11	
+				Procedure
+				Decl point: 1,14	
+				Decl
+					Table Symbol Type
+						real
+							Type alias: real
+							Decl point: 3,10	
+								real
+					Table Symbol Const
+					Table Symbol Variable
+						i
+							Local variable: i
+							Decl point: 2,9	
+								integer
+					Table Symbol Function
+						exit
+							Exit
+								void
+				Block
+					Function Call
+						exit
+						Exit
+							void
+						Type expression
+							void
+		high
+			High
+		hoo
+			Function or Procedure: hoo
+			Decl point: 16,10	
+				Function
+				Decl point: 16,14	
+					Return:
+						char
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						hoo
+							Local variable: hoo
+							Decl point: -1,-1	
+								char
+					Table Symbol Function
+						exit
+							Exit
+								char
+				Block
+					Assigment
+						:=
+						hoo
+						Type expression
+							char
+						1
+						Type expression
+							char
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
 Block
+	Function Call
+		foo
+		Type expression
+			Procedure
+			Decl point: 1,14	
+		Type expression
+			void
+	Function Call
+		hoo
+		Type expression
+			Function
+			Decl point: 16,14	
+				Return:
+					char
+		Type expression
+			char
+	Function Call
+		bee
+		Type expression
+			Function
+			Decl point: 10,14	
+				Param value: i
+				Decl point: 10,15	
+					Not specification
+					integer
+				Return:
+					char
+		Type expression
+			char
+		12333
+		Type expression
+			integer
+	Function Call
+		exit
+		Exit
+			void
+		Type expression
+			void

@@ -1,0 +1,55 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 2,4	
+				integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Function Call
+		write
+		Write
+		Type expression
+			void
+		a
+		Type expression
+			integer

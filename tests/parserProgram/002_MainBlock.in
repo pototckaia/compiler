@@ -1,3 +1,11 @@
+procedure f;
+begin
+end;
+
+function b : integer;
+begin
+end;
+
 begin
     f();
     b();

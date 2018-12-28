@@ -1,0 +1,6 @@
+type p = procedure();
+var a: array [1..5] of p;
+
+begin
+    a[1]();
+end.

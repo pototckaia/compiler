@@ -1,0 +1,81 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		p
+			Type alias: p
+			Decl point: 1,6	
+				Procedure
+				Decl point: 1,19	
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 2,5	
+				Static array
+				Decl point: 2,8	
+					Size
+						low: 1 high: 5
+					Type alias: p
+					Decl point: 1,6	
+						Procedure
+						Decl point: 1,19	
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Function Call
+		Array Access
+			a
+			Type expression
+				Static array
+				Decl point: 2,8	
+					Size
+						low: 1 high: 5
+					Type alias: p
+					Decl point: 1,6	
+						Procedure
+						Decl point: 1,19	
+			Type expression
+				Type alias: p
+				Decl point: 1,6	
+					Procedure
+					Decl point: 1,19	
+			1
+			Type expression
+				integer
+		Type expression
+			void

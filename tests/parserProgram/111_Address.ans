@@ -1,0 +1,101 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		i
+			Global variable: i
+			Decl point: 9,3	
+				integer
+		p
+			Global variable: p
+			Decl point: 7,3	
+				Procedure
+				Decl point: 7,16	
+		pint
+			Global variable: pint
+			Decl point: 8,3	
+				Pointer
+				Decl point: 8,10	
+					integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		myproc
+			Function or Procedure: myproc
+			Decl point: 1,11	
+				Procedure
+				Decl point: 1,17	
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+					Table Symbol Function
+						exit
+							Exit
+								void
+				Block
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		p
+		Type expression
+			Procedure
+			Decl point: 7,16	
+		@
+			Type expression
+				Procedure
+				Decl point: 1,17	
+			myproc
+			Type expression
+				Procedure
+				Decl point: 1,17	
+	Assigment
+		:=
+		pint
+		Type expression
+			Pointer
+			Decl point: 8,10	
+				integer
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					integer
+			i
+			Type expression
+				integer

@@ -1,5 +1,5 @@
 type
-	TTLIstP = ^Tree;
+	TTLIstP = ^List;
  	List = record
 			data : integer;
 			next : TTListP;
@@ -12,5 +12,3 @@ type
 
 begin
 end.
-
-

@@ -3,7 +3,5 @@ var i : integer;
 
 var d, o, l : double;
 
-var d : double = 123E-13;
-
 begin
 end.

@@ -1,0 +1,133 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		k
+			Global variable: k
+			Decl point: 9,2	
+				integer
+		r
+			Global variable: r
+			Decl point: 2,2	
+				Record
+				Decl point: 2,5	
+					Table Symbol Variable
+						rr
+							Local variable: rr
+							Decl point: 3,3	
+								Record
+								Decl point: 3,7	
+									Table Symbol Variable
+										rrr
+											Local variable: rrr
+											Decl point: 4,4	
+												Record
+												Decl point: 4,9	
+													Table Symbol Variable
+														i
+															Local variable: i
+															Decl point: 5,5	
+																integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		k
+		Type expression
+			integer
+		0
+		Type expression
+			integer
+	Assigment
+		:=
+		Record Access
+			Record Access
+				Record Access
+					r
+					Type expression
+						Record
+						Decl point: 2,5	
+							Table Symbol Variable
+								rr
+									Local variable: rr
+									Decl point: 3,3	
+										Record
+										Decl point: 3,7	
+											Table Symbol Variable
+												rrr
+													Local variable: rrr
+													Decl point: 4,4	
+														Record
+														Decl point: 4,9	
+															Table Symbol Variable
+																i
+																	Local variable: i
+																	Decl point: 5,5	
+																		integer
+					rr
+					Type expression
+						Record
+						Decl point: 3,7	
+							Table Symbol Variable
+								rrr
+									Local variable: rrr
+									Decl point: 4,4	
+										Record
+										Decl point: 4,9	
+											Table Symbol Variable
+												i
+													Local variable: i
+													Decl point: 5,5	
+														integer
+				rrr
+				Type expression
+					Record
+					Decl point: 4,9	
+						Table Symbol Variable
+							i
+								Local variable: i
+								Decl point: 5,5	
+									integer
+			i
+			Type expression
+				integer
+		k
+		Type expression
+			integer

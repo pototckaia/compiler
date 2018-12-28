@@ -1,0 +1,14 @@
+function a(a : integer, b : boolean) : char;
+begin
+end;
+
+begin
+	a(10, True);
+end.
+function a(a : integer, b : boolean) : char;
+begin
+end;
+
+begin
+	a(10, True);
+end.

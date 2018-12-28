@@ -1,38 +1,200 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 3,3	
+				double
+		b
+			Global variable: b
+			Decl point: 2,3	
+				integer
+		c
+			Global variable: c
+			Decl point: 4,3	
+				boolean
+		d
+			Global variable: d
+			Decl point: 4,6	
+				boolean
+		e
+			Global variable: e
+			Decl point: 3,6	
+				double
+		f
+			Global variable: f
+			Decl point: 2,6	
+				integer
+		g
+			Global variable: g
+			Decl point: 2,9	
+				integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
 Block
 	If
 		=
+			Type expression
+				boolean
+			Cast
+			double
+				b
+				Type expression
+					integer
 			a
-			b
+			Type expression
+				double
 		Block
 			Assigment
 				:=
 				a
-				b
+				Type expression
+					double
+				Cast
+				double
+					b
+					Type expression
+						integer
 			Assigment
 				:=
 				c
+				Type expression
+					boolean
 				d
+				Type expression
+					boolean
 		Block
 			Assigment
 				+=
 				e
-				f
+				Type expression
+					double
+				Cast
+				double
+					f
+					Type expression
+						integer
 			Assigment
 				+=
 				f
+				Type expression
+					integer
 				g
+				Type expression
+					integer
 	If
 		=
+			Type expression
+				boolean
+			Cast
+			double
+				+
+					Type expression
+						integer
+					20
+					Type expression
+						integer
+					30
+					Type expression
+						integer
 			a
-			30
+			Type expression
+				double
 		Block
 			Assigment
 				:=
 				a
-				-
-					5
+				Type expression
+					double
+				Cast
+				double
+					+
+						Type expression
+							integer
+						*
+							Type expression
+								integer
+							+
+								Type expression
+									integer
+								12341
+								Type expression
+									integer
+								123
+								Type expression
+									integer
+							10
+							Type expression
+								integer
+						-
+							Type expression
+								integer
+							5
+							Type expression
+								integer
 		Block
 			Assigment
 				:=
 				a
-				5
+				Type expression
+					double
+				+
+					Type expression
+						double
+					10.000000
+					Type expression
+						double
+					Cast
+					double
+						+
+							Type expression
+								integer
+							b
+							Type expression
+								integer
+							*
+								Type expression
+									integer
+								10
+								Type expression
+									integer
+								5
+								Type expression
+									integer

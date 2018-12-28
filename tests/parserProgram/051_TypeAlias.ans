@@ -1,0 +1,177 @@
+Decl
+	Table Symbol Type
+		a
+			Type alias: a
+			Decl point: 3,5	
+				Function
+				Decl point: 3,19	
+					Return:
+						integer
+		b
+			Type alias: b
+			Decl point: 4,1	
+				Function
+				Decl point: 4,14	
+					Return:
+						integer
+		boolean
+			boolean
+		char
+			char
+		d
+			Type alias: d
+			Decl point: 5,1	
+				Function
+				Decl point: 5,14	
+					Param value: t
+					Decl point: 5,15	
+						Not specification
+						integer
+					Return:
+						char
+		double
+			double
+		e
+			Type alias: e
+			Decl point: 6,1	
+				Function
+				Decl point: 6,15	
+					Param value: c
+					Decl point: 6,16	
+						Not specification
+						char
+					Param value: d
+					Decl point: 6,19	
+						Not specification
+						char
+					Param value: t
+					Decl point: 6,22	
+						Not specification
+						char
+					Return:
+						char
+		f
+			Type alias: f
+			Decl point: 7,1	
+				Function
+				Decl point: 7,13	
+					Param value: c
+					Decl point: 7,14	
+						Not specification
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+					Param value: d
+					Decl point: 7,17	
+						Not specification
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+					Param value: t
+					Decl point: 7,20	
+						Not specification
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+					Param value: e
+					Decl point: 7,23	
+						Not specification
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+					Param value: a
+					Decl point: 7,34	
+						Not specification
+						Open array
+						Decl point: 7,38	
+							double
+					Return:
+						integer
+		g
+			Type alias: g
+			Decl point: 8,1	
+				Procedure
+				Decl point: 8,14	
+		h
+			Type alias: h
+			Decl point: 9,1	
+				Procedure
+				Decl point: 9,15	
+		i
+			Type alias: i
+			Decl point: 10,1	
+				Procedure
+				Decl point: 10,16	
+					Param value: a
+					Decl point: 10,21	
+						Var
+						integer
+					Param value: c
+					Decl point: 10,38	
+						Out
+						char
+					Param value: d
+					Decl point: 10,54	
+						Const
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+					Param value: e
+					Decl point: 10,57	
+						Const
+						Type alias: pchar
+						Decl point: 2,5	
+							Pointer
+							Decl point: 2,13	
+								char
+		integer
+			integer
+		pchar
+			Type alias: pchar
+			Decl point: 2,5	
+				Pointer
+				Decl point: 2,13	
+					char
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block

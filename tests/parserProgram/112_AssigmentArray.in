@@ -1,0 +1,11 @@
+type
+	A = array [0..1] of char;
+	B = array [0..1] of char;
+var
+	first : array [1..2] of char;
+	second : A;
+	third : B;
+begin
+	third := second;
+	first := second;
+end.

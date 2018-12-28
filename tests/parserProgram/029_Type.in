@@ -2,7 +2,7 @@ type Real = double;
     TPoint = pointer;
 
 type YY = char;
-type Arr = array of char;
+type Arr = array [1..2] of char;
 
 begin
 end.

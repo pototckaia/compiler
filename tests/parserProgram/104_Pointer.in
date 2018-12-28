@@ -1,0 +1,18 @@
+type PL = ^Integer;
+var  p1,p2 : ^Integer;
+     L : integer;
+     pp : pointer;
+begin
+  P1 := P2;
+  P2 := @L;
+  L := P1-P2;
+  P1 := P1-4;
+  P2 := P2+4;
+  p2 := -4+P2;
+
+  pp := p1;
+  L := pp - P2;
+  pp := p1 + 1;
+  pp := pp + 1;
+
+end.

@@ -1,0 +1,233 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 3,4	
+				integer
+		b
+			Global variable: b
+			Decl point: 3,7	
+				integer
+		i
+			Global variable: i
+			Decl point: 4,4	
+				char
+		n
+			Global variable: n
+			Decl point: 3,10	
+				integer
+		result
+			Global variable: result
+			Decl point: 2,4	
+				boolean
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		foo
+			Function or Procedure: foo
+			Decl point: 9,10	
+				Function
+				Decl point: 9,13	
+					Param value: a
+					Decl point: 9,18	
+						Var
+						double
+					Param value: b
+					Decl point: 9,21	
+						Var
+						double
+					Return:
+						integer
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						foo
+							Local variable: foo
+							Decl point: -1,-1	
+								integer
+						i
+							Local variable: i
+							Decl point: 11,3	
+								integer
+						result
+							Local variable: result
+							Decl point: 11,6	
+								integer
+					Table Symbol Function
+						exit
+							Exit
+								integer
+				Block
+					For
+						i
+						Type expression
+							integer
+						0
+						Type expression
+							integer
+						To
+						n
+						Type expression
+							integer
+						Block
+							Assigment
+								:=
+								foo
+								Type expression
+									integer
+								Cast
+								integer
+									*
+										Type expression
+											double
+										a
+										Type expression
+											double
+										Cast
+										double
+											*
+												Type expression
+													integer
+												20
+												Type expression
+													integer
+												foo
+												Type expression
+													integer
+					Function Call
+						foo
+						Type expression
+							Function
+							Decl point: 7,13	
+								Param value: x
+								Decl point: 7,18	
+									Var
+									double
+								Param value: y
+								Decl point: 7,21	
+									Var
+									double
+								Return:
+									integer
+						Type expression
+							integer
+						Cast
+						double
+							i
+							Type expression
+								integer
+						Cast
+						double
+							result
+							Type expression
+								integer
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	While
+		>
+			Type expression
+				boolean
+			0
+			Type expression
+				integer
+			a
+			Type expression
+				integer
+		Block
+			Assigment
+				:=
+				n
+				Type expression
+					integer
+				30
+				Type expression
+					integer
+			Assigment
+				:=
+				n
+				Type expression
+					integer
+				+
+					Type expression
+						integer
+					Function Call
+						foo
+						Type expression
+							Function
+							Decl point: 9,13	
+								Param value: a
+								Decl point: 9,18	
+									Var
+									double
+								Param value: b
+								Decl point: 9,21	
+									Var
+									double
+								Return:
+									integer
+						Type expression
+							integer
+						Cast
+						double
+							a
+							Type expression
+								integer
+						Cast
+						double
+							b
+							Type expression
+								integer
+					n
+					Type expression
+						integer
+			Assigment
+				:=
+				a
+				Type expression
+					integer
+				-
+					Type expression
+						integer
+					20
+					Type expression
+						integer
+					n
+					Type expression
+						integer

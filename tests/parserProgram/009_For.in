@@ -1,3 +1,5 @@
+var k : integer;
+
 begin
 	for k := 2*2 downto 1 do
 	    begin

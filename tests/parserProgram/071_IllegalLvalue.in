@@ -1,0 +1,10 @@
+procedure foo(x : char, var a: integer);
+begin
+   a := 4;
+   exit();
+end;
+
+var i : integer;
+begin
+   foo('1', 10*i);
+end.

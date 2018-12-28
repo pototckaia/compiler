@@ -1,0 +1,94 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		a
+			Function or Procedure: a
+			Decl point: 1,10	
+				Function
+				Decl point: 1,11	
+					Param value: a
+					Decl point: 1,12	
+						Not specification
+						integer
+					Param value: b
+					Decl point: 1,25	
+						Not specification
+						boolean
+					Return:
+						char
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						a
+							Local variable: a
+							Decl point: -1,-1	
+								char
+					Table Symbol Function
+						exit
+							Exit
+								char
+				Block
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Function Call
+		a
+		Type expression
+			Function
+			Decl point: 1,11	
+				Param value: a
+				Decl point: 1,12	
+					Not specification
+					integer
+				Param value: b
+				Decl point: 1,25	
+					Not specification
+					boolean
+				Return:
+					char
+		Type expression
+			char
+		10
+		Type expression
+			integer
+		true
+		Type expression
+			boolean

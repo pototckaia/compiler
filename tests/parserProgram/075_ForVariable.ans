@@ -1,0 +1,89 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			float
+		float
+			Type alias: float
+			Decl point: 2,5	
+				float
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 5,4	
+				Type alias: float
+				Decl point: 2,5	
+					float
+		i
+			Global variable: i
+			Decl point: 4,4	
+				integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	For
+		i
+		Type expression
+			integer
+		0
+		Type expression
+			integer
+		To
+		10
+		Type expression
+			integer
+		For
+			i
+			Type expression
+				integer
+			3
+			Type expression
+				integer
+			DownTo
+			0
+			Type expression
+				integer
+			Assigment
+				:=
+				a
+				Type expression
+					Type alias: float
+					Decl point: 2,5	
+						float
+				34.500000
+				Type expression
+					double

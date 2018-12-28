@@ -1,0 +1,241 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pl
+			Type alias: pl
+			Decl point: 1,6	
+				Pointer
+				Decl point: 1,11	
+					integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		l
+			Global variable: l
+			Decl point: 3,6	
+				integer
+		p1
+			Global variable: p1
+			Decl point: 2,6	
+				Pointer
+				Decl point: 2,14	
+					integer
+		p2
+			Global variable: p2
+			Decl point: 2,9	
+				Pointer
+				Decl point: 2,14	
+					integer
+		pp
+			Global variable: pp
+			Decl point: 4,6	
+				pointer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		p1
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		p2
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+	Assigment
+		:=
+		p2
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					integer
+			l
+			Type expression
+				integer
+	Assigment
+		:=
+		l
+		Type expression
+			integer
+		-
+			Type expression
+				integer
+			p2
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+			p1
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+	Assigment
+		:=
+		p1
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		-
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+			4
+			Type expression
+				integer
+			p1
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+	Assigment
+		:=
+		p2
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		+
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+			4
+			Type expression
+				integer
+			p2
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+	Assigment
+		:=
+		p2
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		+
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+			p2
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+			-
+				Type expression
+					integer
+				4
+				Type expression
+					integer
+	Assigment
+		:=
+		pp
+		Type expression
+			pointer
+		Cast
+		pointer
+			p1
+			Type expression
+				Pointer
+				Decl point: 2,14	
+					integer
+	Assigment
+		:=
+		l
+		Type expression
+			integer
+		-
+			Type expression
+				integer
+			Cast
+			pointer
+				p2
+				Type expression
+					Pointer
+					Decl point: 2,14	
+						integer
+			pp
+			Type expression
+				pointer
+	Assigment
+		:=
+		pp
+		Type expression
+			pointer
+		Cast
+		pointer
+			+
+				Type expression
+					Pointer
+					Decl point: 2,14	
+						integer
+				1
+				Type expression
+					integer
+				p1
+				Type expression
+					Pointer
+					Decl point: 2,14	
+						integer
+	Assigment
+		:=
+		pp
+		Type expression
+			pointer
+		+
+			Type expression
+				pointer
+			1
+			Type expression
+				integer
+			pp
+			Type expression
+				pointer

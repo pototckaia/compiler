@@ -1,0 +1,169 @@
+Decl
+	Table Symbol Type
+		a
+			Type alias: a
+			Decl point: 2,1	
+				Record
+				Decl point: 2,5	
+					Table Symbol Variable
+		b
+			Type alias: b
+			Decl point: 3,1	
+				Record
+				Decl point: 3,5	
+					Table Symbol Variable
+						a
+							Local variable: a
+							Decl point: 3,12	
+								integer
+		boolean
+			boolean
+		c
+			Type alias: c
+			Decl point: 4,1	
+				Record
+				Decl point: 4,5	
+					Table Symbol Variable
+						a
+							Local variable: a
+							Decl point: 4,12	
+								integer
+		char
+			char
+		d
+			Type alias: d
+			Decl point: 5,1	
+				Record
+				Decl point: 5,5	
+					Table Symbol Variable
+						a
+							Local variable: a
+							Decl point: 5,12	
+								double
+						b
+							Local variable: b
+							Decl point: 5,15	
+								double
+						c
+							Local variable: c
+							Decl point: 5,18	
+								double
+						d
+							Local variable: d
+							Decl point: 5,21	
+								double
+		double
+			double
+		e
+			Type alias: e
+			Decl point: 6,1	
+				Record
+				Decl point: 6,5	
+					Table Symbol Variable
+						a
+							Local variable: a
+							Decl point: 6,12	
+								Static array
+								Decl point: 6,24	
+									Size
+										low: 0 high: 1
+									char
+						b
+							Local variable: b
+							Decl point: 6,15	
+								Static array
+								Decl point: 6,24	
+									Size
+										low: 0 high: 1
+									char
+						c
+							Local variable: c
+							Decl point: 6,18	
+								Static array
+								Decl point: 6,24	
+									Size
+										low: 0 high: 1
+									char
+						d
+							Local variable: d
+							Decl point: 6,21	
+								Static array
+								Decl point: 6,24	
+									Size
+										low: 0 high: 1
+									char
+		f
+			Type alias: f
+			Decl point: 7,1	
+				Record
+				Decl point: 7,5	
+					Table Symbol Variable
+						d
+							Local variable: d
+							Decl point: 13,5	
+								Record
+								Decl point: 13,9	
+									Table Symbol Variable
+										i
+											Local variable: i
+											Decl point: 14,13	
+												Pointer
+												Decl point: 14,17	
+													integer
+						y
+							Local variable: y
+							Decl point: 8,5	
+								Record
+								Decl point: 8,9	
+									Table Symbol Variable
+										a
+											Local variable: a
+											Decl point: 9,13	
+												integer
+										b
+											Local variable: b
+											Decl point: 10,13	
+												double
+										c
+											Local variable: c
+											Decl point: 11,13	
+												Static array
+												Decl point: 11,17	
+													Size
+														low: 0 high: 100
+													char
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block

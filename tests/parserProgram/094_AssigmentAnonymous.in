@@ -1,0 +1,8 @@
+var
+	a, b: record
+		x, y: integer;
+	end;
+
+begin
+	a := b;
+end.

@@ -1,0 +1,14 @@
+
+type T = record i : integer end;
+
+function F(): T;
+begin
+   F.i := 123 * 0;
+end;
+
+var
+	k: integer;
+
+begin
+	k := f().i;
+end.

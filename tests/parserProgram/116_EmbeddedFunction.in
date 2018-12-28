@@ -1,0 +1,32 @@
+var
+    i : integer;
+    d : double;
+    c : char;
+var
+    ar : array [1..2] of integer;
+
+procedure test (a : array of integer, i : double);
+begin
+    high(a);
+    high(ar);
+
+    low(a);
+    low(ar);
+end;
+
+begin
+    test(ar, i);
+    c := ord(i);
+    i := chr(c);
+
+    i := succ(i);
+    i := prev(i);
+
+    i := round(d);
+    i := round(i);
+
+    i := trunc(d);
+    i := trunc(i);
+
+    i := succ(d);
+end.

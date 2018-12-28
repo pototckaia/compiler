@@ -1,3 +1,8 @@
+var
+  b, f, g : integer;
+  a, e : double;
+  c, d : boolean;
+
 begin
     if a = b then begin
         a := b;
@@ -6,12 +11,12 @@ begin
         e += f;
         f += g;
     end;
-   if a = 30 then
+   if a = (30 + 20) then
    begin
-      a := -5
+      a := -5 + 10*(123 + 12341)
    end
    else
    begin
-      a := 5
+      a := 5 * 10 + b + 10.0
    end
 end.

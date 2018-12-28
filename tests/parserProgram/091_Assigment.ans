@@ -1,0 +1,128 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pint
+			Type alias: pint
+			Decl point: 2,2	
+				Pointer
+				Decl point: 2,9	
+					integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 5,2	
+				integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		foo
+			Function or Procedure: foo
+			Decl point: 7,10	
+				Function
+				Decl point: 7,13	
+					Return:
+						Type alias: pint
+						Decl point: 2,2	
+							Pointer
+							Decl point: 2,9	
+								integer
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						foo
+							Local variable: foo
+							Decl point: -1,-1	
+								Type alias: pint
+								Decl point: 2,2	
+									Pointer
+									Decl point: 2,9	
+										integer
+					Table Symbol Function
+						exit
+							Exit
+								Type alias: pint
+								Decl point: 2,2	
+									Pointer
+									Decl point: 2,9	
+										integer
+				Block
+					Function Call
+						exit
+						Exit
+							Type alias: pint
+							Decl point: 2,2	
+								Pointer
+								Decl point: 2,9	
+									integer
+						Type expression
+							void
+						@
+							Type expression
+								Pointer
+								Decl point: -1,-1	
+									integer
+							a
+							Type expression
+								integer
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		^
+			Type expression
+				integer
+			Function Call
+				foo
+				Type expression
+					Function
+					Decl point: 7,13	
+						Return:
+							Type alias: pint
+							Decl point: 2,2	
+								Pointer
+								Decl point: 2,9	
+									integer
+				Type expression
+					Type alias: pint
+					Decl point: 2,2	
+						Pointer
+						Decl point: 2,9	
+							integer
+		10
+		Type expression
+			integer

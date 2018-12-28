@@ -1,17 +1,27 @@
 procedure foo;
-var i : integer;
-type Real = double;
-const b = 144;
+    var i : integer;
+    type Real = double;
+    const b = 144;
 begin
+    exit();
 end;
 
 
 function bee (i : integer) : char;
 begin
+    bee := #14;
+    exit(#12);
 end;
 
-procedure bar; forward;
-function hoo : char; forward;
+function hoo : char;
+begin
+    hoo := '1';
+end;
+
 
 begin
+    foo();
+    hoo();
+    bee(12333);
+    exit();
 end.

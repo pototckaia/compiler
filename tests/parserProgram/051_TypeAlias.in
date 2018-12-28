@@ -1,6 +1,6 @@
 type
-pchar = ^char;
-A =  function : integer;
+    pchar = ^char;
+    A =  function : integer;
 B = function () : integer;
 D = function (t : integer) : char;
 E =  function (c, d, t : char) : char;

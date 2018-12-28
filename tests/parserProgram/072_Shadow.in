@@ -1,0 +1,27 @@
+var
+   result : boolean;
+   a, b, n: integer;
+   i : char;
+
+
+function foo(var x, y: double) : integer; forward;
+
+function foo(var a, b: double): integer;
+var
+  i, result : integer;
+begin
+  for i := 0 to n do
+  begin
+     foo := Integer(foo*20*a);
+  end;
+  foo(i, result);
+end;
+
+begin
+   while a > 0 do
+   begin
+      n := 30;
+      n := n + foo(a, b);
+      a := n - 20;
+   end;
+end.

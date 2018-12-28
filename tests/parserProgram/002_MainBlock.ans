@@ -1,5 +1,93 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+	Table Symbol Function
+		b
+			Function or Procedure: b
+			Decl point: 5,10	
+				Function
+				Decl point: 5,12	
+					Return:
+						integer
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						b
+							Local variable: b
+							Decl point: -1,-1	
+								integer
+					Table Symbol Function
+						exit
+							Exit
+								integer
+				Block
+		chr
+			Chr
+		exit
+			Exit
+				void
+		f
+			Function or Procedure: f
+			Decl point: 1,11	
+				Procedure
+				Decl point: 1,12	
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+					Table Symbol Function
+						exit
+							Exit
+								void
+				Block
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
 Block
 	Function Call
 		f
+		Type expression
+			Procedure
+			Decl point: 1,12	
+		Type expression
+			void
 	Function Call
 		b
+		Type expression
+			Function
+			Decl point: 5,12	
+				Return:
+					integer
+		Type expression
+			integer

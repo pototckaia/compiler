@@ -1,0 +1,1045 @@
+Decl
+	Table Symbol Type
+		allptrtype
+			Type alias: allptrtype
+			Decl point: 20,6	
+				Record
+				Decl point: 20,19	
+					Table Symbol Variable
+						ptr_ar
+							Local variable: ptr_ar
+							Decl point: 21,2	
+								Pointer
+								Decl point: 21,11	
+									ints
+						ptr_fun
+							Local variable: ptr_fun
+							Decl point: 22,3	
+								Pointer
+								Decl point: 22,13	
+									tmax
+		alltype
+			Type alias: alltype
+			Decl point: 12,6	
+				Record
+				Decl point: 12,16	
+					Table Symbol Variable
+						ar
+							Local variable: ar
+							Decl point: 13,3	
+								Type alias: ints
+								Decl point: 8,6	
+									Static array
+									Decl point: 8,13	
+										Size
+											low: 0 high: 2
+										integer
+						fun
+							Local variable: fun
+							Decl point: 14,3	
+								Type alias: tmax
+								Decl point: 9,4	
+									Function
+									Decl point: 9,20	
+										Return:
+											integer
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		ints
+			Type alias: ints
+			Decl point: 8,6	
+				Static array
+				Decl point: 8,13	
+					Size
+						low: 0 high: 2
+					integer
+		pointer
+			pointer
+		tarrayfunction
+			Type alias: tarrayfunction
+			Decl point: 32,6	
+				Static array
+				Decl point: 32,23	
+					Size
+						low: 0 high: 1
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+		tmax
+			Type alias: tmax
+			Decl point: 9,4	
+				Function
+				Decl point: 9,20	
+					Return:
+						integer
+		tp
+			Type alias: tp
+			Decl point: 10,4	
+				Procedure
+				Decl point: 10,19	
+	Table Symbol Const
+	Table Symbol Variable
+		ar
+			Global variable: ar
+			Decl point: 29,5	
+				Type alias: ints
+				Decl point: 8,6	
+					Static array
+					Decl point: 8,13	
+						Size
+							low: 0 high: 2
+						integer
+		ar_fun
+			Global variable: ar_fun
+			Decl point: 34,5	
+				Type alias: tarrayfunction
+				Decl point: 32,6	
+					Static array
+					Decl point: 32,23	
+						Size
+							low: 0 high: 1
+						Type alias: tmax
+						Decl point: 9,4	
+							Function
+							Decl point: 9,20	
+								Return:
+									integer
+		f
+			Global variable: f
+			Decl point: 36,5	
+				integer
+		proc
+			Global variable: proc
+			Decl point: 17,5	
+				Type alias: tmax
+				Decl point: 9,4	
+					Function
+					Decl point: 9,20	
+						Return:
+							integer
+		ptr_ar
+			Global variable: ptr_ar
+			Decl point: 30,5	
+				Pointer
+				Decl point: 30,14	
+					ints
+		ptr_ar_fun
+			Global variable: ptr_ar_fun
+			Decl point: 35,5	
+				Pointer
+				Decl point: 35,18	
+					tarrayfunction
+		ptr_proc
+			Global variable: ptr_proc
+			Decl point: 18,5	
+				Pointer
+				Decl point: 18,15	
+					tmax
+		ptr_recordall
+			Global variable: ptr_recordall
+			Decl point: 26,5	
+				Pointer
+				Decl point: 26,21	
+					alltype
+		recordall
+			Global variable: recordall
+			Decl point: 25,5	
+				Type alias: alltype
+				Decl point: 12,6	
+					Record
+					Decl point: 12,16	
+						Table Symbol Variable
+							ar
+								Local variable: ar
+								Decl point: 13,3	
+									Type alias: ints
+									Decl point: 8,6	
+										Static array
+										Decl point: 8,13	
+											Size
+												low: 0 high: 2
+											integer
+							fun
+								Local variable: fun
+								Decl point: 14,3	
+									Type alias: tmax
+									Decl point: 9,4	
+										Function
+										Decl point: 9,20	
+											Return:
+												integer
+		recordallptr
+			Global variable: recordallptr
+			Decl point: 27,5	
+				Type alias: allptrtype
+				Decl point: 20,6	
+					Record
+					Decl point: 20,19	
+						Table Symbol Variable
+							ptr_ar
+								Local variable: ptr_ar
+								Decl point: 21,2	
+									Pointer
+									Decl point: 21,11	
+										ints
+							ptr_fun
+								Local variable: ptr_fun
+								Decl point: 22,3	
+									Pointer
+									Decl point: 22,13	
+										tmax
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		max
+			Function or Procedure: max
+			Decl point: 2,10	
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+				Decl
+					Table Symbol Type
+					Table Symbol Const
+					Table Symbol Variable
+						max
+							Local variable: max
+							Decl point: -1,-1	
+								integer
+					Table Symbol Function
+						exit
+							Exit
+								integer
+				Block
+					Assigment
+						:=
+						max
+						Type expression
+							integer
+						112
+						Type expression
+							integer
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	Assigment
+		:=
+		Array Access
+			Record Access
+				recordall
+				Type expression
+					Type alias: alltype
+					Decl point: 12,6	
+						Record
+						Decl point: 12,16	
+							Table Symbol Variable
+								ar
+									Local variable: ar
+									Decl point: 13,3	
+										Type alias: ints
+										Decl point: 8,6	
+											Static array
+											Decl point: 8,13	
+												Size
+													low: 0 high: 2
+												integer
+								fun
+									Local variable: fun
+									Decl point: 14,3	
+										Type alias: tmax
+										Decl point: 9,4	
+											Function
+											Decl point: 9,20	
+												Return:
+													integer
+				ar
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+		120
+		Type expression
+			integer
+	Assigment
+		:=
+		Record Access
+			recordall
+			Type expression
+				Type alias: alltype
+				Decl point: 12,6	
+					Record
+					Decl point: 12,16	
+						Table Symbol Variable
+							ar
+								Local variable: ar
+								Decl point: 13,3	
+									Type alias: ints
+									Decl point: 8,6	
+										Static array
+										Decl point: 8,13	
+											Size
+												low: 0 high: 2
+											integer
+							fun
+								Local variable: fun
+								Decl point: 14,3	
+									Type alias: tmax
+									Decl point: 9,4	
+										Function
+										Decl point: 9,20	
+											Return:
+												integer
+			fun
+			Type expression
+				Type alias: tmax
+				Decl point: 9,4	
+					Function
+					Decl point: 9,20	
+						Return:
+							integer
+		@
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+			max
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+	Assigment
+		:=
+		ptr_recordall
+		Type expression
+			Pointer
+			Decl point: 26,21	
+				alltype
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					alltype
+			recordall
+			Type expression
+				Type alias: alltype
+				Decl point: 12,6	
+					Record
+					Decl point: 12,16	
+						Table Symbol Variable
+							ar
+								Local variable: ar
+								Decl point: 13,3	
+									Type alias: ints
+									Decl point: 8,6	
+										Static array
+										Decl point: 8,13	
+											Size
+												low: 0 high: 2
+											integer
+							fun
+								Local variable: fun
+								Decl point: 14,3	
+									Type alias: tmax
+									Decl point: 9,4	
+										Function
+										Decl point: 9,20	
+											Return:
+												integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		Array Access
+			Record Access
+				^
+					Type expression
+						Type alias: alltype
+						Decl point: 12,6	
+							Record
+							Decl point: 12,16	
+								Table Symbol Variable
+									ar
+										Local variable: ar
+										Decl point: 13,3	
+											Type alias: ints
+											Decl point: 8,6	
+												Static array
+												Decl point: 8,13	
+													Size
+														low: 0 high: 2
+													integer
+									fun
+										Local variable: fun
+										Decl point: 14,3	
+											Type alias: tmax
+											Decl point: 9,4	
+												Function
+												Decl point: 9,20	
+													Return:
+														integer
+					ptr_recordall
+					Type expression
+						Pointer
+						Decl point: 26,21	
+							alltype
+				ar
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		Function Call
+			Record Access
+				^
+					Type expression
+						Type alias: alltype
+						Decl point: 12,6	
+							Record
+							Decl point: 12,16	
+								Table Symbol Variable
+									ar
+										Local variable: ar
+										Decl point: 13,3	
+											Type alias: ints
+											Decl point: 8,6	
+												Static array
+												Decl point: 8,13	
+													Size
+														low: 0 high: 2
+													integer
+									fun
+										Local variable: fun
+										Decl point: 14,3	
+											Type alias: tmax
+											Decl point: 9,4	
+												Function
+												Decl point: 9,20	
+													Return:
+														integer
+					ptr_recordall
+					Type expression
+						Pointer
+						Decl point: 26,21	
+							alltype
+				fun
+				Type expression
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+			Type expression
+				integer
+	Assigment
+		:=
+		Record Access
+			recordallptr
+			Type expression
+				Type alias: allptrtype
+				Decl point: 20,6	
+					Record
+					Decl point: 20,19	
+						Table Symbol Variable
+							ptr_ar
+								Local variable: ptr_ar
+								Decl point: 21,2	
+									Pointer
+									Decl point: 21,11	
+										ints
+							ptr_fun
+								Local variable: ptr_fun
+								Decl point: 22,3	
+									Pointer
+									Decl point: 22,13	
+										tmax
+			ptr_ar
+			Type expression
+				Pointer
+				Decl point: 21,11	
+					ints
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					ints
+			Record Access
+				recordall
+				Type expression
+					Type alias: alltype
+					Decl point: 12,6	
+						Record
+						Decl point: 12,16	
+							Table Symbol Variable
+								ar
+									Local variable: ar
+									Decl point: 13,3	
+										Type alias: ints
+										Decl point: 8,6	
+											Static array
+											Decl point: 8,13	
+												Size
+													low: 0 high: 2
+												integer
+								fun
+									Local variable: fun
+									Decl point: 14,3	
+										Type alias: tmax
+										Decl point: 9,4	
+											Function
+											Decl point: 9,20	
+												Return:
+													integer
+				ar
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+	Assigment
+		:=
+		Record Access
+			recordallptr
+			Type expression
+				Type alias: allptrtype
+				Decl point: 20,6	
+					Record
+					Decl point: 20,19	
+						Table Symbol Variable
+							ptr_ar
+								Local variable: ptr_ar
+								Decl point: 21,2	
+									Pointer
+									Decl point: 21,11	
+										ints
+							ptr_fun
+								Local variable: ptr_fun
+								Decl point: 22,3	
+									Pointer
+									Decl point: 22,13	
+										tmax
+			ptr_fun
+			Type expression
+				Pointer
+				Decl point: 22,13	
+					tmax
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					tmax
+			Record Access
+				recordall
+				Type expression
+					Type alias: alltype
+					Decl point: 12,6	
+						Record
+						Decl point: 12,16	
+							Table Symbol Variable
+								ar
+									Local variable: ar
+									Decl point: 13,3	
+										Type alias: ints
+										Decl point: 8,6	
+											Static array
+											Decl point: 8,13	
+												Size
+													low: 0 high: 2
+												integer
+								fun
+									Local variable: fun
+									Decl point: 14,3	
+										Type alias: tmax
+										Decl point: 9,4	
+											Function
+											Decl point: 9,20	
+												Return:
+													integer
+				fun
+				Type expression
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		ptr
+		Type expression
+			string
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		Array Access
+			^
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+				Record Access
+					recordallptr
+					Type expression
+						Type alias: allptrtype
+						Decl point: 20,6	
+							Record
+							Decl point: 20,19	
+								Table Symbol Variable
+									ptr_ar
+										Local variable: ptr_ar
+										Decl point: 21,2	
+											Pointer
+											Decl point: 21,11	
+												ints
+									ptr_fun
+										Local variable: ptr_fun
+										Decl point: 22,3	
+											Pointer
+											Decl point: 22,13	
+												tmax
+					ptr_ar
+					Type expression
+						Pointer
+						Decl point: 21,11	
+							ints
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		Function Call
+			^
+				Type expression
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+				Record Access
+					recordallptr
+					Type expression
+						Type alias: allptrtype
+						Decl point: 20,6	
+							Record
+							Decl point: 20,19	
+								Table Symbol Variable
+									ptr_ar
+										Local variable: ptr_ar
+										Decl point: 21,2	
+											Pointer
+											Decl point: 21,11	
+												ints
+									ptr_fun
+										Local variable: ptr_fun
+										Decl point: 22,3	
+											Pointer
+											Decl point: 22,13	
+												tmax
+					ptr_fun
+					Type expression
+						Pointer
+						Decl point: 22,13	
+							tmax
+			Type expression
+				integer
+	Assigment
+		:=
+		Array Access
+			ar_fun
+			Type expression
+				Type alias: tarrayfunction
+				Decl point: 32,6	
+					Static array
+					Decl point: 32,23	
+						Size
+							low: 0 high: 1
+						Type alias: tmax
+						Decl point: 9,4	
+							Function
+							Decl point: 9,20	
+								Return:
+									integer
+			Type expression
+				Type alias: tmax
+				Decl point: 9,4	
+					Function
+					Decl point: 9,20	
+						Return:
+							integer
+			0
+			Type expression
+				integer
+		@
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+			max
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+	Assigment
+		:=
+		Array Access
+			ar_fun
+			Type expression
+				Type alias: tarrayfunction
+				Decl point: 32,6	
+					Static array
+					Decl point: 32,23	
+						Size
+							low: 0 high: 1
+						Type alias: tmax
+						Decl point: 9,4	
+							Function
+							Decl point: 9,20	
+								Return:
+									integer
+			Type expression
+				Type alias: tmax
+				Decl point: 9,4	
+					Function
+					Decl point: 9,20	
+						Return:
+							integer
+			1
+			Type expression
+				integer
+		@
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+			max
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+	Assigment
+		:=
+		ptr_ar_fun
+		Type expression
+			Pointer
+			Decl point: 35,18	
+				tarrayfunction
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					tarrayfunction
+			ar_fun
+			Type expression
+				Type alias: tarrayfunction
+				Decl point: 32,6	
+					Static array
+					Decl point: 32,23	
+						Size
+							low: 0 high: 1
+						Type alias: tmax
+						Decl point: 9,4	
+							Function
+							Decl point: 9,20	
+								Return:
+									integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+		Function Call
+			Array Access
+				^
+					Type expression
+						Type alias: tarrayfunction
+						Decl point: 32,6	
+							Static array
+							Decl point: 32,23	
+								Size
+									low: 0 high: 1
+								Type alias: tmax
+								Decl point: 9,4	
+									Function
+									Decl point: 9,20	
+										Return:
+											integer
+					ptr_ar_fun
+					Type expression
+						Pointer
+						Decl point: 35,18	
+							tarrayfunction
+				Type expression
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+				1
+				Type expression
+					integer
+			Type expression
+				integer
+	Assigment
+		:=
+		ptr_ar
+		Type expression
+			Pointer
+			Decl point: 30,14	
+				ints
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					ints
+			ar
+			Type expression
+				Type alias: ints
+				Decl point: 8,6	
+					Static array
+					Decl point: 8,13	
+						Size
+							low: 0 high: 2
+						integer
+	Assigment
+		:=
+		Array Access
+			^
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+				ptr_ar
+				Type expression
+					Pointer
+					Decl point: 30,14	
+						ints
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+		12
+		Type expression
+			integer
+	Function Call
+		write
+		Write
+		Type expression
+			void
+		Array Access
+			^
+				Type expression
+					Type alias: ints
+					Decl point: 8,6	
+						Static array
+						Decl point: 8,13	
+							Size
+								low: 0 high: 2
+							integer
+				ptr_ar
+				Type expression
+					Pointer
+					Decl point: 30,14	
+						ints
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void
+	Assigment
+		:=
+		Array Access
+			ar
+			Type expression
+				Type alias: ints
+				Decl point: 8,6	
+					Static array
+					Decl point: 8,13	
+						Size
+							low: 0 high: 2
+						integer
+			Type expression
+				integer
+			1
+			Type expression
+				integer
+		Array Access
+			ar
+			Type expression
+				Type alias: ints
+				Decl point: 8,6	
+					Static array
+					Decl point: 8,13	
+						Size
+							low: 0 high: 2
+						integer
+			Type expression
+				integer
+			0
+			Type expression
+				integer
+	Assigment
+		:=
+		proc
+		Type expression
+			Type alias: tmax
+			Decl point: 9,4	
+				Function
+				Decl point: 9,20	
+					Return:
+						integer
+		@
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+			max
+			Type expression
+				Function
+				Decl point: 2,13	
+					Return:
+						integer
+	Assigment
+		:=
+		ptr_proc
+		Type expression
+			Pointer
+			Decl point: 18,15	
+				tmax
+		@
+			Type expression
+				Pointer
+				Decl point: -1,-1	
+					tmax
+			proc
+			Type expression
+				Type alias: tmax
+				Decl point: 9,4	
+					Function
+					Decl point: 9,20	
+						Return:
+							integer
+	Assigment
+		:=
+		f
+		Type expression
+			integer
+		Function Call
+			^
+				Type expression
+					Type alias: tmax
+					Decl point: 9,4	
+						Function
+						Decl point: 9,20	
+							Return:
+								integer
+				ptr_proc
+				Type expression
+					Pointer
+					Decl point: 18,15	
+						tmax
+			Type expression
+				integer
+	Function Call
+		write
+		Write
+		Type expression
+			void
+		f
+		Type expression
+			integer
+	Function Call
+		writeln
+		Write
+		Type expression
+			void

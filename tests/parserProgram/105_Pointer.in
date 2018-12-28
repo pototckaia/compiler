@@ -1,0 +1,7 @@
+type PL = ^Integer;
+var  p1,p2 : PL;
+     L : integer;
+     pp : pointer;
+begin
+p1 := @p2;
+end.

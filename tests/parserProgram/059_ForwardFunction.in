@@ -9,9 +9,10 @@ end;
 function bar() : integer;
 begin
 	foo();
-	exit(0)
+	bar();
+	exit(0);
 end;
 
 begin
-	bar;
+	bar();
 end.

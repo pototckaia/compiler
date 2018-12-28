@@ -1,0 +1,201 @@
+Decl
+	Table Symbol Type
+		boolean
+			boolean
+		char
+			char
+		double
+			double
+		integer
+			integer
+		pointer
+			pointer
+	Table Symbol Const
+	Table Symbol Variable
+		a
+			Global variable: a
+			Decl point: 4,4	
+				Static array
+				Decl point: 4,10	
+					Size
+						low: 0 high: 100
+					integer
+		b
+			Global variable: b
+			Decl point: 4,7	
+				Static array
+				Decl point: 4,10	
+					Size
+						low: 0 high: 100
+					integer
+		c
+			Global variable: c
+			Decl point: 5,4	
+				Static array
+				Decl point: 5,8	
+					Size
+						low: 0 high: 100
+					integer
+		i
+			Global variable: i
+			Decl point: 3,4	
+				integer
+		n
+			Global variable: n
+			Decl point: 2,4	
+				integer
+	Table Symbol Function
+		chr
+			Chr
+		exit
+			Exit
+				void
+		high
+			High
+		low
+			Low
+		ord
+			Ord
+		prev
+			Prev
+		read
+			Read
+		readln
+			Read
+		round
+			Round
+		succ
+			Succ
+		trunc
+			Trunc
+		write
+			Write
+		writeln
+			Write
+Block
+	For
+		i
+		Type expression
+			integer
+		0
+		Type expression
+			integer
+		To
+		n
+		Type expression
+			integer
+		Block
+			Assigment
+				:=
+				Array Access
+					a
+					Type expression
+						Static array
+						Decl point: 4,10	
+							Size
+								low: 0 high: 100
+							integer
+					Type expression
+						integer
+					i
+					Type expression
+						integer
+				*
+					Type expression
+						integer
+					i
+					Type expression
+						integer
+					2
+					Type expression
+						integer
+			If
+				=
+					Type expression
+						boolean
+					0
+					Type expression
+						integer
+					mod
+						Type expression
+							integer
+						2
+						Type expression
+							integer
+						i
+						Type expression
+							integer
+				Assigment
+					:=
+					Array Access
+						b
+						Type expression
+							Static array
+							Decl point: 4,10	
+								Size
+									low: 0 high: 100
+								integer
+						Type expression
+							integer
+						i
+						Type expression
+							integer
+					*
+						Type expression
+							integer
+						i
+						Type expression
+							integer
+						2
+						Type expression
+							integer
+				Assigment
+					:=
+					Array Access
+						b
+						Type expression
+							Static array
+							Decl point: 4,10	
+								Size
+									low: 0 high: 100
+								integer
+						Type expression
+							integer
+						i
+						Type expression
+							integer
+					i
+					Type expression
+						integer
+	Assigment
+		:=
+		b
+		Type expression
+			Static array
+			Decl point: 4,10	
+				Size
+					low: 0 high: 100
+				integer
+		a
+		Type expression
+			Static array
+			Decl point: 4,10	
+				Size
+					low: 0 high: 100
+				integer
+	Assigment
+		:=
+		c
+		Type expression
+			Static array
+			Decl point: 5,8	
+				Size
+					low: 0 high: 100
+				integer
+		b
+		Type expression
+			Static array
+			Decl point: 4,10	
+				Size
+					low: 0 high: 100
+				integer
