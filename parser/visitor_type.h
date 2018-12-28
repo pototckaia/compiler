@@ -7,6 +7,7 @@ using namespace pr;
 
 class CheckLvalue : public Visitor {
  public:
+  static bool is(ptr_Expr&);
   CheckLvalue() : lvalue(true) {}
   bool isLvalue() { return lvalue; }
 
@@ -17,7 +18,7 @@ class CheckLvalue : public Visitor {
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
   void visit(FunctionCall&) override;
-  void visit(StaticCast&) override;
+  void visit(Cast&) override;
 
  private:
   bool lvalue;
@@ -48,8 +49,11 @@ class CheckTypeExpressionBase : public Visitor {
 
 class CheckTypeArrayAccess : public CheckTypeExpressionBase {
  public:
+  static void checkArrayAccess(ArrayAccess&, ptr_Type&);
+
   CheckTypeArrayAccess(ArrayAccess& a)
-  : CheckTypeExpressionBase("Array access to type \"" + a.getName()->typeExpression->name + "\" not valid"),
+  : CheckTypeExpressionBase(tok::getPoint(a.line, a.column) +
+      "Array access to type \"" + a.getName()->typeExpression->name + "\" not valid"),
     arrayAccess(a),
     sizeBounds(a.getListIndex().size()) {}
 
@@ -64,8 +68,11 @@ class CheckTypeArrayAccess : public CheckTypeExpressionBase {
 
 class CheckTypeRecordAccess : public CheckTypeExpressionBase {
  public:
+  static void checkTypeRecordAccess(RecordAccess&, ptr_Type&);
+
   CheckTypeRecordAccess(RecordAccess& a)
-    : CheckTypeExpressionBase("Record access to type \"" + a.getRecord()->typeExpression->name + "\" not valid"),
+    : CheckTypeExpressionBase(tok::getPoint(a.line, a.column) +
+        "Record access to type \"" + a.getRecord()->typeExpression->name + "\" not valid"),
       recordAccess(a) {}
 
   void visit(Record&) override;
@@ -76,8 +83,11 @@ class CheckTypeRecordAccess : public CheckTypeExpressionBase {
 
 class CheckTypeFunctionCall : public CheckTypeExpressionBase {
  public:
+  static void checkTypeFunctionCall(FunctionCall&, const ptr_Symbol&);
+
   CheckTypeFunctionCall(FunctionCall& f)
-    : CheckTypeExpressionBase("Except function or procedure but find " + f.getName()->typeExpression->name),
+    : CheckTypeExpressionBase(tok::getPoint(f.line, f.column) +
+        "Expect function or procedure"),
       f(f) {}
 
   void visit(FunctionSignature& f) override;
@@ -108,7 +118,7 @@ class CheckType : public Visitor {
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
   void visit(FunctionCall&) override;
-  void visit(StaticCast&) override;
+  void visit(Cast&) override;
 
   void visit(AssignmentStmt&) override;
   void visit(FunctionCallStmt&) override;
@@ -121,8 +131,11 @@ class CheckType : public Visitor {
 
  private:
   StackTable stackTable;
+  bool isMustFunctionCall = false;
+  bool wasFunctionCall = false;
 
-  bool implicitCastInt(BinaryOperation& b);
-  bool checkTypePlusMinus(BinaryOperation& b);
-
+  bool isImplicitType(ptr_Type&, ptr_Type&);
+  bool implicitCast(BinaryOperation& b, bool isAssigment);
+  bool checkTypePlusMinus(BinaryOperation& b, bool isAssigment = false);
+  bool checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment = false);
 };
