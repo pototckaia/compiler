@@ -24,9 +24,19 @@ class Visitor;
 
 class ASTNode {
  public:
-  ASTNode() = default;
   virtual ~ASTNode() = default;
   virtual void accept(Visitor&) = 0;
+
+  ASTNode() = default;
+  ASTNode(int line, int column) : line(line), column(column) {}
+  ASTNode(const pr::ptr_Token& t) : line(t->getLine()), column(t->getColumn()) {}
+
+  void setDeclPoint(const tok::ptr_Token& t) {
+    line = t->getLine();
+    column = t->getColumn();
+  }
+
+  int line, column;
 };
 
 } // pr
@@ -41,20 +51,14 @@ using ptr_Type = std::shared_ptr<SymType>;
 
 class Symbol : public pr::ASTNode {
  public:
-  Symbol() : name(), line(-1), column(-1) {}
-  Symbol(int line, int column) : name(), line(line), column(column) {}
-  Symbol(const std::string& n) : name(n), line(-1), column(-1) {}
+  Symbol() : ASTNode(-1, -1) {}
+  Symbol(int line, int column) : ASTNode(line, column) {}
+  Symbol(const std::string& n) : ASTNode(-1, -1), name(n) {}
   Symbol(const tok::ptr_Token& t)
-    : name(t->getValueString()), line(t->getLine()), column(t->getColumn()) {}
+    :  ASTNode(t), name(t->getValueString()){}
 
-  void setDeclPoint(const tok::ptr_Token& t) {
-    line = t->getLine();
-    column = t->getColumn();
-  }
   virtual bool isForward() const { return false; }
-
   std::string name;
-  int line, column;
 };
 
 class SymFun : public Symbol {
@@ -70,8 +74,9 @@ class SymFun : public Symbol {
 class SymVar : public Symbol {
  public:
   using Symbol::Symbol;
-  SymVar(const tok::ptr_Token& n, const ptr_Type& t)
-    : Symbol(n), type(t) {}
+  SymVar(std::string name, ptr_Type t) : Symbol(name), type(std::move(t)) {}
+  SymVar(const tok::ptr_Token& n, ptr_Type t)
+    : Symbol(n), type(std::move(t)) {}
 
   ptr_Type type;
   pr::ptr_Expr defaultValue;

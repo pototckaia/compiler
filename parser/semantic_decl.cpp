@@ -27,20 +27,37 @@ SemanticDecl::SemanticDecl() : stackTable(Tables()) {
   t.tableFunction.insert(std::make_shared<Low>());
 }
 
-void SemanticDecl::parseTypeDecl(std::list<std::pair<pr::ptr_Token, ptr_Type>>& decls) {
-  for (auto& e : decls) {
-    auto alias = std::make_shared<Alias>(e.first, e.second);
-    e.second->name = e.first->getValueString();
-
-    if (!stackTable.checkContain(alias->name)) {
-      stackTable.top().tableType.insert(alias);
-    } else if (stackTable.top().tableType.checkContain(alias->name) &
-               stackTable.top().tableType.find(alias->name)->isForward()) {
-      stackTable.top().tableType.replace(alias);
-    } else {
-      throw AlreadyDefinedException(e.first);
+pr::ptr_Expr SemanticDecl::parseFunctionCall(const tok::ptr_Token& d, pr::ptr_Expr e, pr::ListExpr l) {
+  if (dynamic_cast<Variable*>(e.get())) {
+    auto name = dynamic_cast<Variable*>(e.get())->getName()->getValueString();
+    if (stackTable.isType(name)) {
+      if (l.empty() || l.size() > 1) {
+        throw SemanticException(d, "Cast expect 1 argument");
+      }
+      auto c = std::make_unique<Cast>(stackTable.findType(name), std::move(l.back()));
+      c->setDeclPoint(d);
+      return c;
     }
   }
+  return std::make_unique<FunctionCall>(d, std::move(e), std::move(l));
+}
+
+
+void SemanticDecl::parseTypeDecl(pr::ptr_Token decl, ptr_Type type) {
+  auto alias = std::make_shared<Alias>(decl, type);
+  type->name = decl->getValueString();
+
+  if (!stackTable.top().checkContain(alias->name)) {
+    stackTable.top().tableType.insert(alias);
+  } else if (stackTable.top().tableType.checkContain(alias->name) &
+             stackTable.top().tableType.find(alias->name)->isForward()) {
+    stackTable.top().tableType.replace(alias);
+  } else {
+    throw AlreadyDefinedException(decl);
+  }
+}
+
+void SemanticDecl::parseTypeDeclEnd() {
   stackTable.top().resolveForwardType();
 }
 
@@ -120,6 +137,8 @@ ListParam SemanticDecl::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable
 
 std::shared_ptr<MainFunction> SemanticDecl::parseMainBlock(pr::ptr_Stmt body) {
   stackTable.top().resolveForwardFunction();
+  stackTable.top().tableFunction.insert(std::make_shared<Exit>(std::make_shared<Void>()));
+
   CheckType checkType(stackTable);
   body->accept(checkType);
   auto main = std::make_shared<MainFunction>(stackTable.top(), std::move(body));
@@ -131,7 +150,7 @@ std::shared_ptr<MainFunction> SemanticDecl::parseMainBlock(pr::ptr_Stmt body) {
 }
 
 void SemanticDecl::parseFunctionForward(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature> si) {
-  if (stackTable.checkContain(decl->getValueString())) {
+  if (stackTable.top().checkContain(decl->getValueString())) {
     throw AlreadyDefinedException(decl);
   }
   auto f =  std::make_shared<ForwardFunction>(std::move(decl), std::move(si));
@@ -148,13 +167,20 @@ void SemanticDecl::parseFunctionDeclBegin(std::shared_ptr<FunctionSignature> s) 
 
 void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
                                         std::shared_ptr<FunctionSignature> s, pr::ptr_Stmt b) {
+  if (!s->isProcedure()) {
+    stackTable.top().tableVariable.insert(
+      std::make_shared<LocalVar>(decl->getValueString(), s->returnType));
+  }
+  stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
+
   CheckType checkType(stackTable);
   b->accept(checkType);
+
   auto declTable = stackTable.top();
   stackTable.pop();
   stackTable.pop();
   auto function = std::make_shared<Function>(decl, s, std::move(b), declTable);
-  if (!stackTable.checkContain(decl->getValueString())) {
+  if (!stackTable.top().checkContain(decl->getValueString())) {
     stackTable.top().tableFunction.insert(function);
     return;
   } else if (stackTable.isFunction(function->name) &&
@@ -166,7 +192,7 @@ void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
 }
 
 void SemanticDecl::parseConstDecl(const tok::ptr_Token& decl, pr::ptr_Expr expr) {
-  if (stackTable.checkContain(decl->getValueString())) {
+  if (stackTable.top().checkContain(decl->getValueString())) {
     throw AlreadyDefinedException(decl);
   }
   auto cons = std::make_shared<Const>(decl);
@@ -176,7 +202,7 @@ void SemanticDecl::parseConstDecl(const tok::ptr_Token& decl, pr::ptr_Expr expr)
 
 void SemanticDecl::parseVariableDecl(tok::ListToken listId, ptr_Type type, bool isGlobal) {
   for (auto& e : listId) {
-    if (stackTable.checkContain(e->getValueString())) {
+    if (stackTable.top().checkContain(e->getValueString())) {
       throw AlreadyDefinedException(e);
     }
     std::shared_ptr<SymVar> var;

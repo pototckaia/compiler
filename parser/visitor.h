@@ -20,7 +20,7 @@ class Visitor {
   virtual void visit(ArrayAccess&) {};
   virtual void visit(RecordAccess&) {};
   virtual void visit(FunctionCall&) {};
-  virtual void visit(StaticCast&) {};
+  virtual void visit(Cast&) {};
 
   virtual void visit(AssignmentStmt&) {};
   virtual void visit(FunctionCallStmt&) {};
@@ -37,6 +37,7 @@ class Visitor {
   virtual void visit(Boolean&) {};
   virtual void visit(TPointer&) {};
   virtual void visit(String&) {};
+  virtual void visit(Void&) {};
 
   virtual void visit(Alias&) {};
   virtual void visit(Pointer&) {};
@@ -85,7 +86,7 @@ class PrintVisitor : public Visitor {
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
   void visit(FunctionCall&) override;
-  void visit(StaticCast&) override;
+  void visit(Cast&) override;
 
   void visit(AssignmentStmt&) override;
   void visit(FunctionCallStmt&) override;
@@ -102,6 +103,7 @@ class PrintVisitor : public Visitor {
   void visit(TPointer&) override;
   void visit(Boolean&) override;
   void visit(String&) override;
+  void visit(Void&) override;
 
   void visit(Alias&) override;
   void visit(Pointer&) override;
@@ -141,6 +143,7 @@ class PrintVisitor : public Visitor {
   std::ofstream out;
   int depth;
   void print(const std::string&);
+  void print(const ptr_Type&);
 };
 
 } // namespace pr

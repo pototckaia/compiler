@@ -5,26 +5,36 @@ using namespace pr;
 
 PrintVisitor::PrintVisitor(const std::string& out) : out(out), depth(0) {}
 
-void PrintVisitor::print(const std::string& s) {
-  out << std::string(depth, '\t') << s << std::endl;
+void PrintVisitor::print(const std::string& e) {
+  out << std::string(depth, '\t') << e << std::endl;
+}
+
+void PrintVisitor::print(const ptr_Type& e) {
+  print("Type expression");
+  ++depth;
+  e->accept(*this);
+  --depth;
 }
 
 // Expression
 
 void PrintVisitor::visit(pr::Literal& l) {
   print(l.getValue()->getValueString());
-  l.typeExpression->accept(*this);
+  print(l.typeExpression);
 }
 
 void PrintVisitor::visit(pr::Variable& v) {
   print(v.getName()->getValueString());
-  v.typeExpression->accept(*this);
+  if (v.typeExpression != nullptr)
+    print(v.typeExpression);
+  else
+    v.embeddedFunction->accept(*this);
 }
 
 void PrintVisitor::visit(pr::BinaryOperation& b) {
   print(b.getOpr()->getValueString());
   ++depth;
-  b.typeExpression->accept(*this);
+  print(b.typeExpression);
   b.getRight()->accept(*this);
   b.getLeft()->accept(*this);
   --depth;
@@ -33,7 +43,7 @@ void PrintVisitor::visit(pr::BinaryOperation& b) {
 void PrintVisitor::visit(pr::UnaryOperation& u) {
   print(u.getOpr()->getValueString());
   ++depth;
-  u.typeExpression->accept(*this);
+  print(u.typeExpression);
   u.getExpr()->accept(*this);
   --depth;
 }
@@ -42,7 +52,7 @@ void PrintVisitor::visit(pr::ArrayAccess& a) {
   print("Array Access");
   ++depth;
   a.getName()->accept(*this);
-  a.typeExpression->accept(*this);
+  print(a.typeExpression);;
   for (auto& e: a.getListIndex()) {
     e->accept(*this);
   }
@@ -53,7 +63,11 @@ void PrintVisitor::visit(pr::FunctionCall& f) {
   print("Function Call");
   ++depth;
   f.getName()->accept(*this);
-  f.typeExpression->accept(*this);
+  if (f.typeExpression == nullptr) {
+    f.embeddedFunction->accept(*this);
+  } else {
+    print(f.typeExpression);
+  }
   for (auto& e: f.getParam()) {
     e->accept(*this);
   }
@@ -65,14 +79,16 @@ void PrintVisitor::visit(pr::RecordAccess& r) {
   ++depth;
   r.getRecord()->accept(*this);
   print(r.getField()->getValueString());
-  r.typeExpression->accept(*this);
+  print(r.typeExpression);
   --depth;
 }
 
-void PrintVisitor::visit(StaticCast& t) {
-  print("Static cast");
+void PrintVisitor::visit(Cast& t) {
+  print("Cast");
   t.typeExpression->accept(*this);
+  ++depth;
   t.expr->accept(*this);
+  --depth;
 }
 
 // Stmt
@@ -92,7 +108,6 @@ void PrintVisitor::visit(pr::FunctionCallStmt& f) {
 
 void PrintVisitor::visit(pr::BlockStmt& b) {
   print("Block");
-
   ++depth;
   for (auto& e: b.getBlock()) {
     e->accept(*this);
@@ -102,7 +117,6 @@ void PrintVisitor::visit(pr::BlockStmt& b) {
 
 void PrintVisitor::visit(pr::IfStmt& i) {
   print("If");
-
   ++depth;
   i.getCondition()->accept(*this);
   i.getThen()->accept(*this);
@@ -114,7 +128,6 @@ void PrintVisitor::visit(pr::IfStmt& i) {
 
 void PrintVisitor::visit(pr::WhileStmt& w) {
   print("While");
-
   ++depth;
   w.getCondition()->accept(*this);
   w.getBlock()->accept(*this);
@@ -123,7 +136,6 @@ void PrintVisitor::visit(pr::WhileStmt& w) {
 
 void PrintVisitor::visit(pr::ForStmt& f) {
   print("For");
-
   ++depth;
   f.getVar()->accept(*this);
   f.getLow()->accept(*this);
@@ -169,6 +181,10 @@ void PrintVisitor::visit(String& s) {
   print(s.name);
 }
 
+void PrintVisitor::visit(Void& v) {
+  print(v.name);
+}
+
 void PrintVisitor::visit(Alias& a) {
   print("Type alias: " + a.name);
   print("Decl point: " + tok::getPoint(a.line, a.column));
@@ -181,7 +197,7 @@ void PrintVisitor::visit(Pointer& p) {
   print("Pointer");
   print("Decl point: " + tok::getPoint(p.line, p.column));
   ++depth;
-  p.typeBase->accept(*this);
+  print(p.typeBase->name);
   --depth;
 }
 
@@ -218,7 +234,7 @@ void PrintVisitor::visit(Record& r) {
 }
 
 void PrintVisitor::visit(FunctionSignature& s) {
-  if (s.returnType == nullptr) {
+  if (s.isProcedure()) {
     print("Procedure");
   } else {
     print ("Function");
@@ -229,7 +245,10 @@ void PrintVisitor::visit(FunctionSignature& s) {
    e->accept(*this);
   }
   if (!s.isProcedure()) {
+    print("Return:");
+    ++depth;
     s.returnType->accept(*this);
+    --depth;
   }
   --depth;
 }
@@ -285,7 +304,7 @@ void PrintVisitor::visit(ForwardFunction& f) {
 }
 
 void PrintVisitor::visit(Function& f) {
-  print("Function decl: " + f.name);
+  print("Function or Procedure: " + f.name);
   print("Decl point: " + tok::getPoint(f.line, f.column));
   ++depth;
   f.signature->accept(*this);

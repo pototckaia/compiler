@@ -3,32 +3,42 @@
 
 using namespace pr;
 
-Variable::Variable(std::unique_ptr<tok::TokenBase> n) : name(std::move(n)) {}
+Variable::Variable(std::unique_ptr<tok::TokenBase> n)
+  : ASTNode(n->getLine(), n->getColumn()), name(std::move(n)) {}
 
-Literal::Literal(std::unique_ptr<tok::TokenBase> v) : value(std::move(v)) {}
+Literal::Literal(std::unique_ptr<tok::TokenBase> v)
+  : ASTNode(v->getLine(), v->getColumn()), value(std::move(v)) {}
 
 BinaryOperation::BinaryOperation(std::unique_ptr<tok::TokenBase> op,
                                  ptr_Expr left,
                                  ptr_Expr right)
-  : opr(std::move(op)), left(std::move(left)), right(std::move(right)) {}
+  : ASTNode(op->getLine(), op->getColumn()),
+    opr(std::move(op)), left(std::move(left)), right(std::move(right)) {
+
+}
 
 UnaryOperation::UnaryOperation(std::unique_ptr<tok::TokenBase> opr, ptr_Expr expr)
-  : opr(std::move(opr)), expr(std::move(expr)) {}
+  : ASTNode(opr->getLine(), opr->getColumn()), opr(std::move(opr)), expr(std::move(expr)) {}
 
-ArrayAccess::ArrayAccess(ptr_Expr name, ListExpr i)
-  : nameArray(std::move(name)), listIndex(std::move(i)) {}
+ArrayAccess::ArrayAccess(const pr::ptr_Token& d, ptr_Expr name, ListExpr i)
+  : ASTNode(d), nameArray(std::move(name)), listIndex(std::move(i)) {}
 
-FunctionCall::FunctionCall(ptr_Expr nameFunction, ListExpr listParam)
-  : nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
+FunctionCall::FunctionCall(const pr::ptr_Token& d, ptr_Expr nameFunction, ListExpr listParam)
+  : ASTNode(d), nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
+
+AssignmentStmt::AssignmentStmt(pr::ptr_Token op, pr::ptr_Expr l, pr::ptr_Expr r)
+  : ASTNode(op), BinaryOperation(std::move(op), std::move(l), std::move(r)) {}
 
 FunctionCallStmt::FunctionCallStmt(pr::ptr_Expr e) : functionCall(std::move(e)) {}
 
-StaticCast::StaticCast(ptr_Type to, pr::ptr_Expr expr)
+Cast::Cast(ptr_Type to, pr::ptr_Expr expr)
  : Expression(std::move(to)), expr(std::move(expr)) {}
+Cast::Cast(pr::FunctionCall f)
+  : ASTNode(f.line, f.column), Expression(std::move(f.typeExpression)),
+    expr(std::move(f.listParam.back())) {}
 
-
-RecordAccess::RecordAccess(ptr_Expr record, std::unique_ptr<tok::TokenBase> field)
-  : record(std::move(record)), field(std::move(field)) {}
+RecordAccess::RecordAccess(const pr::ptr_Token& d, ptr_Expr record, std::unique_ptr<tok::TokenBase> field)
+  : ASTNode(d), record(std::move(record)), field(std::move(field)) {}
 
 BlockStmt::BlockStmt(pr::ListStmt block) : stmts(std::move(block)) {}
 
@@ -55,7 +65,7 @@ void BinaryOperation::accept(pr::Visitor& v) { v.visit(*this); }
 void UnaryOperation::accept(pr::Visitor& v) { v.visit(*this); }
 void ArrayAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void FunctionCall::accept(pr::Visitor& v) { v.visit(*this); }
-void StaticCast::accept(pr::Visitor& v) { v.visit(*this); }
+void Cast::accept(pr::Visitor& v) { v.visit(*this); }
 void RecordAccess::accept(pr::Visitor& v) { v.visit(*this); }
 void AssignmentStmt::accept(pr::Visitor& v) { v.visit(*this); }
 void FunctionCallStmt::accept(pr::Visitor& v) { v.visit(*this); }

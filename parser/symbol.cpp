@@ -231,6 +231,9 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
   if (dynamic_cast<StaticArray*>(s)) {
     auto p = dynamic_cast<StaticArray*>(s);
     return typeElem->equalsForCheckArgument(p->typeElem.get());
+  } if (dynamic_cast<Alias*>(s)) {
+    auto p = dynamic_cast<Alias*>(s);
+    return equalsForCheckArgument(p->type.get());
   }
   return equals(s);
 }
@@ -355,7 +358,7 @@ High::High() : SymFun("high") {}
 
 Low::Low() : SymFun("low") {}
 
-Exit::Exit(ptr_Type returnType) : returnType(std::move(returnType)) {  };
+Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {  };
 
 // accept
 
@@ -364,6 +367,7 @@ void Double::accept(pr::Visitor& v) { v.visit(*this); }
 void Char::accept(pr::Visitor& v) { v.visit(*this); }
 void Boolean::accept(pr::Visitor& v) { v.visit(*this); }
 void String::accept(pr::Visitor& v) { v.visit(*this); }
+void Void::accept(pr::Visitor& v) { v.visit(*this); }
 
 void TPointer::accept(pr::Visitor& v) { v.visit(*this); }
 void Alias::accept(pr::Visitor& v) { v.visit(*this); }

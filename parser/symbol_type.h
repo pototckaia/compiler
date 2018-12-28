@@ -22,6 +22,7 @@ class SymType : public Symbol {
   virtual bool isProcedureType() const { return false; }
   virtual bool isOpenArray() const { return false; }
   virtual bool isStaticArray() const { return false; }
+  virtual ptr_Type getPointerBase() { return nullptr; }
 
  protected:
   bool checkAlias(SymType* s) const;
@@ -31,7 +32,7 @@ class Void : public SymType {
  public:
   Void() : SymType("void") {}
   bool isVoid() const override { return true; }
-  void accept(pr::Visitor& v) override {}
+  void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override { return false; }
 };
 
@@ -101,6 +102,7 @@ class Alias : public SymType {
   bool isProcedureType() const override { return type->isProcedureType(); }
   bool isStaticArray() const override { return type->isStaticArray(); }
   bool isOpenArray() const override { return type->isOpenArray(); }
+  ptr_Type getPointerBase() override { return type->getPointerBase(); }
 
   ptr_Type type;
 };
@@ -126,6 +128,7 @@ class Pointer : public SymType {
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isTypePointer() const override { return true; }
+  ptr_Type getPointerBase() override { return typeBase; }
 
   ptr_Type typeBase;
 };
@@ -152,7 +155,7 @@ class OpenArray : public SymType{
   void accept(pr::Visitor& v) override;
   bool equals(SymType* s) const override;
   bool equalsForCheckArgument(SymType* s) const override;
-  bool isOpenArray() const override { return false; }
+  bool isOpenArray() const override { return true; }
 };
 
 class Record : public SymType {

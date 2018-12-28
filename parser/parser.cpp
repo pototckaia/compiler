@@ -123,23 +123,24 @@ ptr_Expr Parser::parseAccess(int p) {
   while (match(priority[p])) {
     switch (lexer.get()->getTokenType()) {
       case tok::TokenType::Dot: {
-        ++lexer;
+        auto d = lexer.next();
         require(tok::TokenType::Id);
-        left = std::make_unique<RecordAccess>(std::move(left), lexer.next());
+        left = std::make_unique<RecordAccess>(d, std::move(left), lexer.next());
         break;
       }
       case tok::TokenType::OpenParenthesis: {
-        ++lexer;
+        auto d = lexer.next();
         auto list = parseActualParameter();
         requireAndSkip(tok::TokenType::CloseParenthesis);
-        left = std::make_unique<FunctionCall>(std::move(left), std::move(list));
+
+        left = semanticDecl.parseFunctionCall(d, std::move(left), std::move(list));
         break;
       }
       case tok::TokenType::OpenSquareBracket: {
-        ++lexer;
+        auto d = lexer.next();
         auto list = parseListExpression();
         requireAndSkip(tok::TokenType::CloseSquareBracket);
-        left = std::make_unique<ArrayAccess>(std::move(left), std::move(list));
+        left = std::make_unique<ArrayAccess>(d, std::move(left), std::move(list));
         break;
       }
       case tok::TokenType::Caret: {
@@ -355,8 +356,6 @@ void Parser::parseConstDecl() {
 }
 
 void Parser::parseTypeDecl() {
-  std::list<std::pair<ptr_Token, ptr_Type>> declsType;
-
   requireAndSkip(tok::TokenType::Type);
   require(tok::TokenType::Id);
   while (match(tok::TokenType::Id)) {
@@ -364,9 +363,9 @@ void Parser::parseTypeDecl() {
     requireAndSkip(tok::TokenType::Equals);
     auto type = parseType(true);
     requireAndSkip(tok::TokenType::Semicolon);
-    declsType.push_back(std::make_pair(std::move(id), std::move(type)));
+    semanticDecl.parseTypeDecl(std::move(id), std::move(type));
   }
-  semanticDecl.parseTypeDecl(declsType);
+  semanticDecl.parseTypeDeclEnd();
 }
 
 void Parser::parseFunctionDecl(bool isProcedure) {

@@ -9,6 +9,7 @@
 #include "exception.h"
 #include "parser.h"
 #include "visitor.h"
+#include "visitor_type.h"
 
 
 void lexerTest(const std::string& inputFileName,const std::string& outputFileName) {
@@ -49,6 +50,15 @@ void parserProgramTest(const std::string& inputFileName, const std::string& outp
     auto tree = p.parseProgram();
     tree->accept(v);
   } catch(ParserException& e) {
+    std::ofstream out(outputFileName);
+    out << e.what();
+  } catch (SemanticException& e) {
+    std::ofstream out(outputFileName);
+    out << e.what();
+  } catch (NotDefinedException& e) {
+    std::ofstream out(outputFileName);
+    out << e.what();
+  } catch (AlreadyDefinedException& e) {
     std::ofstream out(outputFileName);
     out << e.what();
   }

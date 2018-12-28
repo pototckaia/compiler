@@ -9,7 +9,7 @@
 
 namespace pr {
 
-class Expression : public ASTNode {
+class Expression : public virtual ASTNode {
  public:
   Expression() = default;
   Expression(ptr_Type t) : typeExpression(std::move(t)) {}
@@ -70,14 +70,13 @@ class UnaryOperation : public Expression {
 
   void accept(Visitor&) override;
 
- private:
   ptr_Token opr;
   ptr_Expr expr;
 };
 
 class ArrayAccess : public Expression {
  public:
-  ArrayAccess(ptr_Expr, ListExpr);
+  ArrayAccess(const pr::ptr_Token& d, ptr_Expr name, ListExpr i);
 
   const auto& getName() const { return nameArray; }
   const auto& getListIndex() const { return listIndex; };
@@ -91,7 +90,7 @@ class ArrayAccess : public Expression {
 
 class FunctionCall : public Expression {
  public:
-  FunctionCall(ptr_Expr, ListExpr);
+  FunctionCall(const pr::ptr_Token& d, ptr_Expr, ListExpr);
 
   const auto& getName() const { return nameFunction; }
   const auto& getParam() const { return listParam; };
@@ -102,16 +101,17 @@ class FunctionCall : public Expression {
   ListExpr listParam;
 };
 
-class StaticCast : public Expression {
+class Cast : public Expression {
  public:
-  StaticCast(ptr_Type to, ptr_Expr expr);
+  Cast(ptr_Type to, ptr_Expr expr);
+  Cast(FunctionCall);
   void accept(pr::Visitor& v) override;
   ptr_Expr expr;
 };
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(ptr_Expr, std::unique_ptr<tok::TokenBase>);
+  RecordAccess(const pr::ptr_Token& d, ptr_Expr, std::unique_ptr<tok::TokenBase>);
 
   const auto& getRecord() const { return record; }
   const auto& getField() const { return field; };
@@ -123,11 +123,13 @@ class RecordAccess : public Expression {
   ptr_Token field;
 };
 
-class ASTNodeStmt : public ASTNode {};
+class ASTNodeStmt : public virtual ASTNode {};
 
 class AssignmentStmt : public ASTNodeStmt, public BinaryOperation {
  public:
-  using BinaryOperation::BinaryOperation;
+  AssignmentStmt(ptr_Token,
+    ptr_Expr,
+    ptr_Expr);
 
   void accept(Visitor&) override;
 };
@@ -168,7 +170,6 @@ class IfStmt : public ASTNodeStmt {
 
   void accept(Visitor&) override;
 
- private:
   ptr_Expr condition;
   ptr_Stmt then_stmt;
   ptr_Stmt else_stmt = nullptr;
@@ -185,7 +186,6 @@ class WhileStmt : public LoopStmt {
 
   void accept(Visitor&) override;
 
- private:
   ptr_Expr condition;
   ptr_Stmt block;
 };
@@ -204,7 +204,6 @@ class ForStmt : public LoopStmt {
 
   void accept(Visitor&) override;
 
- private:
   std::unique_ptr<Variable> var;
   ptr_Stmt block;
   ptr_Expr low;

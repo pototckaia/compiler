@@ -12,6 +12,8 @@ class SemanticDecl {
  public:
   SemanticDecl();
 
+  pr::ptr_Expr parseFunctionCall(const tok::ptr_Token&, pr::ptr_Expr, pr::ListExpr);
+
   ptr_Type parseSimpleType(tok::ptr_Token t);
   ptr_Type parseArrayType(tok::ptr_Token, StaticArray::BoundsType, ptr_Type);
   ptr_Type parseRecordType(tok::ptr_Token declPoint,
@@ -25,7 +27,8 @@ class SemanticDecl {
 
   ListParam parseFormalParamSection(TableSymbol<ptr_Var>&, ParamSpec, tok::ListToken, ptr_Type);
 
-  void parseTypeDecl(std::list<std::pair<pr::ptr_Token, ptr_Type>>&);
+  void parseTypeDecl(pr::ptr_Token, ptr_Type);
+  void parseTypeDeclEnd();
   void parseConstDecl(const tok::ptr_Token& decl, pr::ptr_Expr);
 
   void parseVariableDecl(tok::ListToken, ptr_Type, bool isGlobal);
