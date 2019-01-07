@@ -139,7 +139,7 @@ std::shared_ptr<MainFunction> SemanticDecl::parseMainBlock(pr::ptr_Stmt body) {
   stackTable.top().resolveForwardFunction();
   stackTable.top().tableFunction.insert(std::make_shared<Exit>(std::make_shared<Void>()));
 
-  CheckType checkType(stackTable);
+  TypeChecker checkType(stackTable);
   body->accept(checkType);
   auto main = std::make_shared<MainFunction>(stackTable.top(), std::move(body));
   stackTable.pop();
@@ -173,7 +173,7 @@ void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
   }
   stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
 
-  CheckType checkType(stackTable);
+  TypeChecker checkType(stackTable);
   b->accept(checkType);
 
   auto declTable = stackTable.top();

@@ -5,10 +5,10 @@
 
 using namespace pr;
 
-class CheckLvalue : public Visitor {
+class LvalueChecker : public Visitor {
  public:
   static bool is(ptr_Expr&);
-  CheckLvalue() : lvalue(true) {}
+  LvalueChecker() : lvalue(true) {}
   bool isLvalue() { return lvalue; }
 
   void visit(Literal&) override;
@@ -24,9 +24,9 @@ class CheckLvalue : public Visitor {
   bool lvalue;
 };
 
-class CheckTypeExpressionBase : public Visitor {
+class BaseTypeChecker : public Visitor {
  public:
-  CheckTypeExpressionBase(std::string s) : errorMes(std::move(s)) {}
+  BaseTypeChecker(std::string s) : errorMes(std::move(s)) {}
 
   void visit(Int&) override;
   void visit(Double&) override;
@@ -47,13 +47,13 @@ class CheckTypeExpressionBase : public Visitor {
   std::string errorMes;
 };
 
-class CheckTypeArrayAccess : public CheckTypeExpressionBase {
+class ArrayAccessChecker : public BaseTypeChecker {
  public:
-  static void checkArrayAccess(ArrayAccess&, ptr_Type&);
+  static void make(ArrayAccess&, ptr_Type&);
 
-  CheckTypeArrayAccess(ArrayAccess& a)
-  : CheckTypeExpressionBase(tok::getPoint(a.line, a.column) +
-      "Array access to type \"" + a.getName()->typeExpression->name + "\" not valid"),
+  ArrayAccessChecker(ArrayAccess& a)
+  : BaseTypeChecker(tok::getPoint(a.line, a.column) +
+                    "Array access to type \"" + a.getName()->type->name + "\" not valid"),
     arrayAccess(a),
     sizeBounds(a.getListIndex().size()) {}
 
@@ -66,13 +66,13 @@ class CheckTypeArrayAccess : public CheckTypeExpressionBase {
   int sizeBounds;
 };
 
-class CheckTypeRecordAccess : public CheckTypeExpressionBase {
+class RecordAccessChecker : public BaseTypeChecker {
  public:
-  static void checkTypeRecordAccess(RecordAccess&, ptr_Type&);
+  static void make(RecordAccess&, ptr_Type&);
 
-  CheckTypeRecordAccess(RecordAccess& a)
-    : CheckTypeExpressionBase(tok::getPoint(a.line, a.column) +
-        "Record access to type \"" + a.getRecord()->typeExpression->name + "\" not valid"),
+  RecordAccessChecker(RecordAccess& a)
+    : BaseTypeChecker(tok::getPoint(a.line, a.column) +
+                      "Record access to type \"" + a.getRecord()->type->name + "\" not valid"),
       recordAccess(a) {}
 
   void visit(Record&) override;
@@ -81,14 +81,12 @@ class CheckTypeRecordAccess : public CheckTypeExpressionBase {
   RecordAccess& recordAccess;
 };
 
-class CheckTypeFunctionCall : public CheckTypeExpressionBase {
+class FunctionCallChecker : public BaseTypeChecker {
  public:
-  static void checkTypeFunctionCall(FunctionCall&, const ptr_Symbol&);
+  static void make(FunctionCall&, const ptr_Symbol&);
 
-  CheckTypeFunctionCall(FunctionCall& f)
-    : CheckTypeExpressionBase(tok::getPoint(f.line, f.column) +
-        "Expect function or procedure"),
-      f(f) {}
+  FunctionCallChecker(FunctionCall& f)
+    : BaseTypeChecker(tok::getPoint(f.line, f.column) + "Expect function or procedure"), f(f) {}
 
   void visit(FunctionSignature& f) override;
   void visit(Read&) override;
@@ -107,9 +105,9 @@ class CheckTypeFunctionCall : public CheckTypeExpressionBase {
   FunctionCall& f;
 };
 
-class CheckType : public Visitor {
+class TypeChecker : public Visitor {
  public:
-  CheckType(StackTable s);
+  TypeChecker(StackTable s);
 
   void visit(Literal&) override;
   void visit(Variable&) override;
@@ -126,8 +124,6 @@ class CheckType : public Visitor {
   void visit(IfStmt&) override;
   void visit(WhileStmt&) override;
   void visit(ForStmt&) override;
-
-
 
  private:
   StackTable stackTable;

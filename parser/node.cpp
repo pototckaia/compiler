@@ -34,7 +34,7 @@ FunctionCallStmt::FunctionCallStmt(pr::ptr_Expr e) : functionCall(std::move(e)) 
 Cast::Cast(ptr_Type to, pr::ptr_Expr expr)
  : Expression(std::move(to)), expr(std::move(expr)) {}
 Cast::Cast(pr::FunctionCall f)
-  : ASTNode(f.line, f.column), Expression(std::move(f.typeExpression)),
+  : ASTNode(f.line, f.column), Expression(std::move(f.type)),
     expr(std::move(f.listParam.back())) {}
 
 RecordAccess::RecordAccess(const pr::ptr_Token& d, ptr_Expr record, std::unique_ptr<tok::TokenBase> field)

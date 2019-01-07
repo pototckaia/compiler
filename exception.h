@@ -4,84 +4,58 @@
 
 #include "token.h"
 
-
-class LexerException : public std::exception {
+class CompilerException : public std::exception {
  public:
-  explicit LexerException(const std::string& ss) : s(ss) {}
-  explicit LexerException(int l, int c, const std::string& ss) : s(std::to_string(l) + "\t" +
-                                                                   std::to_string(c) + "\t" + ss) {}
-  ~LexerException() override = default;
+  explicit CompilerException(std::string ss) : s(std::move(ss)) {}
+  explicit CompilerException(int line, int column, std::string ss)
+    : s(tok::getPoint(line, column) + std::move(ss)) {}
+  explicit CompilerException(const tok::ptr_Token& t, std::string ss)
+    : CompilerException(t->getLine(), t->getColumn(), std::move(ss)) {}
 
-  const char* what() const noexcept { return s.c_str(); }
+  const char* what() const noexcept override { return s.c_str(); }
+  ~CompilerException() override = default;
 
  private:
   std::string s;
 };
 
-class ParserException : public std::exception {
+class LexerException : public CompilerException {
+ public:
+  using CompilerException::CompilerException;
+  explicit LexerException(int line, int column, std::string ss) :
+    CompilerException(std::to_string(line) + "\t" + std::to_string(column) + "\t" + std::move(ss)) {}
+};
+
+class SemanticException : public CompilerException {
+ public:
+  using CompilerException::CompilerException;
+};
+
+class ParserException : public CompilerException {
  public:
   explicit ParserException(int line, int column, std::string s)
-    : s(tok::getPoint(line, column) + " Illegal expression: " + s) {}
-
+    : CompilerException(line, column, "Illegal expression: " + std::move(s)) {}
   explicit ParserException(int line, int column, tok::TokenType t)
     : ParserException(line, column, tok::toString(t)) {}
-
   explicit ParserException(int line, int column, std::string except, std::string get)
-    : s(tok::getPoint(line, column) + "Expect: \""  + except +
-        "\" but find \"" + get + "\"") {}
-
+    : CompilerException(line, column,
+      "Expect: \""  + std::move(except) + "\" but find \"" + std::move(get) + "\"") {}
   explicit ParserException(int line, int column, tok::TokenType exceptType, tok::TokenType getType)
     : ParserException(line, column, tok::toString(exceptType), tok::toString(getType)) {}
-
-  ~ParserException() override = default;
-
-  const char* what() const noexcept { return s.c_str(); }
-
- private:
-  std::string s;
 };
 
-class AlreadyDefinedException : public std::exception {
+class AlreadyDefinedException : public CompilerException {
  public:
-  explicit AlreadyDefinedException(std::string n) : s(a + "\"" + n + "\"") {};
   explicit AlreadyDefinedException(int line, int column, std::string n)
-    : s(tok::getPoint(line, column) + a + "\"" + n + "\"") {}
+    : CompilerException(line, column, "Already defined \"" + std::move(n) + "\"") {}
   explicit AlreadyDefinedException(const tok::ptr_Token& t)
-    : s(getPoint(t) + a + "\"" + t->getValueString() + "\"") {}
-
-  ~AlreadyDefinedException() override = default;
-  const char* what() const noexcept { return s.c_str(); }
-
- private:
-  const std::string a = "Already defined ";
-  std::string s;
+    : CompilerException(tok::getPoint(t) + "Already defined \"" + t->getValueString() + "\"") {}
 };
 
-class NotDefinedException: public std::exception {
+class NotDefinedException: public CompilerException {
  public:
-  explicit NotDefinedException(const std::string& s)
-   : s(a + "\"" + s + "\"") {};
-
+  explicit NotDefinedException(std::string ss)
+   : CompilerException("Not defined \"" + std::move(ss) + "\"") {};
   explicit NotDefinedException(const tok::ptr_Token& t)
-   : s(getPoint(t) + a + "\"" + t->getValueString() + "\"") {};
-
-  ~NotDefinedException() override = default;
-  const char* what() const noexcept { return s.c_str(); }
-
- private:
-  const std::string a = "Not defined ";
-  std::string s;
-};
-
-class SemanticException : public std::exception {
- public:
-  explicit SemanticException(std::string s) : s(s) {}
-  explicit SemanticException(const tok::ptr_Token& t, std::string n)
-    : SemanticException(t->getLine(), t->getColumn(), n) {}
-  explicit SemanticException(int line, int column, std::string n)
-    : s(tok::getPoint(line, column) + " " + n) {}
-
-  const char* what() const noexcept { return s.c_str(); }
- private:
-  std::string s;
+   : CompilerException(tok::getPoint(t) + "Not defined \"" + t->getValueString() + "\"") {};
 };

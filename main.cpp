@@ -15,9 +15,7 @@
 void lexerTest(const std::string& inputFileName,const std::string& outputFileName) {
   std::ofstream out;
   out.open(outputFileName, std::ifstream::out);
-
   lx::Lexer lex(inputFileName);
-
   try {
     for (auto token = lex.next(); token->getTokenType() != tok::TokenType::EndOfFile; token = lex.next()) {
       out << token->toString() << std::endl;
@@ -25,14 +23,12 @@ void lexerTest(const std::string& inputFileName,const std::string& outputFileNam
   } catch(LexerException& e) {
     out << e.what() << std::endl;
   }
-
   out.close();
 }
 
 void parserExpressionTest(const std::string& inputFileName, const std::string& outputFileName) {
   pr::Parser p(inputFileName);
   pr::PrintVisitor v(outputFileName);
-
   try {
     auto tree = p.parseExpression();
     tree->accept(v);
@@ -45,20 +41,10 @@ void parserExpressionTest(const std::string& inputFileName, const std::string& o
 void parserProgramTest(const std::string& inputFileName, const std::string& outputFileName) {
   pr::Parser p(inputFileName);
   pr::PrintVisitor v(outputFileName);
-
   try {
     auto tree = p.parseProgram();
     tree->accept(v);
-  } catch(ParserException& e) {
-    std::ofstream out(outputFileName);
-    out << e.what();
-  } catch (SemanticException& e) {
-    std::ofstream out(outputFileName);
-    out << e.what();
-  } catch (NotDefinedException& e) {
-    std::ofstream out(outputFileName);
-    out << e.what();
-  } catch (AlreadyDefinedException& e) {
+  } catch(CompilerException& e) {
     std::ofstream out(outputFileName);
     out << e.what();
   }

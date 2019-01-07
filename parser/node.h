@@ -12,9 +12,9 @@ namespace pr {
 class Expression : public virtual ASTNode {
  public:
   Expression() = default;
-  Expression(ptr_Type t) : typeExpression(std::move(t)) {}
+  Expression(ptr_Type t) : type(std::move(t)) {}
 
-  ptr_Type typeExpression;
+  ptr_Type type;
   std::shared_ptr<SymFun> embeddedFunction;
 };
 

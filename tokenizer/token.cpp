@@ -39,7 +39,7 @@ std::string NumberConstant<T>::toString() const {
 }
 
 std::string tok::getPoint(int line, int column) {
-  return std::to_string(line) + "," + std::to_string(column) +"\t";
+  return std::to_string(line) + "," + std::to_string(column) + "\t";
 }
 
 std::string tok::getPoint(const tok::ptr_Token& t) {
