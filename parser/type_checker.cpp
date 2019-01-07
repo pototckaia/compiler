@@ -1,4 +1,4 @@
-#include "visitor_type.h"
+#include "type_checker.h"
 
 #include "../exception.h"
 

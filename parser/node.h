@@ -7,8 +7,6 @@
 #include "token.h"
 #include "astnode.h"
 
-namespace pr {
-
 class Expression : public virtual ASTNode {
  public:
   Expression() = default;
@@ -76,7 +74,7 @@ class UnaryOperation : public Expression {
 
 class ArrayAccess : public Expression {
  public:
-  ArrayAccess(const pr::ptr_Token& d, ptr_Expr name, ListExpr i);
+  ArrayAccess(const ptr_Token& d, ptr_Expr name, ListExpr i);
 
   const auto& getName() const { return nameArray; }
   const auto& getListIndex() const { return listIndex; };
@@ -90,7 +88,7 @@ class ArrayAccess : public Expression {
 
 class FunctionCall : public Expression {
  public:
-  FunctionCall(const pr::ptr_Token& d, ptr_Expr, ListExpr);
+  FunctionCall(const ptr_Token& d, ptr_Expr, ListExpr);
 
   const auto& getName() const { return nameFunction; }
   const auto& getParam() const { return listParam; };
@@ -105,13 +103,13 @@ class Cast : public Expression {
  public:
   Cast(ptr_Type to, ptr_Expr expr);
   Cast(FunctionCall);
-  void accept(pr::Visitor& v) override;
+  void accept(Visitor& v) override;
   ptr_Expr expr;
 };
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(const pr::ptr_Token& d, ptr_Expr, std::unique_ptr<tok::TokenBase>);
+  RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<tok::TokenBase>);
 
   const auto& getRecord() const { return record; }
   const auto& getField() const { return field; };
@@ -224,5 +222,3 @@ class ContinueStmt : public ASTNodeStmt {
 
   void accept(Visitor&) override;
 };
-
-} // namespace pr

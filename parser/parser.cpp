@@ -7,9 +7,8 @@
 #include <stack>
 
 #include "../exception.h"
-#include "visitor_type.h"
+#include "type_checker.h"
 
-using namespace pr;
 
 Parser::Parser(const std::string& s)
   : lexer(s),

@@ -362,39 +362,39 @@ Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnTyp
 
 // accept
 
-void Int::accept(pr::Visitor& v) { v.visit(*this); }
-void Double::accept(pr::Visitor& v) { v.visit(*this); }
-void Char::accept(pr::Visitor& v) { v.visit(*this); }
-void Boolean::accept(pr::Visitor& v) { v.visit(*this); }
-void String::accept(pr::Visitor& v) { v.visit(*this); }
-void Void::accept(pr::Visitor& v) { v.visit(*this); }
+void Int::accept(Visitor& v) { v.visit(*this); }
+void Double::accept(Visitor& v) { v.visit(*this); }
+void Char::accept(Visitor& v) { v.visit(*this); }
+void Boolean::accept(Visitor& v) { v.visit(*this); }
+void String::accept(Visitor& v) { v.visit(*this); }
+void Void::accept(Visitor& v) { v.visit(*this); }
 
-void TPointer::accept(pr::Visitor& v) { v.visit(*this); }
-void Alias::accept(pr::Visitor& v) { v.visit(*this); }
-void Pointer::accept(pr::Visitor& v) { v.visit(*this); }
-void StaticArray::accept(pr::Visitor& v) { v.visit(*this); }
-void OpenArray::accept(pr::Visitor& v) { v.visit(*this); }
-void Record::accept(pr::Visitor& v) { v.visit(*this); }
-void FunctionSignature::accept(pr::Visitor& v) { v.visit(*this); }
-void ForwardType::accept(pr::Visitor& v) { v.visit(*this); }
+void TPointer::accept(Visitor& v) { v.visit(*this); }
+void Alias::accept(Visitor& v) { v.visit(*this); }
+void Pointer::accept(Visitor& v) { v.visit(*this); }
+void StaticArray::accept(Visitor& v) { v.visit(*this); }
+void OpenArray::accept(Visitor& v) { v.visit(*this); }
+void Record::accept(Visitor& v) { v.visit(*this); }
+void FunctionSignature::accept(Visitor& v) { v.visit(*this); }
+void ForwardType::accept(Visitor& v) { v.visit(*this); }
 
-void LocalVar::accept(pr::Visitor& v) { v.visit(*this); }
-void GlobalVar::accept(pr::Visitor& v) { v.visit(*this); }
-void ParamVar::accept(pr::Visitor& v) { v.visit(*this); }
-void Const::accept(pr::Visitor& v) { v.visit(*this); }
+void LocalVar::accept(Visitor& v) { v.visit(*this); }
+void GlobalVar::accept(Visitor& v) { v.visit(*this); }
+void ParamVar::accept(Visitor& v) { v.visit(*this); }
+void Const::accept(Visitor& v) { v.visit(*this); }
 
-void ForwardFunction::accept(pr::Visitor& v) { v.visit(*this); }
-void Function::accept(pr::Visitor& v) { v.visit(*this); }
-void MainFunction::accept(pr::Visitor& v) { v.visit(*this); }
+void ForwardFunction::accept(Visitor& v) { v.visit(*this); }
+void Function::accept(Visitor& v) { v.visit(*this); }
+void MainFunction::accept(Visitor& v) { v.visit(*this); }
 
-void Write::accept(pr::Visitor& v) { v.visit(*this); }
-void Read::accept(pr::Visitor& v) { v.visit(*this); }
-void Trunc::accept(pr::Visitor& v) { v.visit(*this); }
-void Round::accept(pr::Visitor& v) { v.visit(*this); }
-void Succ::accept(pr::Visitor& v) { v.visit(*this); }
-void Prev::accept(pr::Visitor& v) { v.visit(*this); }
-void Chr::accept(pr::Visitor& v) { v.visit(*this); }
-void Ord::accept(pr::Visitor& v) { v.visit(*this); }
-void High::accept(pr::Visitor& v) { v.visit(*this); }
-void Low::accept(pr::Visitor& v) { v.visit(*this); }
-void Exit::accept(pr::Visitor& v) { v.visit(*this); }
+void Write::accept(Visitor& v) { v.visit(*this); }
+void Read::accept(Visitor& v) { v.visit(*this); }
+void Trunc::accept(Visitor& v) { v.visit(*this); }
+void Round::accept(Visitor& v) { v.visit(*this); }
+void Succ::accept(Visitor& v) { v.visit(*this); }
+void Prev::accept(Visitor& v) { v.visit(*this); }
+void Chr::accept(Visitor& v) { v.visit(*this); }
+void Ord::accept(Visitor& v) { v.visit(*this); }
+void High::accept(Visitor& v) { v.visit(*this); }
+void Low::accept(Visitor& v) { v.visit(*this); }
+void Exit::accept(Visitor& v) { v.visit(*this); }

@@ -17,7 +17,7 @@ set(PAR_SOURCES
         parser/parser.cpp parser/parser.h
         parser/printf_visitor.cpp parser/visitor.h
         parser/table_symbol.h parser/symbol_type.h parser/symbol_fun.h parser/symbol_var.h parser/symbol.cpp
-        parser/visitor_type.cpp parser/visitor_type.h
+        parser/type_checker.cpp parser/type_checker.h
         parser/semantic_decl.h parser/semantic_decl.cpp)
 
 include_directories(tokenizer parser include-lib)

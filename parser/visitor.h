@@ -8,9 +8,6 @@
 #include "symbol_var.h"
 #include "symbol_type.h"
 
-namespace pr {
-
-
 class Visitor {
  public:
   virtual void visit(Variable&) {};
@@ -145,5 +142,3 @@ class PrintVisitor : public Visitor {
   void print(const std::string&);
   void print(const ptr_Type&);
 };
-
-} // namespace pr

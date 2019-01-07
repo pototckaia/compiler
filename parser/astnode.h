@@ -5,17 +5,15 @@
 
 #include "token.h"
 
-namespace pr {
-
 class ASTNode;
 class Expression;
 class ASTNodeStmt;
 
-using ptr_Node = std::shared_ptr<pr::ASTNode>;
+using ptr_Node = std::shared_ptr<ASTNode>;
 
 using ptr_Token = std::unique_ptr<tok::TokenBase>;
-using ptr_Expr = std::unique_ptr<pr::Expression>;
-using ptr_Stmt = std::unique_ptr<pr::ASTNodeStmt>;
+using ptr_Expr = std::unique_ptr<Expression>;
+using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 
 using ListExpr = std::list<ptr_Expr>;
 using ListStmt = std::list<ptr_Stmt>;
@@ -29,7 +27,7 @@ class ASTNode {
 
   ASTNode() = default;
   ASTNode(int line, int column) : line(line), column(column) {}
-  ASTNode(const pr::ptr_Token& t) : line(t->getLine()), column(t->getColumn()) {}
+  ASTNode(const ptr_Token& t) : line(t->getLine()), column(t->getColumn()) {}
 
   void setDeclPoint(const tok::ptr_Token& t) {
     line = t->getLine();
@@ -39,7 +37,6 @@ class ASTNode {
   int line, column;
 };
 
-} // pr
 
 class Symbol;
 class SymVar;
@@ -49,7 +46,7 @@ using ptr_Symbol = std::shared_ptr<Symbol>;
 using ptr_Var = std::shared_ptr<SymVar>;
 using ptr_Type = std::shared_ptr<SymType>;
 
-class Symbol : public pr::ASTNode {
+class Symbol : public ASTNode {
  public:
   Symbol() : ASTNode(-1, -1) {}
   Symbol(int line, int column) : ASTNode(line, column) {}
@@ -74,10 +71,11 @@ class SymFun : public Symbol {
 class SymVar : public Symbol {
  public:
   using Symbol::Symbol;
-  SymVar(std::string name, ptr_Type t) : Symbol(name), type(std::move(t)) {}
+  SymVar(std::string name, ptr_Type t) : Symbol(std::move(name)), type(std::move(t)) {}
   SymVar(const tok::ptr_Token& n, ptr_Type t)
     : Symbol(n), type(std::move(t)) {}
 
+//  virtual uint64_t size() const;
   ptr_Type type;
-  pr::ptr_Expr defaultValue;
+  ptr_Expr defaultValue;
 };

@@ -6,13 +6,13 @@
 class LocalVar : public SymVar {
  public:
   using SymVar::SymVar;
-  void accept(pr::Visitor& v) override;
+  void accept(Visitor& v) override;
 };
 
 class GlobalVar : public SymVar {
  public:
   using SymVar::SymVar;
-  void accept(pr::Visitor& v) override;
+  void accept(Visitor& v) override;
 };
 
 enum class ParamSpec {
@@ -29,7 +29,7 @@ class ParamVar : public SymVar {
   using SymVar::SymVar;
 
   ParamSpec spec = ParamSpec::NotSpec;
-  void accept(pr::Visitor& v) override;
+  void accept(Visitor& v) override;
   bool equals(ParamVar&) const;
 };
 
@@ -38,6 +38,6 @@ class ParamVar : public SymVar {
 class Const : public SymVar {
  public:
   using SymVar::SymVar;
-  pr::ptr_Expr value;
-  void accept(pr::Visitor& v) override;
+  ptr_Expr value;
+  void accept(Visitor& v) override;
 };

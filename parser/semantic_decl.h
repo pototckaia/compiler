@@ -12,7 +12,7 @@ class SemanticDecl {
  public:
   SemanticDecl();
 
-  pr::ptr_Expr parseFunctionCall(const tok::ptr_Token&, pr::ptr_Expr, pr::ListExpr);
+  ptr_Expr parseFunctionCall(const tok::ptr_Token&, ptr_Expr, ListExpr);
 
   ptr_Type parseSimpleType(tok::ptr_Token t);
   ptr_Type parseArrayType(tok::ptr_Token, StaticArray::BoundsType, ptr_Type);
@@ -27,18 +27,18 @@ class SemanticDecl {
 
   ListParam parseFormalParamSection(TableSymbol<ptr_Var>&, ParamSpec, tok::ListToken, ptr_Type);
 
-  void parseTypeDecl(pr::ptr_Token, ptr_Type);
+  void parseTypeDecl(ptr_Token, ptr_Type);
   void parseTypeDeclEnd();
-  void parseConstDecl(const tok::ptr_Token& decl, pr::ptr_Expr);
+  void parseConstDecl(const tok::ptr_Token& decl, ptr_Expr);
 
   void parseVariableDecl(tok::ListToken, ptr_Type, bool isGlobal);
-  void parseVariableDecl(tok::ListToken id, ptr_Type, pr::ptr_Expr, bool isGlobal);
+  void parseVariableDecl(tok::ListToken id, ptr_Type, ptr_Expr, bool isGlobal);
 
   void parseFunctionForward(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature>);
   void parseFunctionDeclBegin(std::shared_ptr<FunctionSignature>);
-  void parseFunctionDeclEnd(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature>, pr::ptr_Stmt);
+  void parseFunctionDeclEnd(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature>, ptr_Stmt);
 
-  std::shared_ptr<MainFunction> parseMainBlock(pr::ptr_Stmt body);
+  std::shared_ptr<MainFunction> parseMainBlock(ptr_Stmt body);
 
  private:
   StackTable stackTable;

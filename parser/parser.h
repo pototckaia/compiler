@@ -8,8 +8,6 @@
 #include "symbol_fun.h"
 #include "semantic_decl.h"
 
-namespace pr {
-
 class Parser {
  public:
   explicit Parser(const std::string&);
@@ -74,5 +72,3 @@ class Parser {
   bool match(const std::list<tok::TokenType>& listType);
   void requireAndSkip(tok::TokenType);
 };
-
-} // namespace pr

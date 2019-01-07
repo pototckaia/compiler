@@ -9,7 +9,7 @@
 #include "exception.h"
 #include "parser.h"
 #include "visitor.h"
-#include "visitor_type.h"
+#include "type_checker.h"
 
 
 void lexerTest(const std::string& inputFileName,const std::string& outputFileName) {
@@ -27,8 +27,8 @@ void lexerTest(const std::string& inputFileName,const std::string& outputFileNam
 }
 
 void parserExpressionTest(const std::string& inputFileName, const std::string& outputFileName) {
-  pr::Parser p(inputFileName);
-  pr::PrintVisitor v(outputFileName);
+  Parser p(inputFileName);
+  PrintVisitor v(outputFileName);
   try {
     auto tree = p.parseExpression();
     tree->accept(v);
@@ -39,8 +39,8 @@ void parserExpressionTest(const std::string& inputFileName, const std::string& o
 }
 
 void parserProgramTest(const std::string& inputFileName, const std::string& outputFileName) {
-  pr::Parser p(inputFileName);
-  pr::PrintVisitor v(outputFileName);
+  Parser p(inputFileName);
+  PrintVisitor v(outputFileName);
   try {
     auto tree = p.parseProgram();
     tree->accept(v);

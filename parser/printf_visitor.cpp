@@ -1,8 +1,6 @@
 #include "visitor.h"
 #include "token.h"
 
-using namespace pr;
-
 PrintVisitor::PrintVisitor(const std::string& out) : out(out), depth(0) {}
 
 void PrintVisitor::print(const std::string& e) {
@@ -18,12 +16,12 @@ void PrintVisitor::print(const ptr_Type& e) {
 
 // Expression
 
-void PrintVisitor::visit(pr::Literal& l) {
+void PrintVisitor::visit(Literal& l) {
   print(l.getValue()->getValueString());
   print(l.type);
 }
 
-void PrintVisitor::visit(pr::Variable& v) {
+void PrintVisitor::visit(Variable& v) {
   print(v.getName()->getValueString());
   if (v.type != nullptr)
     print(v.type);
@@ -31,7 +29,7 @@ void PrintVisitor::visit(pr::Variable& v) {
     v.embeddedFunction->accept(*this);
 }
 
-void PrintVisitor::visit(pr::BinaryOperation& b) {
+void PrintVisitor::visit(BinaryOperation& b) {
   print(b.getOpr()->getValueString());
   ++depth;
   print(b.type);
@@ -40,7 +38,7 @@ void PrintVisitor::visit(pr::BinaryOperation& b) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::UnaryOperation& u) {
+void PrintVisitor::visit(UnaryOperation& u) {
   print(u.getOpr()->getValueString());
   ++depth;
   print(u.type);
@@ -48,7 +46,7 @@ void PrintVisitor::visit(pr::UnaryOperation& u) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::ArrayAccess& a) {
+void PrintVisitor::visit(ArrayAccess& a) {
   print("Array Access");
   ++depth;
   a.getName()->accept(*this);
@@ -59,7 +57,7 @@ void PrintVisitor::visit(pr::ArrayAccess& a) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::FunctionCall& f) {
+void PrintVisitor::visit(FunctionCall& f) {
   print("Function Call");
   ++depth;
   f.getName()->accept(*this);
@@ -74,7 +72,7 @@ void PrintVisitor::visit(pr::FunctionCall& f) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::RecordAccess& r) {
+void PrintVisitor::visit(RecordAccess& r) {
   print("Record Access");
   ++depth;
   r.getRecord()->accept(*this);
@@ -93,7 +91,7 @@ void PrintVisitor::visit(Cast& t) {
 
 // Stmt
 
-void PrintVisitor::visit(pr::AssignmentStmt& a) {
+void PrintVisitor::visit(AssignmentStmt& a) {
   print("Assigment");
   ++depth;
   print(a.getOpr()->getValueString());
@@ -102,11 +100,11 @@ void PrintVisitor::visit(pr::AssignmentStmt& a) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::FunctionCallStmt& f) {
+void PrintVisitor::visit(FunctionCallStmt& f) {
   f.getFunctionCall()->accept(*this);
 }
 
-void PrintVisitor::visit(pr::BlockStmt& b) {
+void PrintVisitor::visit(BlockStmt& b) {
   print("Block");
   ++depth;
   for (auto& e: b.getBlock()) {
@@ -115,7 +113,7 @@ void PrintVisitor::visit(pr::BlockStmt& b) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::IfStmt& i) {
+void PrintVisitor::visit(IfStmt& i) {
   print("If");
   ++depth;
   i.getCondition()->accept(*this);
@@ -126,7 +124,7 @@ void PrintVisitor::visit(pr::IfStmt& i) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::WhileStmt& w) {
+void PrintVisitor::visit(WhileStmt& w) {
   print("While");
   ++depth;
   w.getCondition()->accept(*this);
@@ -134,7 +132,7 @@ void PrintVisitor::visit(pr::WhileStmt& w) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::ForStmt& f) {
+void PrintVisitor::visit(ForStmt& f) {
   print("For");
   ++depth;
   f.getVar()->accept(*this);
@@ -148,11 +146,11 @@ void PrintVisitor::visit(pr::ForStmt& f) {
   --depth;
 }
 
-void PrintVisitor::visit(pr::BreakStmt&) {
+void PrintVisitor::visit(BreakStmt&) {
   print("break");
 }
 
-void PrintVisitor::visit(pr::ContinueStmt&) {
+void PrintVisitor::visit(ContinueStmt&) {
   print("continue");
 }
 

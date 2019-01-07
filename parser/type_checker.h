@@ -3,7 +3,6 @@
 #include "visitor.h"
 #include "symbol_type.h"
 
-using namespace pr;
 
 class LvalueChecker : public Visitor {
  public:
