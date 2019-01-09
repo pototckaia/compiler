@@ -106,7 +106,7 @@ class FunctionCallChecker : public BaseTypeChecker {
 
 class TypeChecker : public Visitor {
  public:
-  TypeChecker(StackTable s);
+  TypeChecker(StackTable& s);
 
   void visit(Literal&) override;
   void visit(Variable&) override;
@@ -125,7 +125,7 @@ class TypeChecker : public Visitor {
   void visit(ForStmt&) override;
 
  private:
-  StackTable stackTable;
+  StackTable& stackTable;
   bool isMustFunctionCall = false;
   bool wasFunctionCall = false;
 

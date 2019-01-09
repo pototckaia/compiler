@@ -274,7 +274,7 @@ bool ParamVar::equals(ParamVar& p) const {
   return spec == p.spec && type->equals(p.type.get());
 }
 
-Write::Write(bool newLine)  {
+Write::Write(bool newLine) : isnewLine(!newLine) {
   if (newLine)
     name =  "write";
   else
@@ -359,6 +359,39 @@ High::High() : SymFun("high") {}
 Low::Low() : SymFun("low") {}
 
 Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {  };
+
+// in byte
+uint64_t SymVar::size() const {
+  return type->size();
+}
+
+uint64_t SymType::size() const { return 8; }
+uint64_t Void::size() const { return 0; }
+uint64_t String::size() const { return 0; }
+uint64_t Alias::size() const { return type->size(); }
+
+uint64_t StaticArray::size() const {
+  uint64_t size_type = typeElem->size();
+  for (auto& e : bounds) {
+    size_type *= e.second - e.first + 1;
+  }
+  return size_type;
+}
+
+uint64_t OpenArray::size() const { return 16; }
+
+uint64_t Record::size() const {
+  uint64_t size = 0;
+  for (auto& e : fieldsList) {
+    size += e->size();
+  }
+  return size;
+}
+
+void Record::addVar(const ptr_Var& v) {
+  fieldsList.push_back(v);
+  fields.insert(v);
+}
 
 // accept
 

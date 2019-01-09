@@ -10,6 +10,7 @@
 
 class Visitor {
  public:
+  virtual ~Visitor() = default;
   virtual void visit(Variable&) {};
   virtual void visit(Literal&) {};
   virtual void visit(BinaryOperation&)  {};

@@ -55,7 +55,7 @@ ______________________________________
 
 	<parameter type> ::= <simple type> | <conformant array>
 
-	<conformant array> ::= "array of " (<simple type> | <conformant array>)
+	<conformant array> ::= "array of " <simple type>
 ______________________________________
 
 <identifier list> ::= <identifier> {"," <identifier> } 

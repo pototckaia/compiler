@@ -66,6 +66,10 @@ class SymFun : public Symbol {
 
   virtual bool isEmbedded() const { return true; }
   std::shared_ptr<FunctionSignature> signature;
+
+  virtual void set_label(const std::string& s) { label = s; }
+  virtual std::string get_label() { return label; }
+  std::string label;
 };
 
 class SymVar : public Symbol {
@@ -75,7 +79,7 @@ class SymVar : public Symbol {
   SymVar(const tok::ptr_Token& n, ptr_Type t)
     : Symbol(n), type(std::move(t)) {}
 
-//  virtual uint64_t size() const;
+  virtual uint64_t size() const;
   ptr_Type type;
   ptr_Expr defaultValue;
 };

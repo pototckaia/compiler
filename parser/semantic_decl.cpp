@@ -84,10 +84,10 @@ SemanticDecl::parseRecordType(tok::ptr_Token declPoint,
   auto record = std::make_shared<Record>(declPoint->getLine(), declPoint->getColumn());
   for (auto& e : listVar) {
     for (auto& id : *(e.first)) {
-      if (record->fields.checkContain(id->getValueString())) {
+      if (record->getTable().checkContain(id->getValueString())) {
         throw AlreadyDefinedException(id);
       }
-      record->fields.insert(std::make_shared<LocalVar>(id, e.second));
+      record->addVar(std::make_shared<LocalVar>(id, e.second));
     }
   }
   return record;
@@ -169,7 +169,7 @@ void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
                                         std::shared_ptr<FunctionSignature> s, ptr_Stmt b) {
   if (!s->isProcedure()) {
     stackTable.top().tableVariable.insert(
-      std::make_shared<LocalVar>(decl->getValueString(), s->returnType));
+      std::make_shared<ParamVar>(decl->getValueString(), s->returnType));
   }
   stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
 
@@ -218,7 +218,7 @@ void SemanticDecl::parseVariableDecl(tok::ListToken listId, ptr_Type type, bool 
 void SemanticDecl::parseVariableDecl(tok::ListToken id, ptr_Type type, ptr_Expr def, bool isGlobal) {
   auto name = id.back()->getValueString();
   parseVariableDecl(std::move(id), type, isGlobal);
-  auto& var = stackTable.top().tableVariable.find(name);
   // TODO
+  //auto& var = stackTable.top().tableVariable.find(name);
   //  var->defaultValue = def;
 }

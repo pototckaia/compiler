@@ -10,6 +10,7 @@
 #include "parser.h"
 #include "visitor.h"
 #include "type_checker.h"
+#include "generator.h"
 
 
 void lexerTest(const std::string& inputFileName,const std::string& outputFileName) {
@@ -50,6 +51,12 @@ void parserProgramTest(const std::string& inputFileName, const std::string& outp
   }
 }
 
+void createAsm(const std::string& inputFileName, const std::string& outputFileName) {
+  Parser p(inputFileName);
+  AsmGenerator g(outputFileName);
+    auto tree = p.parseProgram();
+    tree->accept(g);
+}
 
 void parseCommandArgs(int args, char* argv[]);
 
@@ -69,6 +76,7 @@ void parseCommandArgs(int args, char* argv[]) {
         ("l,lexer", "Generate a stream of tokens", cxxopts::value<bool>())
         ("e,expression", "Build Ast-tree simple pascal expression", cxxopts::value<bool>())
         ("p,parser", "Build Ast-tree pascal program", cxxopts::value<bool>())
+        ("a,assembler", "Create .asm file", cxxopts::value<bool>())
 	;
 
 	try {
@@ -83,7 +91,12 @@ void parseCommandArgs(int args, char* argv[]) {
       output = input;
       auto typeFile = std::find_if(output.rbegin(), output.rend(), [](int ch){ return ch == '.'; });
       output.erase(typeFile.base() - 1, output.end());
-      output += ".out";
+
+      if (result.count("a")) {
+        output += ".asm";
+      } else {
+        output += ".out";
+      }
     }
 
     if (result.count("l")) {
@@ -96,6 +109,10 @@ void parseCommandArgs(int args, char* argv[]) {
 
     if (result.count("p")) {
       parserProgramTest(input, output);
+    }
+
+    if (result.count("a")) {
+      createAsm(input, output);
     }
 
   } catch (const cxxopts::OptionException& e) {

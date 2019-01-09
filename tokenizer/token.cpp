@@ -47,7 +47,7 @@ std::string tok::getPoint(const tok::ptr_Token& t) {
 }
 
 template
-class tok::NumberConstant<long long int>;
+class tok::NumberConstant<uint64_t>;
 
 template
 class tok::NumberConstant<long double>;

@@ -30,8 +30,8 @@ class TokenBase {
   int getColumn() const { return column; }
   tok::TokenType getTokenType() const { return tokenType; }
 
-  virtual int getInt() const { throw std::logic_error("Token type not Int"); }
-  virtual double getDouble() const { throw std::logic_error("Token type not Double"); }
+  virtual uint64_t getInt() const { throw std::logic_error("Token type not Int"); }
+  virtual long double getDouble() const { throw std::logic_error("Token type not Double"); }
   virtual std::string getValueString() const { return strValue; }
 
  protected:
@@ -55,13 +55,13 @@ class NumberConstant : public TokenBase {
 
   std::string getValueString() const override { return std::to_string(value); }
 
-  int getInt() const override {
-    if (getTokenType() == tok::TokenType::Int) { return (int) value; }
+  uint64_t getInt() const override {
+    if (getTokenType() == tok::TokenType::Int) { return value; }
     return TokenBase::getInt();
   }
 
-  double getDouble() const override {
-    if (getTokenType() == tok::TokenType::Double) { return (double) value; }
+  long double getDouble() const override {
+    if (getTokenType() == tok::TokenType::Double) { return value; }
     return TokenBase::getDouble();
   }
 

@@ -16,6 +16,9 @@ class ForwardFunction : public SymFun {
   void setFunction(const std::shared_ptr<SymFun>& f)  { function = f; }
   bool isForward() const override { return true; }
 
+  std::string get_label() override { return function->get_label(); }
+  void set_label(const std::string& s) override { function->set_label(s); }
+
   std::shared_ptr<SymFun> function;
 };
 
@@ -51,6 +54,7 @@ class Write : public SymFun {
  public:
   Write(bool newLine = false);
   void accept(Visitor& v) override;
+  bool isnewLine;
 };
 
 class Read: public SymFun {

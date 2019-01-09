@@ -145,8 +145,8 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
 
   switch (tokenType) {
     case tok::TokenType::Int: {
-      auto value = std::stoll(valToken, nullptr, baseIntConvert);
-      return std::make_unique<tok::NumberConstant<long long>>(line, beginToken, tokenType, value, strToken);
+      auto value = (uint64_t) std::stoll(valToken, nullptr, baseIntConvert);
+      return std::make_unique<tok::NumberConstant<uint64_t>>(line, beginToken, tokenType, value, strToken);
     }
     case tok::TokenType::Double: {
       auto value = std::stold(valToken);

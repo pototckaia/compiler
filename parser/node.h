@@ -21,7 +21,6 @@ class Variable : public Expression {
   Variable(std::unique_ptr<tok::TokenBase>);
 
   const auto& getName() const { return name; }
-
   void accept(Visitor&) override;
 
  private:
@@ -34,7 +33,6 @@ class Literal : public Expression {
   Literal(std::unique_ptr<tok::TokenBase>);
 
   const auto& getValue() const { return value; }
-
   void accept(Visitor&) override;
 
  private:
@@ -88,6 +86,7 @@ class ArrayAccess : public Expression {
 
 class FunctionCall : public Expression {
  public:
+  FunctionCall() = default;
   FunctionCall(const ptr_Token& d, ptr_Expr, ListExpr);
 
   const auto& getName() const { return nameFunction; }

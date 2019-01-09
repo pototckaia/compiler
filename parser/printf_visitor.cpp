@@ -227,7 +227,7 @@ void PrintVisitor::visit(Record& r) {
   print("Record");
   print("Decl point: " + tok::getPoint(r.line, r.column));
   ++depth;
-  visit(r.fields);
+  visit(r.getTable());
   --depth;
 }
 

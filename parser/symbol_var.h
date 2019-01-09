@@ -7,12 +7,16 @@ class LocalVar : public SymVar {
  public:
   using SymVar::SymVar;
   void accept(Visitor& v) override;
+
+  uint64_t offset = 0;
 };
 
 class GlobalVar : public SymVar {
  public:
   using SymVar::SymVar;
   void accept(Visitor& v) override;
+
+  std::string label;
 };
 
 enum class ParamSpec {
@@ -31,9 +35,9 @@ class ParamVar : public SymVar {
   ParamSpec spec = ParamSpec::NotSpec;
   void accept(Visitor& v) override;
   bool equals(ParamVar&) const;
+
+  uint64_t offset = 0;
 };
-
-
 
 class Const : public SymVar {
  public:

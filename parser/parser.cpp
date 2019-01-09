@@ -485,7 +485,7 @@ ptr_Type Parser::parseParameterType() {
     case tok::TokenType::Array: {
       auto declPoint = lexer.next();
       requireAndSkip(tok::TokenType::Of);
-      auto typeElem =  parseParameterType();
+      auto typeElem =  parseSimpleType();
       return semanticDecl.parseOpenArray(std::move(declPoint), std::move(typeElem));
     }
     default: {

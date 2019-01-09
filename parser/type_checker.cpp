@@ -7,31 +7,53 @@ bool LvalueChecker::is(ptr_Expr& e) {
   e->accept(checkLvalue);
   return checkLvalue.isLvalue();
 }
+
 void LvalueChecker::visit(Literal& l) { lvalue = false; }
+
 void LvalueChecker::visit(Variable&) { lvalue = true; }
+
 void LvalueChecker::visit(FunctionCall& f) { lvalue = false; }
-void LvalueChecker::visit(BinaryOperation& f) { lvalue = false;}
+
+void LvalueChecker::visit(BinaryOperation& f) { lvalue = false; }
+
 void LvalueChecker::visit(ArrayAccess& a) { a.getName()->accept(*this); }
+
 void LvalueChecker::visit(RecordAccess& r) { r.getRecord()->accept(*this); }
+
 void LvalueChecker::visit(Cast& f) {
-  lvalue = f.type->isPointer() || f.type->equals(f.expr->type.get());
+  f.expr->accept(*this);
+  lvalue = f.type->isPointer() ||
+           (lvalue && f.type->equals(f.expr->type.get()));
 }
+
 void LvalueChecker::visit(UnaryOperation& u) {
   lvalue = u.getOpr()->getTokenType() == tok::TokenType::Caret;
 }
 
 void BaseTypeChecker::visit(Int&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Double&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Char&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(TPointer&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(String&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Boolean&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(FunctionSignature&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Record&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Pointer&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(StaticArray&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(OpenArray&) { throw SemanticException(errorMes); }
+
 void BaseTypeChecker::visit(Alias& a) { a.type->accept(*this); }
+
 void BaseTypeChecker::visit(ForwardType& a) { a.type->accept(*this); }
 
 void ArrayAccessChecker::make(ArrayAccess& a, ptr_Type& t) {
@@ -88,10 +110,10 @@ void RecordAccessChecker::make(RecordAccess& r, ptr_Type& t) {
 }
 
 void RecordAccessChecker::visit(Record& r) {
-  if (!r.fields.checkContain(recordAccess.getField()->getValueString())) {
+  if (!r.getTable().checkContain(recordAccess.getField()->getValueString())) {
     throw NotDefinedException(recordAccess.getField());
   }
-  recordAccess.type = r.fields.find(recordAccess.getField()->getValueString())->type;
+  recordAccess.type = r.getTable().find(recordAccess.getField()->getValueString())->type;
 }
 
 void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
@@ -103,8 +125,8 @@ void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
 void FunctionCallChecker::visit(FunctionSignature& s) {
   if (s.paramsList.size() != f.getParam().size()) {
     throw SemanticException(f.line, f.column,
-      "Expect number of arguments " + std::to_string(s.paramsList.size()) +
-      " but find " + std::to_string(f.getParam().size()));
+                            "Expect number of arguments " + std::to_string(s.paramsList.size()) +
+                            " but find " + std::to_string(f.getParam().size()));
   }
   f.type = s.returnType;
   auto iterParameter = s.paramsList.begin();
@@ -114,7 +136,7 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
     auto argument = std::move(f.listParam.front());
     f.listParam.pop_front();
     if (parameter->spec == ParamSpec::Var ||
-       parameter->spec == ParamSpec::Out) {
+        parameter->spec == ParamSpec::Out) {
       if (!LvalueChecker::is(argument)) {
         throw SemanticException(argument->line, argument->column, "Expect lvalue in argument");
       }
@@ -124,14 +146,14 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
       continue;
     }
     if ((parameter->type->isDouble() && argument->type->isInt()) ||
-       (parameter->type->isPurePointer() && argument->type->isTypePointer()) ){
+        (parameter->type->isPurePointer() && argument->type->isTypePointer())) {
       auto newArgument = std::make_unique<Cast>(parameter->type, std::move(argument));
       newParam.push_back(std::move(newArgument));
       continue;
     }
     throw SemanticException(argument->line, argument->column,
-      "Expect argument's type \"" + parameter->type->name +
-      "\" but find \"" + argument->type->name + "\"");
+                            "Expect argument's type \"" + parameter->type->name +
+                            "\" but find \"" + argument->type->name + "\"");
   }
   f.listParam = std::move(newParam);
 }
@@ -162,10 +184,15 @@ void FunctionCallChecker::visit(Write&) {
 }
 
 void FunctionCallChecker::visit(Chr& c) { c.signature->accept(*this); }
+
 void FunctionCallChecker::visit(Ord& c) { c.signature->accept(*this); }
+
 void FunctionCallChecker::visit(Prev& c) { c.signature->accept(*this); }
+
 void FunctionCallChecker::visit(Succ& c) { c.signature->accept(*this); }
+
 void FunctionCallChecker::visit(Trunc& c) { c.signature->accept(*this); }
+
 void FunctionCallChecker::visit(Round& c) { c.signature->accept(*this); }
 
 void FunctionCallChecker::visit(Exit& c) {
@@ -173,37 +200,40 @@ void FunctionCallChecker::visit(Exit& c) {
   if (c.returnType->isVoid()) {
     if (!f.getParam().empty()) {
       throw SemanticException(f.line, f.column,
-        "Expect 0 argument but find " + std::to_string(f.getParam().size()));
+                              "Expect 0 argument but find " + std::to_string(f.getParam().size()));
     }
     return;
   }
   if (f.getParam().size() > 1) {
     throw SemanticException(f.line, f.column,
-      "Expect 1 argument but find " + std::to_string(f.getParam().size()));
+                            "Expect 1 argument but find " + std::to_string(f.getParam().size()));
   }
   if (!f.getParam().back()->type->equalsForCheckArgument(c.returnType.get())) {
     throw SemanticException(f.line, f.column,
-      "Expect type " + c.returnType->name + "but find" +
-      f.getParam().back()->type->name);
+                            "Expect type " + c.returnType->name + "but find" +
+                            f.getParam().back()->type->name);
   }
 }
 
 void FunctionCallChecker::visit(High&) {
- if (f.getParam().empty() || f.getParam().size() > 1) {
-   throw SemanticException(f.line, f.column, "Expect argument but find " + std::to_string(f.getParam().size()));
- }
- auto& type = f.getParam().back()->type;
- if (type->isOpenArray() || type->isStaticArray()) {
-   f.type = std::make_shared<Int>();
-   return;
- }
+  if (f.getParam().empty() || f.getParam().size() > 1) {
+    throw SemanticException(f.line, f.column, "Expect argument but find " + std::to_string(f.getParam().size()));
+  }
+  auto& type = f.getParam().back()->type;
+  if (type->isOpenArray() || type->isStaticArray()) {
+    f.type = std::make_shared<Int>();
+    return;
+  }
   throw SemanticException(f.line, f.column, "Expect array type but find " + type->name);
 }
 
-void FunctionCallChecker::visit(Low&) { High h; visit(h); }
+void FunctionCallChecker::visit(Low&) {
+  High h;
+  visit(h);
+}
 
 
-TypeChecker::TypeChecker(StackTable s) : stackTable(std::move(s)) {}
+TypeChecker::TypeChecker(StackTable& s) : stackTable(s) {}
 
 bool TypeChecker::isImplicitType(ptr_Type& typeLeft, ptr_Type& typeRight) {
   return ((typeRight->isInt() && typeLeft->isDouble()) ||
@@ -254,7 +284,7 @@ void TypeChecker::visit(Variable& v) {
     auto f = stackTable.findFunction(v.getName()->getValueString());
     if (f->isEmbedded()) {
       v.embeddedFunction = stackTable.findFunction(v.getName()->getValueString());
-      v.type = f->signature;
+      v.type = nullptr;
       return;
     } else if (stackTable.top().tableVariable.checkContain(f->name) &&
                !wasFunctionCall) {
@@ -377,10 +407,10 @@ void TypeChecker::visit(BinaryOperation& b) {
   }
 
   std::string mes = "Operation " + b.getOpr()->getValueString() +
-    " to types \"" + leftType->name + "\" and \"" + rightType->name + "\" not valid";
+                    " to types \"" + leftType->name + "\" and \"" + rightType->name + "\" not valid";
   bool isPass;
 
-  switch(b.getOpr()->getTokenType()) {
+  switch (b.getOpr()->getTokenType()) {
     case tok::TokenType::Plus:
     case tok::TokenType::Minus: { // + -
       isPass = checkTypePlusMinus(b);
@@ -410,27 +440,19 @@ void TypeChecker::visit(BinaryOperation& b) {
     }
     case tok::TokenType::Equals:
     case tok::TokenType::NotEquals: {
-      if (leftType->isString() || rightType->isString()) {
-        isPass = false;
+      if (leftType->isPointer() && rightType->isPointer()) {
+        isPass = implicitCast(b, false) || leftType->equals(rightType.get());
         b.type = std::make_shared<Boolean>();
         break;
       }
-      if (leftType->equals(rightType.get())) {
-        isPass = true;
-        b.type = std::make_shared<Boolean>();
-        break;
-      }
-      isPass = implicitCast(b, false);
-      b.type = std::make_shared<Boolean>();
-      break;
     }
     case tok::TokenType::StrictLess:
     case tok::TokenType::StrictGreater:
     case tok::TokenType::LessOrEquals:
     case tok::TokenType::GreaterOrEquals: {
       isPass = ((leftType->isInt() || leftType->isDouble() || leftType->isChar()) &&
-                 leftType->equals(rightType.get())) ||
-                implicitCast(b, false);
+                leftType->equals(rightType.get())) ||
+               implicitCast(b, false);
       b.type = std::make_shared<Boolean>();
       break;
     }
@@ -439,7 +461,7 @@ void TypeChecker::visit(BinaryOperation& b) {
     }
   }
 
-  if(!isPass) {
+  if (!isPass) {
     throw SemanticException(b.line, b.column, mes);
   }
 }
@@ -452,15 +474,15 @@ void TypeChecker::visit(UnaryOperation& u) {
 
   u.getExpr()->accept(*this);
   auto& childType = u.getExpr()->type;
-  if (childType== nullptr) {
+  if (childType == nullptr) {
     throw SemanticException(u.line, u.column,
-      "Cannot " + u.getOpr()->getValueString() + " function");
+                            "Cannot " + u.getOpr()->getValueString() + " embedded function");
   }
 
   bool isPass = false;
   std::string mesLvalue = "Expect lvalue in operator " + tok::toString(u.getOpr()->getTokenType());
   std::string mes = "Operation " + u.getOpr()->getValueString() +
-    " to types \"" + childType->name + "\" not valid";
+                    " to types \"" + childType->name + "\" not valid";
 
   switch (u.getOpr()->getTokenType()) {
     case tok::TokenType::Plus:
@@ -568,9 +590,9 @@ void TypeChecker::visit(Cast& s) {
   auto& from = s.expr->type;
   auto isPass = [](ptr_Type& to, ptr_Type& from) {
     return (to->isInt() && (from->isInt() || from->isDouble() || from->isBool())) ||
-      (to->isDouble() && (from->isInt() || from->isDouble())) ||
-      (to->isPurePointer() && (from->isPointer() || from->isPurePointer())) ||
-      (to->isTypePointer() && (from->isPurePointer() || from->equals(to.get()))) ;
+           (to->isDouble() && (from->isInt() || from->isDouble())) ||
+           (to->isPurePointer() && (from->isPointer() || from->isPurePointer())) ||
+           (to->isTypePointer() && (from->isPurePointer() || from->equals(to.get())));
   };
 
   if (isPass(to, from)) {
@@ -578,7 +600,7 @@ void TypeChecker::visit(Cast& s) {
   }
 
   throw SemanticException("Cannot cast to type \"" + to->name +
-    "\" expression with type \"" + from->name + "\"");
+                          "\" expression with type \"" + from->name + "\"");
 }
 
 void TypeChecker::visit(AssignmentStmt& a) {
@@ -595,7 +617,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
                     a.getRight()->type->name + "\" not valid";
   auto typeRight = a.getRight()->type;
   auto typeLeft = a.getLeft()->type;
-  switch(a.getOpr()->getTokenType()) {
+  switch (a.getOpr()->getTokenType()) {
     case tok::TokenType::AssignmentWithMinus:
     case tok::TokenType::AssignmentWithPlus: {
       if (!checkTypePlusMinus(a, true)) {
@@ -652,7 +674,7 @@ void TypeChecker::visit(IfStmt& i) {
   }
   if (!i.getCondition()->type->isBool()) {
     throw SemanticException(i.getCondition()->line, i.getCondition()->column,
-      "Expect type bool, but find " + i.getCondition()->type->name);
+                            "Expect type bool, but find " + i.getCondition()->type->name);
   }
 }
 
@@ -665,7 +687,7 @@ void TypeChecker::visit(WhileStmt& w) {
   }
   if (!w.getCondition()->type->isBool()) {
     throw SemanticException(w.getCondition()->line, w.getCondition()->column,
-      "Expect type bool, but find " + w.getCondition()->type->name);
+                            "Expect type bool, but find " + w.getCondition()->type->name);
   }
 }
 

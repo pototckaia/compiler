@@ -20,6 +20,10 @@ set(PAR_SOURCES
         parser/type_checker.cpp parser/type_checker.h
         parser/semantic_decl.h parser/semantic_decl.cpp)
 
-include_directories(tokenizer parser include-lib)
+set(GEN_SOURCES
+        assembler/opcode.h assembler/opcode.cpp
+        assembler/generator.cpp assembler/generator.h)
 
-add_executable(Compile ${MAIN_SOURCES} ${LEX_SOURCES} ${PAR_SOURCES})
+include_directories(tokenizer parser include-lib assembler)
+
+add_executable(Compile ${MAIN_SOURCES} ${LEX_SOURCES} ${PAR_SOURCES} ${GEN_SOURCES})
