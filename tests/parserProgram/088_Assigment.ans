@@ -34,8 +34,9 @@ Decl
 					Table Symbol Const
 					Table Symbol Variable
 						foo
-							Local variable: foo
+							Param value: foo
 							Decl point: -1,-1	
+								Not specification
 								integer
 					Table Symbol Function
 						exit

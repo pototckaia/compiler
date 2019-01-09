@@ -29,8 +29,9 @@ Decl
 					Table Symbol Const
 					Table Symbol Variable
 						bee
-							Local variable: bee
+							Param value: bee
 							Decl point: -1,-1	
+								Not specification
 								char
 					Table Symbol Function
 						exit
@@ -101,8 +102,9 @@ Decl
 					Table Symbol Const
 					Table Symbol Variable
 						hoo
-							Local variable: hoo
+							Param value: hoo
 							Decl point: -1,-1	
+								Not specification
 								char
 					Table Symbol Function
 						exit

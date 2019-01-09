@@ -52,8 +52,9 @@ Decl
 					Table Symbol Const
 					Table Symbol Variable
 						f
-							Local variable: f
+							Param value: f
 							Decl point: -1,-1	
+								Not specification
 								Type alias: t
 								Decl point: 2,6	
 									Record
