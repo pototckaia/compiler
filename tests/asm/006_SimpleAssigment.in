@@ -1,0 +1,16 @@
+var
+	a: integer;
+	b: double;
+	c: double;
+	d: double;
+	cc: char;
+begin
+    a := 10;
+    b := 5.5;
+    c := 9 + 1.4;
+    d := -100.0;
+	writeln(a * b + c + 0.3);
+	writeln(d);
+	cc := '1';
+	writeln(cc);
+end.

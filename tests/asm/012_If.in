@@ -1,0 +1,13 @@
+var
+	a, b: integer;
+begin
+    a := 10;
+    b := a;
+	if (a <> b) then
+		writeln( 'not ok' )
+	else
+		writeln( 'ok' );
+
+	if (a = b) then
+		writeln( 'ok' );
+end.

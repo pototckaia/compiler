@@ -1,0 +1,48 @@
+var
+	a, b: integer;
+begin
+    a := 10;
+    b := a*a + a;
+	writeln(Integer(a = 10));
+	writeln(Integer(a <> 10));
+
+	writeln(Integer(a > 9));
+	writeln(Integer(a > 11));
+
+	writeln(Integer(a < 11));
+	writeln(Integer(a < 9));
+
+	writeln(Integer(b = 110));
+
+	writeln(Integer(b >= a));
+	writeln(Integer(b >= a + b));
+
+	writeln(Integer(b <= a*100));
+	writeln(Integer(b <= 0));
+
+	writeln( ' ' );
+	writeln(Integer(102 > 101));
+	writeln(Integer(102 >= 101));
+	writeln(Integer(101 < 102));
+	writeln(Integer(101 <= 102));
+	writeln(Integer(101 = 101));
+
+	writeln(Integer(102 < 101));
+	writeln(Integer(102 <= 101));
+	writeln(Integer(101 > 102));
+	writeln(Integer(101 >= 102));
+	writeln(Integer(101 <> 101));
+
+	writeln( ' ' );
+	writeln(Integer(-102 > -101));
+	writeln(Integer(-102 >= -101));
+	writeln(Integer(-101 < -102));
+	writeln(Integer(-101 <= -102));
+	writeln(Integer(-101 <> -101));
+
+	writeln(Integer(-102 < -101));
+	writeln(Integer(-102 <= -101));
+	writeln(Integer(-101 > -102));
+	writeln(Integer(-101 >= -102));
+	writeln(Integer(-101 = -101));
+end.
