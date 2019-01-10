@@ -1,0 +1,23 @@
+type
+	TPoint = record
+		x, y: integer;
+		dir : double;
+		name : char;
+		px, py : ^integer;
+	end;
+var
+	p: TPoint;
+begin
+	p.x := 10;
+	p.y := 20;
+	p.dir := 12222.00;
+	p.name := 'h';
+	p.px := @p.x;
+	p.py := @p.y;
+	writeln('x : ', p.x);
+	writeln('y : ', p.y);
+	writeln('dir : ', p.dir);
+	writeln('name :', p.name);
+	writeln('px^ : ', p.px^);
+	writeln('py^ : ', p.py^);
+end.

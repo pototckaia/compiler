@@ -17,10 +17,10 @@ std::string AsmGenerator::add_string(const std::string& value) {
   return label;
 }
 
-void AsmGenerator::visit_lvalue(ptr_Expr& n) {
-  needLvalue = true;
-  n->accept(*this);
-  needLvalue = false;
+void AsmGenerator::visit_lvalue(Expression& n) {
+  need_lvalue = true;
+  n.accept(*this);
+  need_lvalue = false;
 }
 
 void AsmGenerator::visit(MainFunction& m) {
@@ -31,7 +31,7 @@ void AsmGenerator::visit(MainFunction& m) {
 
   AsmGlobalDecl a(asm_file);
   a.visit(label_fmt_int, "%Ld");
-  a.visit(label_fmt_double, "%lf");
+  a.visit(label_fmt_double, "%1.16E");
   a.visit(label_fmt_char, "%c");
   a.visit(label_fmt_new_line, 10);
   for (auto& var : m.decl.tableVariable) {
@@ -49,7 +49,6 @@ void AsmGenerator::visit(MainFunction& m) {
     << Comment("prolog")
     << Command(PUSH, {RBP})
     << Command(MOV, {RBP}, {RSP});
-
 
   m.body->accept(*this);
 
@@ -93,7 +92,7 @@ void AsmGenerator::visit(Variable& v) {
   } else {
     stackTable.findVar(v.getName()->getValueString())->accept(*this);
   }
-  if (needLvalue) {
+  if (need_lvalue) {
     asm_file
       << Comment("lvalue variable")
       << Command(LEA, {RAX}, buf_var_name)
@@ -139,12 +138,12 @@ void AsmGenerator::visit(Literal& l) {
 
 void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
   if (b.left->type->isPointer()) {
-    visit_lvalue(b.left);
+    visit_lvalue(*b.left);
   } else {
     b.left->accept(*this);
   }
   if (b.right->type->isPointer()) {
-    visit_lvalue(b.right);
+    visit_lvalue(*b.right);
   } else {
     b.right->accept(*this);
   }
@@ -232,9 +231,9 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit_cmp(BinaryOperation& b) {
-  if (b.type->isPointer()) {
-    visit_lvalue(b.left);
-    visit_lvalue(b.right);
+  if (b.left->type->isPointer()) {
+    visit_lvalue(*b.left);
+    visit_lvalue(*b.right);
   } else {
     b.left->accept(*this);
     b.right->accept(*this);
@@ -478,14 +477,14 @@ void AsmGenerator::visit(UnaryOperation& u) {
     }
     case tok::TokenType::At: {
       asm_file << Comment("@");
-      visit_lvalue(u.expr);
+      visit_lvalue(*u.expr);
       return;
     }
     case tok::TokenType::Caret: {
       asm_file << Comment("^");
-      if (needLvalue) {
+      if (need_lvalue) {
         // node ==pointer
-        visit_lvalue(u.expr); // ?
+        visit_lvalue(*u.expr);
       } else {
         u.expr->accept(*this);
         asm_file
@@ -503,11 +502,30 @@ void AsmGenerator::visit(UnaryOperation& u) {
 void AsmGenerator::visit(ArrayAccess&) {
 }
 
-void AsmGenerator::visit(RecordAccess&) {
+void AsmGenerator::visit(RecordAccess& r) {
+  bool needLvalue = this->need_lvalue;
+  visit_lvalue(*r.record);
+  auto record = r.record->type->getRecord();
+  auto offset = record->offset(r.field->getValueString());
+  asm_file
+    << Comment("record access")
+    << Command(POP, {R8}) // add_record
+    << Command(MOV, {R9}, {offset});
+  if (needLvalue) {
+    asm_file << Comment("address") << Command(LEA, {R8}, {EffectiveAddress(R8, R9, 1), none});
+  } else {
+    asm_file << Comment("value") << Command(MOV, {R8}, {EffectiveAddress(R8, R9, 1)});
+  }
+  asm_file << Command(PUSH, {R8});
 }
 
 void AsmGenerator::visit(Cast& c) {
-  c.expr->accept(*this);
+  if (need_lvalue || c.expr->type->isPointer()) {
+    visit_lvalue(*c.expr);
+  } else {
+    c.expr->accept(*this);
+  }
+
   if (c.expr->type->isDouble() && c.type->isInt()) {
     asm_file
       << Comment("double to int")
@@ -527,11 +545,11 @@ void AsmGenerator::visit(Cast& c) {
 
 void AsmGenerator::visit(AssignmentStmt& a) {
   if (a.right->type->isPointer() || a.right->type->isProcedureType()) {
-    visit_lvalue(a.right);
+    visit_lvalue(*a.right);
   } else {
     a.right->accept(*this);
   }
-  visit_lvalue(a.left);
+  visit_lvalue(*a.left);
 
   if (a.left->type->isInt() || a.left->type->isDouble() ||
       a.left->type->isChar() || a.left->type->isPointer() ||
@@ -559,7 +577,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
       }
       case tok::TokenType::AssignmentWithMinus: {
         asm_file
-          << Comment("+=")
+          << Comment("-=")
           << Command(POP, {RAX}) // left - address
           << Command(POP, {R8}) // right
           << Command(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
@@ -573,13 +591,13 @@ void AsmGenerator::visit(AssignmentStmt& a) {
           asm_file << Command(SUB, {R9}, {R8});
         }
         asm_file
-          << Command(PUSH, {R9}) // // *left + right
+          << Command(PUSH, {R9}) // // *left - right
           << Command(PUSH, {RAX});
         break;
       }
       case tok::TokenType::AssignmentWithAsterisk: {
         asm_file
-          << Comment("+=")
+          << Comment("*=")
           << Command(POP, {RAX}) // left - address
           << Command(POP, {R8}) // right
           << Command(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
@@ -593,13 +611,13 @@ void AsmGenerator::visit(AssignmentStmt& a) {
           asm_file << Command(IMUL, {R9}, {R8});
         }
         asm_file
-          << Command(PUSH, {R9}) // // *left + right
+          << Command(PUSH, {R9}) // // *left * right
           << Command(PUSH, {RAX});
         break;
       }
       case tok::TokenType::AssignmentWithSlash: {
         asm_file
-          << Comment("+=")
+          << Comment("/=")
           << Command(POP, {RAX}) // left - address
           << Command(POP, {R8}) // right
           << Command(MOV, {R9}, {EffectiveAddress(RAX)}) // *left
@@ -607,7 +625,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
           << Command(MOVQ, {XMM1, none}, {R8})
           << Command(DIVSD, {XMM0, none}, {XMM1, none})
           << Command(MOVQ, {R9}, {XMM0, none})
-          << Command(PUSH, {R9}) // // *left + right
+          << Command(PUSH, {R9}) // // *left / right
           << Command(PUSH, {RAX});
         break;
       }
@@ -758,11 +776,7 @@ void AsmGenerator::visit(ForStmt& f) {
   loop.push(std::make_pair(_continue, _break));
 
   f.low->accept(*this);
-
-  needLvalue = true;
-  f.getVar()->accept(*this);
-  needLvalue = false;
-
+  visit_lvalue(*f.var);
   f.high->accept(*this);
 
   asm_file
@@ -893,13 +907,9 @@ void AsmGlobalDecl::visit(FunctionSignature&) { a << RESQ << " 1\n"; }
 
 void AsmGlobalDecl::visit(Alias& a) { a.type->accept(*this); }
 
-void AsmGlobalDecl::visit(StaticArray& s) {
-  a << RESB << " " << s.size() << "\n";
-}
+void AsmGlobalDecl::visit(StaticArray& s) { a << RESB << " " << s.size() << "\n"; }
 
-void AsmGlobalDecl::visit(Record& r) {
-  a << RESB << " " << r.size() << "\n";
-}
+void AsmGlobalDecl::visit(Record& r) { a << RESB << " " << r.size() << "\n"; }
 
 void AsmGlobalDecl::visit(std::string name, std::string value) {
   a

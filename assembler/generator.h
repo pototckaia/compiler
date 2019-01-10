@@ -73,8 +73,8 @@ class AsmGenerator : public Visitor {
   std::ofstream asm_file;
   StackTable stackTable;
 
-  bool needLvalue;
-  void visit_lvalue(ptr_Expr&);
+  bool need_lvalue;
+  void visit_lvalue(Expression&);
 
   std::stack<std::pair<std::string, std::string>> loop;
 

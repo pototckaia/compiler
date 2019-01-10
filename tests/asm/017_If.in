@@ -1,0 +1,11 @@
+var a, b, c : integer;
+begin
+	a := 12;
+	b := 13;
+	c := 14;
+    if a = b then 
+    	a := b 
+	else 
+		a := c;
+    writeln(a);
+end.

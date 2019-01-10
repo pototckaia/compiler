@@ -62,7 +62,7 @@ class ArrayAccessChecker : public BaseTypeChecker {
 
  private:
   ArrayAccess& arrayAccess;
-  int sizeBounds;
+  uint64_t sizeBounds;
 };
 
 class RecordAccessChecker : public BaseTypeChecker {

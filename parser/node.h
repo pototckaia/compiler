@@ -110,12 +110,11 @@ class RecordAccess : public Expression {
  public:
   RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<tok::TokenBase>);
 
-  const auto& getRecord() const { return record; }
-  const auto& getField() const { return field; };
+  auto& getRecord() const { return record; }
+  auto& getField() const { return field; };
 
   void accept(Visitor&) override;
 
- private:
   ptr_Expr record;
   ptr_Token field;
 };
@@ -193,7 +192,7 @@ class ForStmt : public LoopStmt {
           ptr_Expr, ptr_Expr, bool,
           ptr_Stmt);
 
-  const auto& getVar() const { return var; }
+  auto& getVar() const { return var; }
   const auto& getLow() const { return low; }
   const auto& getHigh() const { return high; }
   bool getDirect() const { return direct; }

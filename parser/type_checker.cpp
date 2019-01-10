@@ -74,8 +74,8 @@ void ArrayAccessChecker::visit(Pointer& a) {
 }
 
 void ArrayAccessChecker::visit(StaticArray& s) {
-  int bounds = sizeBounds;
-  int boundsType = s.bounds.size();
+  uint64_t bounds = sizeBounds;
+  uint64_t boundsType = s.bounds.size();
   if (bounds == boundsType) {
     arrayAccess.type = s.typeElem;
     return;
@@ -377,15 +377,19 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
 }
 
 bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
-  if (implicitCast(b, isAssigment)) {
-    return true;
-  }
+  implicitCast(b, isAssigment);
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
 
   bool isPass = (leftType->isDouble() || leftType->isInt()) && leftType->equals(rightType.get());
   b.type = leftType;
-  if (b.getOpr()->getTokenType() == tok::TokenType::Slash) {
+  if (b.getOpr()->getTokenType() == tok::TokenType::Slash ||
+      b.getOpr()->getTokenType() == tok::TokenType::AssignmentWithSlash) {
+    if (leftType->isInt() && rightType->isInt()) {
+      isPass = !isAssigment;
+      b.left = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.left));
+      b.right = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.right));
+    }
     b.type = std::make_shared<Double>();
   }
   return isPass;

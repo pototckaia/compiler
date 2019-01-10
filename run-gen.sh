@@ -9,4 +9,4 @@ gcc -m64 -static -o  ${a}  ${a}.o -lc
 
 rm ${a}.o
 
-./${a}
+./${a} > ${a}.out

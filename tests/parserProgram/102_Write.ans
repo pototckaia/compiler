@@ -87,9 +87,13 @@ Block
 			/
 				Type expression
 					double
-				2
-				Type expression
-					integer
-				10
-				Type expression
-					integer
+				Cast
+				double
+					2
+					Type expression
+						integer
+				Cast
+				double
+					10
+					Type expression
+						integer

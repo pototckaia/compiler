@@ -4,6 +4,8 @@
 #include "table_symbol.h"
 #include <cstdint>
 
+class Record;
+
 class SymType : public Symbol {
  public:
   using Symbol::Symbol;
@@ -24,6 +26,7 @@ class SymType : public Symbol {
   virtual bool isOpenArray() const { return false; }
   virtual bool isStaticArray() const { return false; }
   virtual ptr_Type getPointerBase() { return nullptr; }
+  virtual Record* getRecord() { return nullptr; }
 
   virtual uint64_t size() const;
 
@@ -108,6 +111,7 @@ class Alias : public SymType {
   bool isStaticArray() const override { return type->isStaticArray(); }
   bool isOpenArray() const override { return type->isOpenArray(); }
   ptr_Type getPointerBase() override { return type->getPointerBase(); }
+  Record* getRecord() override { return type->getRecord(); }
   uint64_t size() const override;
 
   ptr_Type type;
@@ -119,7 +123,6 @@ class ForwardType : public Alias {
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
-
   bool isForward() const override { return true; }
 };
 
@@ -176,6 +179,8 @@ class Record : public SymType {
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   uint64_t size() const override;
+  uint64_t offset(const std::string& name);
+  Record* getRecord() override { return this; }
 
  private:
   TableSymbol<ptr_Var> fields;

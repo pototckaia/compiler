@@ -393,6 +393,15 @@ void Record::addVar(const ptr_Var& v) {
   fields.insert(v);
 }
 
+uint64_t Record::offset(const std::string& name) {
+  uint64_t offset = 0;
+  auto iter = fieldsList.begin();
+  while (iter != fieldsList.end() && (*iter)->name != name) {
+    offset += (*iter)->size();
+    ++iter;
+  }
+  return offset;
+}
 // accept
 
 void Int::accept(Visitor& v) { v.visit(*this); }
