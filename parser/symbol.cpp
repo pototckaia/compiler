@@ -402,6 +402,13 @@ uint64_t Record::offset(const std::string& name) {
   }
   return offset;
 }
+
+bool SymType::isTrivial() const {
+  return this->isInt() || this->isDouble() ||
+         this->isChar() || this->isPointer() ||
+         this->isProcedureType();
+}
+
 // accept
 
 void Int::accept(Visitor& v) { v.visit(*this); }

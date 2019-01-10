@@ -21,12 +21,13 @@ class SymType : public Symbol {
   virtual bool isChar() const { return false; }
   virtual bool isPurePointer() const { return false; }
   virtual bool isTypePointer() const { return false; }
-  virtual bool isPointer() const { return isTypePointer() || isPurePointer(); }
+  bool isPointer() const { return isTypePointer() || isPurePointer(); }
   virtual bool isProcedureType() const { return false; }
   virtual bool isOpenArray() const { return false; }
   virtual bool isStaticArray() const { return false; }
   virtual ptr_Type getPointerBase() { return nullptr; }
   virtual Record* getRecord() { return nullptr; }
+  bool isTrivial() const;
 
   virtual uint64_t size() const;
 
