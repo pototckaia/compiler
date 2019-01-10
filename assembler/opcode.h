@@ -118,7 +118,7 @@ class EffectiveAddress {
  public:
   EffectiveAddress(Register);
   EffectiveAddress(Label);
-  EffectiveAddress(Register, uint64_t offset);
+  EffectiveAddress(Register, uint64_t offset, bool isMinus = false);
   EffectiveAddress(Register, Register, uint64_t);
   friend std::ostream& operator <<(std::ostream &os, const EffectiveAddress&);
 

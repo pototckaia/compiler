@@ -72,7 +72,7 @@ void AsmGenerator::visit(FunctionCallStmt& f) {
 }
 
 void AsmGenerator::visit(LocalVar& l) {
-  buf_var_name = Operand(EffectiveAddress(RBP, -((int) l.offset))); // [rbp - offset]
+  buf_var_name = Operand(EffectiveAddress(RBP, l.offset, true)); // [rbp - offset]
 }
 
 void AsmGenerator::visit(GlobalVar& g) {
