@@ -220,11 +220,7 @@ bool StaticArray::equals(SymType* s) const {
 }
 
 bool OpenArray::equals(SymType* s) const {
-  if (dynamic_cast<OpenArray*>(s)) {
-    auto p = dynamic_cast<OpenArray*>(s);
-    return typeElem->equals(p->typeElem.get());
-  }
-  return checkAlias(s);
+  return false;
 }
 
 bool OpenArray::equalsForCheckArgument(SymType* s) const {

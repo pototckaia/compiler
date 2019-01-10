@@ -1,0 +1,7 @@
+procedure test(a : array of integer, b : array of integer);
+begin
+	b := a;
+end;
+
+begin
+end.
