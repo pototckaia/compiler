@@ -4,6 +4,7 @@
 #include "visitor.h"
 #include "opcode.h"
 #include <stack>
+#include <unordered_map>
 
 class AsmGenerator : public Visitor {
  public:
@@ -33,28 +34,11 @@ class AsmGenerator : public Visitor {
   void visit(BreakStmt&) override;
   void visit(ContinueStmt&) override;
 
-  void visit(Int&) override;
-  void visit(Double&) override;
-  void visit(Char&) override;
-  void visit(TPointer&) override;
-  void visit(Boolean&) override;
-  void visit(String&) override;
-  void visit(Void&) override;
-
-  void visit(Alias&) override;
-  void visit(Pointer&) override;
-  void visit(StaticArray&) override;
-  void visit(OpenArray&) override;
-  void visit(Record&) override;
-  void visit(FunctionSignature&) override;
-  void visit(ForwardType&) override;
-
   void visit(LocalVar&) override;
   void visit(GlobalVar&) override;
   void visit(ParamVar&) override;
   void visit(Const&) override;
 
-  void visit(ForwardFunction&) override;
   void visit(Function&) override;
   void visit(MainFunction&) override;
   void visit(Read&) override;
@@ -75,6 +59,42 @@ class AsmGenerator : public Visitor {
 
   bool need_lvalue;
   void visit_lvalue(Expression&);
+
+   const std::unordered_map<tok::TokenType, Instruction> arith_i = {
+    {tok::TokenType::Plus, ADD},
+    {tok::TokenType::AssignmentWithPlus, ADD},
+    {tok::TokenType::Minus, SUB},
+    {tok::TokenType::AssignmentWithMinus, SUB},
+    {tok::TokenType::Asterisk, IMUL},
+    {tok::TokenType::AssignmentWithAsterisk, IMUL},
+    {tok::TokenType::Div, IDIV},
+  };
+  const std::unordered_map<tok::TokenType, Instruction> arith_d = {
+    {tok::TokenType::Plus, ADDSD},
+    {tok::TokenType::AssignmentWithPlus, ADDSD},
+    {tok::TokenType::Minus, SUBSD},
+    {tok::TokenType::AssignmentWithMinus, SUBSD},
+    {tok::TokenType::Asterisk, MULSD},
+    {tok::TokenType::AssignmentWithAsterisk, MULSD},
+    {tok::TokenType::Slash, DIVSD},
+    {tok::TokenType::AssignmentWithSlash, DIVSD}
+  };
+  const std::unordered_map<tok::TokenType, Instruction> cmp_i = {
+    {tok::TokenType::Equals, SETE},
+    {tok::TokenType::NotEquals, SETNE},
+    {tok::TokenType::StrictGreater, SETG},
+    {tok::TokenType::GreaterOrEquals, SETGE},
+    {tok::TokenType::StrictLess, SETL},
+    {tok::TokenType::LessOrEquals, SETLE},
+  };
+  const std::unordered_map<tok::TokenType, Instruction> cmp_d = {
+    {tok::TokenType::Equals, SETE},
+    {tok::TokenType::NotEquals, SETNE},
+    {tok::TokenType::StrictGreater, SETA},
+    {tok::TokenType::GreaterOrEquals, SETAE},
+    {tok::TokenType::StrictLess, SETB},
+    {tok::TokenType::LessOrEquals, SETBE},
+  };
 
   std::stack<std::pair<std::string, std::string>> loop;
 

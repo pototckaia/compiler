@@ -156,7 +156,7 @@ EffectiveAddress::EffectiveAddress(Register b) : isOnlyBase(true) { base << b; }
 EffectiveAddress::EffectiveAddress(Label l) : isOnlyBase(true) { base << l; }
 EffectiveAddress::EffectiveAddress(Register b, Register i, uint64_t s)
   : index(i), scala(s) { base << b; }
-EffectiveAddress::EffectiveAddress(Register b, int offset)
+EffectiveAddress::EffectiveAddress(Register b, uint64_t offset)
   : isOnlyBase(true), isOffset(true), offset(offset) { base << b; }
 
 std::ostream& operator <<(std::ostream &os, const EffectiveAddress& c) {

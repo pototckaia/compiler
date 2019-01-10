@@ -24,10 +24,10 @@ void AsmGenerator::visit_lvalue(Expression& n) {
 }
 
 void AsmGenerator::visit(MainFunction& m) {
-  asm_file << Command(Printf) // extern
-           << Command(Scanf)
-           << "\n";
-  asm_file << Command(label_main, true); // global main
+  asm_file
+    << cmd(Printf) // extern
+    << cmd(Scanf) << "\n"
+    << cmd(label_main, true); // global main
 
   AsmGlobalDecl a(asm_file);
   a.visit(label_fmt_int, "%Ld");
@@ -44,19 +44,19 @@ void AsmGenerator::visit(MainFunction& m) {
 
   stackTable.push(m.decl);
   asm_file
-    << Command(code)
-    << Command(Label(label_main))
+    << cmd(code)
+    << cmd(Label(label_main))
     << Comment("prolog")
-    << Command(PUSH, {RBP})
-    << Command(MOV, {RBP}, {RSP});
+    << cmd(PUSH, {RBP})
+    << cmd(MOV, {RBP}, {RSP});
 
   m.body->accept(*this);
 
   asm_file
     << Comment("epilog")
-    << Command(POP, {RBP})
-    << Command(XOR, {RAX}, {RAX})
-    << Command(RET);
+    << cmd(POP, {RBP})
+    << cmd(XOR, {RAX}, {RAX})
+    << cmd(RET);
 
   clear_buf_string();
 }
@@ -85,23 +85,26 @@ void AsmGenerator::visit(ParamVar& p) {
 
 void AsmGenerator::visit(Const&) {}
 
+void AsmGenerator::visit(Function& f) {
+  buf_var_name = Operand(Label(f.get_label())); // label
+}
+
 void AsmGenerator::visit(Variable& v) {
   if (stackTable.isFunction(v.getName()->getValueString())) {
-    const auto& f = stackTable.findFunction(v.getName()->getValueString());
-    buf_var_name = Operand(Label(f->get_label())); // label
+    stackTable.findFunction(v.getName()->getValueString())->accept(*this);
   } else {
     stackTable.findVar(v.getName()->getValueString())->accept(*this);
   }
   if (need_lvalue) {
     asm_file
       << Comment("lvalue variable")
-      << Command(LEA, {RAX}, buf_var_name)
-      << Command(PUSH, {RAX});
+      << cmd(LEA, {RAX}, buf_var_name)
+      << cmd(PUSH, {RAX});
   } else {
     asm_file
       << Comment("rvalue variable")
-      << Command(MOV, {RAX}, buf_var_name)
-      << Command(PUSH, {RAX});
+      << cmd(MOV, {RAX}, buf_var_name)
+      << cmd(PUSH, {RAX});
   }
 }
 
@@ -109,30 +112,29 @@ void AsmGenerator::visit(Literal& l) {
   if (l.type->isInt()) {
     asm_file
       << Comment("int literal")
-      << Command(PUSH, {l.getValue()->getInt()});
+      << cmd(PUSH, {l.getValue()->getInt()});
   } else if (l.type->isDouble()) {
     asm_file
       << Comment("double literal")
-      << Command(MOV, {RAX}, {l.getValue()->getDouble(), double64})
-      << Command(PUSH, {RAX});
+      << cmd(PUSH, {l.getValue()->getDouble(), double64});
   } else if (l.type->isChar()) {
     asm_file
       << Comment("char literal")
-      << Command(PUSH, {l.getValue()->getValueString()});
+      << cmd(PUSH, {l.getValue()->getValueString()});
   } else if (l.type->isString()) {
     auto label_name = add_string(l.getValue()->getValueString());
     asm_file
       << Comment("string literal")
-      << Command(PUSH, {Label(label_name)});
+      << cmd(PUSH, {Label(label_name)});
   } else if (l.getValue()->getTokenType() == tok::TokenType::Nil ||
              l.getValue()->getTokenType() == tok::TokenType::False) {
     asm_file
       << Comment("false or nil literal")
-      << Command(PUSH, {(uint64_t) 0});
+      << cmd(PUSH, {(uint64_t) 0});
   } else if (l.getValue()->getTokenType() == tok::TokenType::True) {
     asm_file
       << Comment("true literal")
-      << Command(PUSH, {(uint64_t) 1});
+      << cmd(PUSH, {(uint64_t) 1});
   }
 }
 
@@ -147,86 +149,58 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
   } else {
     b.right->accept(*this);
   }
-
+  auto t = b.getOpr()->getTokenType();
   asm_file
     << Comment("arithmetic operation")
-    << Command(POP, {R8}) // right
-    << Command(POP, {RAX}); // left
+    << cmd(POP, {RCX}) // right
+    << cmd(POP, {RAX}); // left
 
   if (b.type->isDouble()) {
     asm_file
-      << Command(MOVQ, {XMM0, none}, {RAX})
-      << Command(MOVQ, {XMM1, none}, {R8});
-    switch (b.getOpr()->getTokenType()) {
-      case tok::TokenType::Plus: {
-        asm_file << Command(ADDSD, {XMM0, none}, {XMM1, none});
-        break;
-      }
-      case tok::TokenType::Minus: {
-        asm_file << Command(SUBSD, {XMM0, none}, {XMM1, none});
-        break;
-      }
-      case tok::TokenType::Asterisk: {
-        asm_file << Command(MULSD, {XMM0, none}, {XMM1, none});
-        break;
-      }
-      case tok::TokenType::Slash: {
-        asm_file << Command(DIVSD, {XMM0, none}, {XMM1, none});
-        break;
-      }
-      default:
-        break;
-    }
-    asm_file
-      << Command(MOVQ, {RAX}, {XMM0, none})
-      << Command(PUSH, {RAX});
+      << cmd(MOVQ, {XMM0, none}, {RAX})
+      << cmd(MOVQ, {XMM1, none}, {RCX})
+      << cmd(arith_d.at(t), {XMM0, none}, {XMM1, none})
+      << cmd(MOVQ, {RAX}, {XMM0, none})
+      << cmd(PUSH, {RAX});
   } else {
     switch (b.getOpr()->getTokenType()) {
-      case tok::TokenType::Plus: {
-        asm_file << Command(ADD, {RAX}, {R8});
-        break;
-      }
-      case tok::TokenType::Minus: {
-        asm_file << Command(SUB, {RAX}, {R8});
-        break;
-      }
+      case tok::TokenType::Plus:
+      case tok::TokenType::Minus:
       case tok::TokenType::Asterisk: {
-        asm_file << Command(IMUL, {RAX}, {R8});
+        asm_file << cmd(arith_i.at(t), {RAX}, {RCX});
         break;
       }
       case tok::TokenType::Div: {
         asm_file
-          << Command(XOR, {RDX}, {RDX})
-          << Command(CQO)
-          << Command(IDIV, {R8});
+          << cmd(XOR, {RDX}, {RDX})
+          << cmd(CQO)
+          << cmd(arith_i.at(t), {RCX});
         break;
       }
       case tok::TokenType::Mod: {
         asm_file
-          << Command(XOR, {RDX}, {RDX})
-          << Command(CQO)
-          << Command(IDIV, {R8})
-          << Command(MOV, {RAX}, {RDX});
+          << cmd(XOR, {RDX}, {RDX})
+          << cmd(CQO)
+          << cmd(IDIV, {RCX})
+          << cmd(MOV, {RAX}, {RDX});
         break;
       }
       case tok::TokenType::ShiftLeft:
       case tok::TokenType::Shl: {
         asm_file
-          << Command(MOV, {RCX}, {R8})
-          << Command(SHL, {RAX}, {CL, Pref::b});
+          << cmd(SHL, {RAX}, {CL, Pref::b});
         break;
       }
       case tok::TokenType::ShiftRight:
       case tok::TokenType::Shr: {
         asm_file
-          << Command(MOV, {RCX}, {R8})
-          << Command(SHR, {RAX}, {CL, Pref::b});
+          << cmd(SHR, {RAX}, {CL, Pref::b});
         break;
       }
       default:
         break;
     }
-    asm_file << Command(PUSH, {RAX});
+    asm_file << cmd(PUSH, {RAX});
   }
 }
 
@@ -238,79 +212,26 @@ void AsmGenerator::visit_cmp(BinaryOperation& b) {
     b.left->accept(*this);
     b.right->accept(*this);
   }
+  auto t = b.getOpr()->getTokenType();
   asm_file << Comment("cmp operation");
   if (b.right->type->isDouble()) {
     asm_file
-      << Command(POP, {R11}) // right
-      << Command(POP, {RAX}) // left
-      << Command(MOVQ, {XMM0, none}, {RAX})
-      << Command(MOVQ, {XMM1, none}, {R11})
-      << Command(XOR, {RAX}, {RAX})
-      << Command(COMISD, {XMM0, none}, {XMM1, none});
-    switch (b.getOpr()->getTokenType()) {
-      case tok::TokenType::Equals: {
-        asm_file << Command(SETE, {AL, none});
-        break;
-      }
-      case tok::TokenType::NotEquals: {
-        asm_file << Command(SETNE, {AL, none});
-        break;
-      }
-      case tok::TokenType::StrictGreater: {
-        asm_file << Command(SETA, {AL, none});
-        break;
-      }
-      case tok::TokenType::GreaterOrEquals: {
-        asm_file << Command(SETAE, {AL, none});
-        break;
-      }
-      case tok::TokenType::StrictLess: {
-        asm_file << Command(SETB, {AL, none});
-        break;
-      }
-      case tok::TokenType::LessOrEquals: {
-        asm_file << Command(SETBE, {AL, none});
-        break;
-      }
-      default:
-        break;
-    }
+      << cmd(POP, {R11}) // right
+      << cmd(POP, {RAX}) // left
+      << cmd(MOVQ, {XMM0, none}, {RAX})
+      << cmd(MOVQ, {XMM1, none}, {R11})
+      << cmd(XOR, {RAX}, {RAX})
+      << cmd(COMISD, {XMM0, none}, {XMM1, none})
+      << cmd(cmp_d.at(t), {AL, none});
   } else {
     asm_file
-      << Command(POP, {R11}) // right
-      << Command(POP, {RDX}) // left
-      << Command(XOR, {RAX}, {RAX})
-      << Command(CMP, {RDX}, {R11});
-    switch (b.getOpr()->getTokenType()) {
-      case tok::TokenType::Equals: {
-        asm_file << Command(SETE, {AL, none});
-        break;
-      }
-      case tok::TokenType::NotEquals: {
-        asm_file << Command(SETNE, {AL, none});
-        break;
-      }
-      case tok::TokenType::StrictGreater: {
-        asm_file << Command(SETG, {AL, none});
-        break;
-      }
-      case tok::TokenType::GreaterOrEquals: {
-        asm_file << Command(SETGE, {AL, none});
-        break;
-      }
-      case tok::TokenType::StrictLess: {
-        asm_file << Command(SETL, {AL, none});
-        break;
-      }
-      case tok::TokenType::LessOrEquals: {
-        asm_file << Command(SETLE, {AL, none});
-        break;
-      }
-      default:
-        break;
-    }
+      << cmd(POP, {R11}) // right
+      << cmd(POP, {RDX}) // left
+      << cmd(XOR, {RAX}, {RAX})
+      << cmd(CMP, {RDX}, {R11})
+      << cmd(cmp_i.at(t), {AL, none});
   }
-  asm_file << Command(PUSH, {RAX});
+  asm_file << cmd(PUSH, {RAX});
 }
 
 void AsmGenerator::visit_logical(BinaryOperation& b) {
@@ -320,10 +241,10 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
       b.right->accept(*this);
       asm_file << Comment("xor operation");
       asm_file
-        << Command(POP, {RBX}) // righ
-        << Command(POP, {RAX}) // left
-        << Command(XOR, {RAX}, {RBX})
-        << Command(PUSH, {RAX});
+        << cmd(POP, {RBX}) // righ
+        << cmd(POP, {RAX}) // left
+        << cmd(XOR, {RAX}, {RBX})
+        << cmd(PUSH, {RAX});
       return;
     }
     case tok::TokenType::And: {
@@ -332,10 +253,10 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         b.right->accept(*this);
         asm_file << Comment("and operation");
         asm_file
-          << Command(POP, {RBX}) // righ
-          << Command(POP, {RAX}) // left
-          << Command(AND, {RAX}, {RBX})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RBX}) // righ
+          << cmd(POP, {RAX}) // left
+          << cmd(AND, {RAX}, {RBX})
+          << cmd(PUSH, {RAX});
         return;
       } else {
         auto _false = getLabel();
@@ -344,21 +265,21 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         b.left->accept(*this);
         asm_file
           << Comment("and boolean operation")
-          << Command(POP, {RAX})
-          << Command(TEST, {RAX}, {RAX})
-          << Command(JZ, {Label(_false)});
+          << cmd(POP, {RAX})
+          << cmd(TEST, {RAX}, {RAX})
+          << cmd(JZ, {Label(_false)});
 
         b.right->accept(*this);
 
         asm_file
-          << Command(POP, {RAX})
-          << Command(TEST, {RAX}, {RAX})
-          << Command(JZ, {Label(_false)})
-          << Command(PUSH, {(uint64_t) 1})
-          << Command(JMP, {Label(_true)})
-          << Command(Label(_false))
-          << Command(PUSH, {(uint64_t) 0})
-          << Command(Label(_true));
+          << cmd(POP, {RAX})
+          << cmd(TEST, {RAX}, {RAX})
+          << cmd(JZ, {Label(_false)})
+          << cmd(PUSH, {(uint64_t) 1})
+          << cmd(JMP, {Label(_true)})
+          << cmd(Label(_false))
+          << cmd(PUSH, {(uint64_t) 0})
+          << cmd(Label(_true));
         return;
       }
     }
@@ -368,10 +289,10 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         b.right->accept(*this);
         asm_file
           << Comment("or operation")
-          << Command(POP, {RBX}) // righ
-          << Command(POP, {RAX}) // left
-          << Command(OR, {RAX}, {RBX})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RBX}) // righ
+          << cmd(POP, {RAX}) // left
+          << cmd(OR, {RAX}, {RBX})
+          << cmd(PUSH, {RAX});
         return;
       } else {
         auto _false = getLabel();
@@ -380,21 +301,21 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         b.left->accept(*this);
         asm_file
           << Comment("or boolean operation")
-          << Command(POP, {RAX})
-          << Command(TEST, {RAX}, {RAX})
-          << Command(JNZ, {Label(_true)});
+          << cmd(POP, {RAX})
+          << cmd(TEST, {RAX}, {RAX})
+          << cmd(JNZ, {Label(_true)});
 
         b.right->accept(*this);
 
         asm_file
-          << Command(POP, {RAX})
-          << Command(TEST, {RAX}, {RAX})
-          << Command(JNZ, {Label(_true)})
-          << Command(PUSH, {(uint64_t) 0})
-          << Command(JMP, {Label(_false)})
-          << Command(Label(_true))
-          << Command(PUSH, {(uint64_t) 1})
-          << Command(Label(_false));
+          << cmd(POP, {RAX})
+          << cmd(TEST, {RAX}, {RAX})
+          << cmd(JNZ, {Label(_true)})
+          << cmd(PUSH, {(uint64_t) 0})
+          << cmd(JMP, {Label(_false)})
+          << cmd(Label(_true))
+          << cmd(PUSH, {(uint64_t) 1})
+          << cmd(Label(_false));
         return;
       }
     }
@@ -444,17 +365,17 @@ void AsmGenerator::visit(UnaryOperation& u) {
       asm_file << Comment("unary minus");
       if (u.type->isInt()) {
         asm_file
-          << Command(POP, {RAX})
-          << Command(NEG, {RAX})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RAX})
+          << cmd(NEG, {RAX})
+          << cmd(PUSH, {RAX});
       } else {
         asm_file
-          << Command(POP, {RAX})
-          << Command(MOVQ, {XMM1, none}, {RAX})
-          << Command(XORPD, {XMM0, none}, {XMM0, none})
-          << Command(SUBSD, {XMM0, none}, {XMM1, none})
-          << Command(MOVQ, {RAX}, {XMM0, none})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RAX})
+          << cmd(MOVQ, {XMM1, none}, {RAX})
+          << cmd(XORPD, {XMM0, none}, {XMM0, none})
+          << cmd(SUBSD, {XMM0, none}, {XMM1, none})
+          << cmd(MOVQ, {RAX}, {XMM0, none})
+          << cmd(PUSH, {RAX});
       }
       return;
     }
@@ -463,15 +384,15 @@ void AsmGenerator::visit(UnaryOperation& u) {
       if (u.type->isBool()) {
         asm_file
           << Comment("boolean not")
-          << Command(POP, {RAX})
-          << Command(XOR, {RAX}, {(uint64_t) 1})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RAX})
+          << cmd(XOR, {RAX}, {(uint64_t) 1})
+          << cmd(PUSH, {RAX});
       } else {
         asm_file
           << Comment("not operation")
-          << Command(POP, {RAX})
-          << Command(NOT, {RAX})
-          << Command(PUSH, {RAX});
+          << cmd(POP, {RAX})
+          << cmd(NOT, {RAX})
+          << cmd(PUSH, {RAX});
       }
       return;
     }
@@ -483,13 +404,12 @@ void AsmGenerator::visit(UnaryOperation& u) {
     case tok::TokenType::Caret: {
       asm_file << Comment("^");
       if (need_lvalue) {
-        // node ==pointer
         visit_lvalue(*u.expr);
       } else {
         u.expr->accept(*this);
         asm_file
-          << Command(POP, {RAX})
-          << Command(PUSH, {EffectiveAddress(RAX)});
+          << cmd(POP, {RAX})
+          << cmd(PUSH, {EffectiveAddress(RAX)});
       }
       return;
     }
@@ -503,20 +423,15 @@ void AsmGenerator::visit(ArrayAccess&) {
 }
 
 void AsmGenerator::visit(RecordAccess& r) {
-  bool needLvalue = this->need_lvalue;
+  Instruction c = need_lvalue ? LEA : MOV;
   visit_lvalue(*r.record);
   auto record = r.record->type->getRecord();
   auto offset = record->offset(r.field->getValueString());
   asm_file
     << Comment("record access")
-    << Command(POP, {R8}) // add_record
-    << Command(MOV, {R9}, {offset});
-  if (needLvalue) {
-    asm_file << Comment("address") << Command(LEA, {R8}, {EffectiveAddress(R8, R9, 1), none});
-  } else {
-    asm_file << Comment("value") << Command(MOV, {R8}, {EffectiveAddress(R8, R9, 1)});
-  }
-  asm_file << Command(PUSH, {R8});
+    << cmd(POP, {R8}) // add_record
+    << cmd(c, {R8}, {EffectiveAddress(R8, offset), none})
+    << cmd(PUSH, {R8});
 }
 
 void AsmGenerator::visit(Cast& c) {
@@ -529,17 +444,17 @@ void AsmGenerator::visit(Cast& c) {
   if (c.expr->type->isDouble() && c.type->isInt()) {
     asm_file
       << Comment("double to int")
-      << Command(POP, {RAX})
-      << Command(MOVQ, {XMM0, none}, {RAX})
-      << Command(CVTSD2SI, {RAX}, {XMM0, none})
-      << Command(PUSH, {RAX});
+      << cmd(POP, {RAX})
+      << cmd(MOVQ, {XMM0, none}, {RAX})
+      << cmd(CVTSD2SI, {RAX}, {XMM0, none})
+      << cmd(PUSH, {RAX});
   } else if (c.expr->type->isInt() && c.type->isDouble()) {
     asm_file
       << Comment("int to double")
-      << Command(POP, {RAX})
-      << Command(CVTSI2SD, {XMM0, none}, {RAX})
-      << Command(MOVQ, {RAX}, {XMM0, none})
-      << Command(PUSH, {RAX});
+      << cmd(POP, {RAX})
+      << cmd(CVTSI2SD, {XMM0, none}, {RAX})
+      << cmd(MOVQ, {RAX}, {XMM0, none})
+      << cmd(PUSH, {RAX});
   }
 }
 
@@ -550,93 +465,40 @@ void AsmGenerator::visit(AssignmentStmt& a) {
     a.right->accept(*this);
   }
   visit_lvalue(*a.left);
-
-  if (a.left->type->isInt() || a.left->type->isDouble() ||
-      a.left->type->isChar() || a.left->type->isPointer() ||
-      a.left->type->isProcedureType()) {
-    switch (a.getOpr()->getTokenType()) {
-      case tok::TokenType::AssignmentWithPlus: {
+  auto t = a.getOpr()->getTokenType();
+  switch (t) {
+    case tok::TokenType::AssignmentWithPlus:
+    case tok::TokenType::AssignmentWithMinus:
+    case tok::TokenType::AssignmentWithAsterisk:
+    case tok::TokenType::AssignmentWithSlash: {
+      asm_file
+        << Comment(tok::toString(t))
+        << cmd(POP, {RAX}) // left - address
+        << cmd(POP, {R8}) // right
+        << cmd(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
+      if (a.left->type->isDouble()) {
         asm_file
-          << Comment("+=")
-          << Command(POP, {RAX}) // left - address
-          << Command(POP, {R8}) // right
-          << Command(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
-        if (a.right->type->isDouble()) {
-          asm_file
-            << Command(MOVQ, {XMM0, none}, {R9})
-            << Command(MOVQ, {XMM1, none}, {R8})
-            << Command(ADDSD, {XMM0, none}, {XMM1, none})
-            << Command(MOVQ, {R9}, {XMM0, none});
-        } else {
-          asm_file << Command(ADD, {R9}, {R8});
-        }
-        asm_file
-          << Command(PUSH, {R9}) // // *left + right
-          << Command(PUSH, {RAX});
-        break;
+          << cmd(MOVQ, {XMM0, none}, {R9})
+          << cmd(MOVQ, {XMM1, none}, {R8})
+          << cmd(arith_d.at(t), {XMM0, none}, {XMM1, none})
+          << cmd(MOVQ, {R9}, {XMM0, none});
+      } else {
+        asm_file << cmd(arith_i.at(t), {R9}, {R8});
       }
-      case tok::TokenType::AssignmentWithMinus: {
-        asm_file
-          << Comment("-=")
-          << Command(POP, {RAX}) // left - address
-          << Command(POP, {R8}) // right
-          << Command(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
-        if (a.right->type->isDouble()) {
-          asm_file
-            << Command(MOVQ, {XMM0, none}, {R9})
-            << Command(MOVQ, {XMM1, none}, {R8})
-            << Command(SUBSD, {XMM0, none}, {XMM1, none})
-            << Command(MOVQ, {R9}, {XMM0, none});
-        } else {
-          asm_file << Command(SUB, {R9}, {R8});
-        }
-        asm_file
-          << Command(PUSH, {R9}) // // *left - right
-          << Command(PUSH, {RAX});
-        break;
-      }
-      case tok::TokenType::AssignmentWithAsterisk: {
-        asm_file
-          << Comment("*=")
-          << Command(POP, {RAX}) // left - address
-          << Command(POP, {R8}) // right
-          << Command(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
-        if (a.right->type->isDouble()) {
-          asm_file
-            << Command(MOVQ, {XMM0, none}, {R9})
-            << Command(MOVQ, {XMM1, none}, {R8})
-            << Command(MULSD, {XMM0, none}, {XMM1, none})
-            << Command(MOVQ, {R9}, {XMM0, none});
-        } else {
-          asm_file << Command(IMUL, {R9}, {R8});
-        }
-        asm_file
-          << Command(PUSH, {R9}) // // *left * right
-          << Command(PUSH, {RAX});
-        break;
-      }
-      case tok::TokenType::AssignmentWithSlash: {
-        asm_file
-          << Comment("/=")
-          << Command(POP, {RAX}) // left - address
-          << Command(POP, {R8}) // right
-          << Command(MOV, {R9}, {EffectiveAddress(RAX)}) // *left
-          << Command(MOVQ, {XMM0, none}, {R9})
-          << Command(MOVQ, {XMM1, none}, {R8})
-          << Command(DIVSD, {XMM0, none}, {XMM1, none})
-          << Command(MOVQ, {R9}, {XMM0, none})
-          << Command(PUSH, {R9}) // // *left / right
-          << Command(PUSH, {RAX});
-        break;
-      }
-      default: {
-        break;
-      }
+      asm_file
+        << cmd(PUSH, {R9}) // // *left + right
+        << cmd(PUSH, {RAX});
+      break;
     }
+    default: {
+      break;
+    }
+  }
+  if (a.left->type->isTrivial()) {
     asm_file
-      << Comment("assigment")
-      << Command(POP, {RAX}) // left
-      << Command(POP, {EffectiveAddress(RAX)});
+      << Comment("assigment trivial")
+      << cmd(POP, {RAX}) // left
+      << cmd(POP, {EffectiveAddress(RAX)});
     return;
   }
 }
@@ -665,47 +527,47 @@ void AsmGenerator::visit(Write& w) {
   if (syscall_param_type == nullptr && w.isnewLine) {
     asm_file
       << Comment("printf new line")
-      << Command(MOV, {RDI}, {Label(label_fmt_new_line)})
-      << Command(CALL, {Printf});
+      << cmd(MOV, {RDI}, {Label(label_fmt_new_line)})
+      << cmd(CALL, {Printf});
     return;
   }
 
   if (syscall_param_type->isString()) {
     asm_file
       << Comment("printf string")
-      << Command(POP, {RAX})
-      << Command(MOV, {RDI}, {RAX})
-      << Command(XOR, {RAX}, {RAX})
-      << Command(CALL, {Printf});
+      << cmd(POP, {RAX})
+      << cmd(MOV, {RDI}, {RAX})
+      << cmd(XOR, {RAX}, {RAX})
+      << cmd(CALL, {Printf});
   } else if (syscall_param_type->isInt()) {
     asm_file
       << Comment("printf int")
-      << Command(MOV, {RDI}, {Label(label_fmt_int)})
-      << Command(POP, {RSI})
-      << Command(XOR, {RAX}, {RAX})
-      << Command(CALL, {Printf});
+      << cmd(MOV, {RDI}, {Label(label_fmt_int)})
+      << cmd(POP, {RSI})
+      << cmd(XOR, {RAX}, {RAX})
+      << cmd(CALL, {Printf});
   } else if (syscall_param_type->isDouble()) {
     asm_file
       << Comment("printf double")
-      << Command(MOV, {RDI}, {Label(label_fmt_double)})
-      << Command(POP, {RAX})
-      << Command(MOVQ, {XMM0, none}, {RAX})
-      << Command(MOV, {RAX}, {(uint64_t) 1})
-      << Command(CALL, {Printf});
+      << cmd(MOV, {RDI}, {Label(label_fmt_double)})
+      << cmd(POP, {RAX})
+      << cmd(MOVQ, {XMM0, none}, {RAX})
+      << cmd(MOV, {RAX}, {(uint64_t) 1})
+      << cmd(CALL, {Printf});
   } else if (syscall_param_type->isChar()) {
     asm_file
       << Comment("printf char")
-      << Command(MOV, {RDI}, {Label(label_fmt_char)})
-      << Command(POP, {RSI})
-      << Command(XOR, {RAX}, {RAX})
-      << Command(CALL, {Printf});
+      << cmd(MOV, {RDI}, {Label(label_fmt_char)})
+      << cmd(POP, {RSI})
+      << cmd(XOR, {RAX}, {RAX})
+      << cmd(CALL, {Printf});
   }
 
   if (last_param && w.isnewLine) {
     asm_file
       << Comment("printf new line")
-      << Command(MOV, {RDI}, {Label(label_fmt_new_line)})
-      << Command(CALL, {Printf});
+      << cmd(MOV, {RDI}, {Label(label_fmt_new_line)})
+      << cmd(CALL, {Printf});
   }
 }
 
@@ -723,6 +585,7 @@ void AsmGenerator::visit(FunctionCall& f) {
       syscall_param_type = nullptr;
       f.nameFunction->embeddedFunction->accept(*this);
     }
+    return;
   }
 }
 
@@ -732,17 +595,17 @@ void AsmGenerator::visit(IfStmt& i) {
   asm_file << Comment("if _else: " + _else + " _endif: " + _endif);
   i.condition->accept(*this);
   asm_file
-    << Command(POP, {RAX})
-    << Command(TEST, {RAX}, {RAX})
-    << Command(JZ, {Label(_else)});
+    << cmd(POP, {RAX})
+    << cmd(TEST, {RAX}, {RAX})
+    << cmd(JZ, {Label(_else)});
   i.then_stmt->accept(*this);
   asm_file
-    << Command(JMP, {Label(_endif)})
-    << Command(Label(_else));
+    << cmd(JMP, {Label(_endif)})
+    << cmd(Label(_else));
   if (i.else_stmt != nullptr) {
     i.else_stmt->accept(*this);
   }
-  asm_file << Command(Label(_endif));
+  asm_file << cmd(Label(_endif));
 }
 
 void AsmGenerator::visit(WhileStmt& w) {
@@ -751,16 +614,16 @@ void AsmGenerator::visit(WhileStmt& w) {
   asm_file << Comment("whiel _body: " + _body + " _end: " + _end);
   loop.push(std::make_pair(_body, _end));
   asm_file
-    << Command(Label(_body));
+    << cmd(Label(_body));
   w.condition->accept(*this);
   asm_file
-    << Command(POP, {RAX})
-    << Command(TEST, {RAX}, {RAX})
-    << Command(JZ, {Label(_end)});
+    << cmd(POP, {RAX})
+    << cmd(TEST, {RAX}, {RAX})
+    << cmd(JZ, {Label(_end)});
   w.block->accept(*this);
   asm_file
-    << Command(JMP, {Label(_body)})
-    << Command(Label(_end));
+    << cmd(JMP, {Label(_body)})
+    << cmd(Label(_end));
   loop.pop();
 }
 
@@ -774,120 +637,57 @@ void AsmGenerator::visit(ForStmt& f) {
     << Comment("for ")
     << Comment("_body: " + _body + " _continue: " + _continue + " _break: " + _break + " _endfor: " + _end);
   loop.push(std::make_pair(_continue, _break));
-
   f.low->accept(*this);
   visit_lvalue(*f.var);
   f.high->accept(*this);
-
   asm_file
     // init
-    << Command(POP, {R13}) // high
-    << Command(POP, {R14}) // add_var
-    << Command(POP, {EffectiveAddress(R14)}) // *add_var = low
-    << Command(PUSH, {R13}) // high
-    << Command(PUSH, {R14}) // add_var
-    << Command(Label(_body))
-    << Command(POP, {R14}) // add_var
-    << Command(POP, {R13}) // high
-    << Command(CMP, {R13}, {EffectiveAddress(R14)});
-
-  if (f.direct) {
+    << cmd(POP, {R13}) // high
+    << cmd(POP, {R14}) // add_var
+    << cmd(POP, {EffectiveAddress(R14)}) // *add_var = low
+    << cmd(PUSH, {R13}) // high
+    << cmd(PUSH, {R14}) // add_var
+    << cmd(Label(_body))
+    << cmd(POP, {R14}) // add_var
+    << cmd(POP, {R13}) // high
+    << cmd(CMP, {R13}, {EffectiveAddress(R14)})
     // to - high < *add_var
-    asm_file << Command(JL, {Label(_end)});
-  } else {
     // downto - high > *add_var
-    asm_file << Command(JG, {Label(_end)});
-  }
-
-  asm_file
-    << Command(PUSH, {R13})  // high
-    << Command(PUSH, {R14}); // add_var
-
+    << cmd(f.direct ? JL : JG, {Label(_end)})
+    << cmd(PUSH, {R13})  // high
+    << cmd(PUSH, {R14}); // add_var
   f.block->accept(*this);
   asm_file
-    << Command(Label(_continue))
-    << Command(POP, {R14}); // add_var
-
-  if (f.direct) {
-    asm_file << Command(INC, {EffectiveAddress(R14)});
-  } else {
-    asm_file << Command(DEC, {EffectiveAddress(R14)});
-  }
-  asm_file
-    << Command(PUSH, {R14})
-    << Command(JMP, {Label(_body)})
-    << Command(Label(_break))
-    << Command(POP, {RAX})
-    << Command(POP, {RAX})
-    << Command(Label(_end));
-
+    << cmd(Label(_continue))
+    << cmd(POP, {R14}) // add_var
+    << cmd(f.direct ? INC : DEC, {EffectiveAddress(R14)})
+    << cmd(DEC, {EffectiveAddress(R14)})
+    << cmd(PUSH, {R14})
+    << cmd(JMP, {Label(_body)})
+    << cmd(Label(_break))
+    << cmd(POP, {RAX})
+    << cmd(POP, {RAX})
+    << cmd(Label(_end));
   loop.pop();
 }
 
 void AsmGenerator::visit(BreakStmt&) {
   asm_file
     << Comment("break")
-    << Command(JMP, {Label(loop.top().second)});
+    << cmd(JMP, {Label(loop.top().second)});
 }
 
 void AsmGenerator::visit(ContinueStmt&) {
   asm_file
     << Comment("continue")
-    << Command(JMP, {Label(loop.top().first)});
-}
-
-void AsmGenerator::visit(Int&) {
-}
-
-void AsmGenerator::visit(Double&) {
-}
-
-void AsmGenerator::visit(Char&) {
-}
-
-void AsmGenerator::visit(TPointer&) {
-}
-
-void AsmGenerator::visit(Boolean&) {
-}
-
-void AsmGenerator::visit(String&) {
-}
-
-void AsmGenerator::visit(Void&) {
-}
-
-void AsmGenerator::visit(Alias&) {
-}
-
-void AsmGenerator::visit(Pointer&) {
-}
-
-void AsmGenerator::visit(StaticArray&) {
-}
-
-void AsmGenerator::visit(OpenArray&) {
-}
-
-void AsmGenerator::visit(Record&) {
-}
-
-void AsmGenerator::visit(FunctionSignature&) {
-}
-
-void AsmGenerator::visit(ForwardType&) {
-}
-
-void AsmGenerator::visit(ForwardFunction&) {
-}
-
-void AsmGenerator::visit(Function&) {
+    << cmd(JMP, {Label(loop.top().first)});
 }
 
 void AsmGlobalDecl::visit(GlobalVar& v) {
-  a << Command(bss);
   v.label = getLabelName(v.name);
-  a << Label(v.label) << ": ";
+  a
+    << cmd(bss)
+    << Label(v.label) << ": ";
   v.type->accept(*this);
 }
 
@@ -913,22 +713,17 @@ void AsmGlobalDecl::visit(Record& r) { a << RESB << " " << r.size() << "\n"; }
 
 void AsmGlobalDecl::visit(std::string name, std::string value) {
   a
-    << Command(data)
+    << cmd(data)
     << Label(name) << ": " << DB << " '";
   for (auto& e : value) {
-    if (e == 10) {
-      a << "',10,'";
-    } else if (e == 13) {
-      a << "',13,'";
-    } else {
-      a << e;
-    }
+    a << (e == 10) ? "',10,'" :
+         (e == 13) ? "',13,'" : std::string(&e);
   }
   a << "',0\n";
 }
 
 void AsmGlobalDecl::visit(std::string name, int value) {
   a
-    << Command(data)
+    << cmd(data)
     << Label(name) << ": " << DB << " " << value << ",0\n";
 }

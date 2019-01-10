@@ -118,7 +118,7 @@ class EffectiveAddress {
  public:
   EffectiveAddress(Register);
   EffectiveAddress(Label);
-  EffectiveAddress(Register, int offset);
+  EffectiveAddress(Register, uint64_t offset);
   EffectiveAddress(Register, Register, uint64_t);
   friend std::ostream& operator <<(std::ostream &os, const EffectiveAddress&);
 
@@ -178,3 +178,4 @@ class Comment {
  private:
   std::string s;
 };
+using cmd = Command;
