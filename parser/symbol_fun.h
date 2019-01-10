@@ -5,28 +5,11 @@
 #include "symbol_type.h"
 #include "table_symbol.h"
 
-class ForwardFunction : public SymFun {
- public:
-  using SymFun::SymFun;
-  ForwardFunction(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
-    : SymFun(t, std::move(f)) {}
-
-  void accept(Visitor& v) override;
-  bool isEmbedded() const override { return false; }
-  void setFunction(const std::shared_ptr<SymFun>& f)  { function = f; }
-  bool isForward() const override { return true; }
-
-  std::string get_label() override { return function->get_label(); }
-  void set_label(const std::string& s) override { function->set_label(s); }
-
-  std::shared_ptr<SymFun> function;
-};
-
 class Function : public SymFun {
  public:
   using SymFun::SymFun;
   Function(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f,
-          ptr_Stmt p, Tables l)
+           ptr_Stmt p, Tables l)
     : SymFun(t, std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
 
   ~Function() override;
@@ -35,6 +18,21 @@ class Function : public SymFun {
   ptr_Stmt body;
   void accept(Visitor& v) override;
   bool isEmbedded() const override { return false; }
+};
+
+class ForwardFunction : public Function {
+ public:
+  ForwardFunction(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
+    : Function(t, std::move(f)) {}
+
+  void accept(Visitor& v) override;
+  bool isEmbedded() const override { return false; }
+  bool isForward() const override { return true; }
+
+  std::string get_label() override { return function->get_label(); }
+  void set_label(const std::string& s) override { function->set_label(s); }
+
+  std::shared_ptr<SymFun> function;
 };
 
 class MainFunction : public SymFun {
