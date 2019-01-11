@@ -309,7 +309,7 @@ void TypeChecker::visit(Variable& v) {
   v.type = stackTable.findVar(v.getName()->getValueString())->type;
 }
 
-bool TypeChecker::implicitCast(BinaryOperation& b, bool isAssigment) {
+bool TypeChecker::setCast(BinaryOperation& b, bool isAssigment) {
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
 
@@ -333,51 +333,55 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
   if (notValidType(b.getLeft()->type) || notValidType(b.getRight()->type)) {
     return false;
   }
-  implicitCast(b, isAssigment);
-
+  setCast(b, isAssigment);
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
-  if (b.getOpr()->getTokenType() == tok::TokenType::Plus ||
-      b.getOpr()->getTokenType() == tok::TokenType::AssignmentWithPlus) {
-    if (leftType->isPointer() && rightType->isPointer()) {
-      return false;
-    }
 
-    if (leftType->equals(rightType.get())) {
-      b.type = leftType;
-      return true;
-    }
-
-    if (leftType->isPointer() && rightType->isInt()) {
-      b.type = leftType;
-      return true;
-    } else if (leftType->isInt() && rightType->isPointer()) {
-      b.type = rightType;
-      return true;
-    }
-
-  } else if (b.getOpr()->getTokenType() == tok::TokenType::Minus ||
-             b.getOpr()->getTokenType() == tok::TokenType::AssignmentWithMinus) {
-    if (leftType->isPointer() && rightType->isPointer()) {
-      b.type = std::make_shared<Int>();
-      return true;
-    }
-
-    if (leftType->equals(rightType.get())) {
-      b.type = leftType;
-      return true;
-    }
-
-    if (leftType->isPointer() && rightType->isInt()) {
-      b.type = leftType;
-      return true;
-    }
+  if ((b.getOpr()->is(tok::TokenType::Plus) ||
+       b.getOpr()->is(tok::TokenType::AssignmentWithPlus)) &&
+      leftType->isPointer() && rightType->isPointer()) {
+    return false;
+  } else if ((b.getOpr()->is(tok::TokenType::Minus) ||
+              b.getOpr()->is(tok::TokenType::AssignmentWithMinus)) &&
+             leftType->isPointer() && rightType->isPointer()) {
+    b.type = std::make_shared<Int>();
+    return true;
   }
+
+  if (leftType->equals(rightType.get())) {
+    b.type = leftType;
+    return true;
+  }
+
+  auto m = [](ptr_Expr& r, uint64_t s) -> ptr_Expr {
+    auto c = std::make_unique<BinaryOperation>(
+      std::make_unique<tok::TokenBase>(-1, -1, tok::TokenType::Asterisk, tok::toString(tok::TokenType::Asterisk)),
+      std::move(r),
+      std::make_unique<Literal>(std::make_unique<tok::NumberConstant<uint64_t>>(
+        -1, -1,
+        tok::TokenType::Int, s, ""),
+                                std::make_shared<Int>())
+    );
+    c->type = std::make_unique<Int>();
+    return c;
+  };
+
+  if (leftType->isTypePointer() && rightType->isInt()) {
+    // маштабирование указателя
+    b.type = leftType;
+    b.right = m(b.right, leftType->getPointerBase()->size());
+    return true;
+  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr()->is(tok::TokenType::Plus)) {
+    b.type = rightType;
+    b.left = m(b.left, rightType->getPointerBase()->size());
+    return true;
+  }
+
   return false;
 }
 
 bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
-  implicitCast(b, isAssigment);
+  setCast(b, isAssigment);
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
 
@@ -445,7 +449,7 @@ void TypeChecker::visit(BinaryOperation& b) {
     case tok::TokenType::Equals:
     case tok::TokenType::NotEquals: {
       if (leftType->isPointer() && rightType->isPointer()) {
-        isPass = implicitCast(b, false) || leftType->equals(rightType.get());
+        isPass = setCast(b, false) || leftType->equals(rightType.get());
         b.type = std::make_shared<Boolean>();
         break;
       }
@@ -456,7 +460,7 @@ void TypeChecker::visit(BinaryOperation& b) {
     case tok::TokenType::GreaterOrEquals: {
       isPass = ((leftType->isInt() || leftType->isDouble() || leftType->isChar()) &&
                 leftType->equals(rightType.get())) ||
-               implicitCast(b, false);
+               setCast(b, false);
       b.type = std::make_shared<Boolean>();
       break;
     }

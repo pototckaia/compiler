@@ -31,6 +31,7 @@ class Variable : public Expression {
 class Literal : public Expression {
  public:
   Literal(std::unique_ptr<tok::TokenBase>);
+  Literal(std::unique_ptr<tok::TokenBase> v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
 
   const auto& getValue() const { return value; }
   void accept(Visitor&) override;
@@ -78,8 +79,6 @@ class ArrayAccess : public Expression {
   const auto& getListIndex() const { return listIndex; };
 
   void accept(Visitor&) override;
-
- private:
   ptr_Expr nameArray;
   ListExpr listIndex;
 };

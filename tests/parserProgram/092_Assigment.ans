@@ -71,9 +71,15 @@ Block
 						Pointer
 						Decl point: 2,9	
 							integer
-				1
-				Type expression
-					integer
+				*
+					Type expression
+						integer
+					8
+					Type expression
+						integer
+					1
+					Type expression
+						integer
 				b
 				Type expression
 					Type alias: pint

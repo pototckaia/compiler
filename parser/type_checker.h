@@ -130,7 +130,7 @@ class TypeChecker : public Visitor {
   bool wasFunctionCall = false;
 
   bool isImplicitType(ptr_Type&, ptr_Type&);
-  bool implicitCast(BinaryOperation& b, bool isAssigment);
+  bool setCast(BinaryOperation& b, bool isAssigment);
   bool checkTypePlusMinus(BinaryOperation& b, bool isAssigment = false);
   bool checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment = false);
 };

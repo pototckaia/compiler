@@ -13,6 +13,10 @@ begin
   pp := p1;
   L := pp - P2;
   pp := p1 + 1;
-  pp := pp + 1;
+  pp := PL(pp) + 1;
 
+  p1 += 1;
+  p2 -= 1;
+  PL(pp) += 1;
+  PL(pp) -= 1;
 end.

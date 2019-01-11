@@ -279,9 +279,15 @@ Block
 						Pointer
 						Decl point: 11,8	
 							ta
-				12
-				Type expression
-					integer
+				*
+					Type expression
+						integer
+					800
+					Type expression
+						integer
+					12
+					Type expression
+						integer
 				tpta
 				Type expression
 					Type alias: pta
@@ -323,9 +329,15 @@ Block
 							Pointer
 							Decl point: 11,8	
 								ta
-					12
-					Type expression
-						integer
+					*
+						Type expression
+							integer
+						800
+						Type expression
+							integer
+						12
+						Type expression
+							integer
 					tpta
 					Type expression
 						Type alias: pta

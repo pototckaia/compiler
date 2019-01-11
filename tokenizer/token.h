@@ -33,6 +33,7 @@ class TokenBase {
   virtual uint64_t getInt() const { throw std::logic_error("Token type not Int"); }
   virtual long double getDouble() const { throw std::logic_error("Token type not Double"); }
   virtual std::string getValueString() const { return strValue; }
+  bool is(tok::TokenType t) { return tokenType == t; }
 
  protected:
   std::string beginOfString() const;

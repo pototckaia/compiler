@@ -124,9 +124,15 @@ Block
 				Pointer
 				Decl point: 2,14	
 					integer
-			4
-			Type expression
-				integer
+			*
+				Type expression
+					integer
+				8
+				Type expression
+					integer
+				4
+				Type expression
+					integer
 			p1
 			Type expression
 				Pointer
@@ -144,9 +150,15 @@ Block
 				Pointer
 				Decl point: 2,14	
 					integer
-			4
-			Type expression
-				integer
+			*
+				Type expression
+					integer
+				8
+				Type expression
+					integer
+				4
+				Type expression
+					integer
 			p2
 			Type expression
 				Pointer
@@ -169,12 +181,18 @@ Block
 				Pointer
 				Decl point: 2,14	
 					integer
-			-
+			*
 				Type expression
 					integer
-				4
+				8
 				Type expression
 					integer
+				-
+					Type expression
+						integer
+					4
+					Type expression
+						integer
 	Assigment
 		:=
 		pp
@@ -217,9 +235,15 @@ Block
 					Pointer
 					Decl point: 2,14	
 						integer
-				1
-				Type expression
-					integer
+				*
+					Type expression
+						integer
+					8
+					Type expression
+						integer
+					1
+					Type expression
+						integer
 				p1
 				Type expression
 					Pointer
@@ -230,12 +254,102 @@ Block
 		pp
 		Type expression
 			pointer
-		+
+		Cast
+		pointer
+			+
+				Type expression
+					Type alias: pl
+					Decl point: 1,6	
+						Pointer
+						Decl point: 1,11	
+							integer
+				*
+					Type expression
+						integer
+					8
+					Type expression
+						integer
+					1
+					Type expression
+						integer
+				Cast
+				Type alias: pl
+				Decl point: 1,6	
+					Pointer
+					Decl point: 1,11	
+						integer
+					pp
+					Type expression
+						pointer
+	Assigment
+		+=
+		p1
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		*
 			Type expression
-				pointer
+				integer
+			8
+			Type expression
+				integer
 			1
 			Type expression
+				integer
+	Assigment
+		-=
+		p2
+		Type expression
+			Pointer
+			Decl point: 2,14	
+				integer
+		*
+			Type expression
+				integer
+			8
+			Type expression
+				integer
+			1
+			Type expression
+				integer
+	Assigment
+		+=
+		Cast
+		Type alias: pl
+		Decl point: 1,6	
+			Pointer
+			Decl point: 1,11	
 				integer
 			pp
 			Type expression
 				pointer
+		*
+			Type expression
+				integer
+			8
+			Type expression
+				integer
+			1
+			Type expression
+				integer
+	Assigment
+		-=
+		Cast
+		Type alias: pl
+		Decl point: 1,6	
+			Pointer
+			Decl point: 1,11	
+				integer
+			pp
+			Type expression
+				pointer
+		*
+			Type expression
+				integer
+			8
+			Type expression
+				integer
+			1
+			Type expression
+				integer
