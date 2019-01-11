@@ -5,12 +5,15 @@ import re
 import sys
 from itertools import count
 import argparse
+import difflib
+import filecmp
 
 testsPath = os.path.dirname(os.path.abspath(__file__))
 
 cmakeDir = 'cmake-build-debug'
 programName = 'Compile'
 compilePath = testsPath + os.sep + '..' + os.sep + cmakeDir + os.sep + programName
+runNasmPath = testsPath + os.sep + '..' + os.sep + 'run-gen.sh'
 
 lexPath = testsPath + os.sep + 'lexer'
 parserExpressionPath = testsPath + os.sep + 'parserExpression'
@@ -21,25 +24,18 @@ options = {'l' : lexPath, 'e' : parserExpressionPath, 'p' : parserProgramPath}
 
 def compareFiles(pos, receive, expect):
 	receiveBaseName = os.path.basename(receive)
-
-	with open(receive, 'r') as rec, open(expect, 'r') as exp:
-		allWordsReceive	 = (line for line in rec)
-		allWordsExpect = (line for line in exp)
-		we = ' '
-		i = 0
-		while(we != ''):
-			we = next(allWordsExpect, '')
-			wr = next(allWordsReceive, '')
-			if we != wr:
-				print('____________________________________')
-				print('{0} Test "{1}" not pass in line {2}'.format(pos + 1, receiveBaseName, i + 1))
-				print("Expect:\n{0}\nBut find:\n{1}".format(we, wr))
-				return False
-			i += 1
-
 	print('____________________________________')
-	print('{0} Test "{1}" pass'.format(pos + 1, receiveBaseName))
-	return True
+	if (filecmp.cmp(receive, expect)):
+		print('{0} Test "{1}" pass'.format(pos + 1, receiveBaseName))
+		return True
+
+	print('{0} Test "{1}" not pass'.format(pos + 1, receiveBaseName))
+	with open(receive) as f1, open(expect) as f2:
+		for line in difflib.context_diff(f1.readlines(), f2.readlines(), 
+				fromfile=receive, 
+				tofile=expect, lineterm=''):
+			print(line)
+	return False
 
 def runTests(dirPath, options):
 	print(os.path.basename(dirPath), '...')
