@@ -18,8 +18,12 @@ runNasmPath = testsPath + os.sep + '..' + os.sep + 'run-gen.sh'
 lexPath = testsPath + os.sep + 'lexer'
 parserExpressionPath = testsPath + os.sep + 'parserExpression'
 parserProgramPath = testsPath + os.sep + 'parserProgram'
+asmPath = testsPath + os.sep + 'asm'
 
-options = {'l' : lexPath, 'e' : parserExpressionPath, 'p' : parserProgramPath}
+options = {'l' : lexPath, 
+		   'e' : parserExpressionPath, 
+		   'p' : parserProgramPath,
+		   'a' : asmPath}
 
 
 def compareFiles(pos, receive, expect):
@@ -42,12 +46,16 @@ def runTests(dirPath, options):
 
 	inputFiles = glob.glob(dirPath + os.sep + '*.in')
 	inputFiles.sort()
-
+	print(inputFiles)
 	for pos, finput in zip(count(), inputFiles):
-		foutput = os.path.splitext(finput)[0] + '.out'
-		fanswer = os.path.splitext(finput)[0] + '.ans'
-		
-		subprocess.run([compilePath, '-i', finput, '-o', foutput, options])
+		finput_a = os.path.splitext(finput)[0]
+		foutput = finput_a + '.out'
+		fanswer = finput_a + '.ans'
+		if options == '-a':
+			subprocess.run([compilePath, '-i', finput, options])
+			subprocess.run(['sh', runNasmPath, finput_a])
+		else: 
+			subprocess.run([compilePath, '-i', finput, '-o', foutput, options])
 
 		if not compareFiles(pos, foutput, fanswer):
 			sys.exit(0)
@@ -60,6 +68,7 @@ if __name__ == '__main__':
 	argsParser.add_argument('-l', '--lexer', help='Start lexer tests', action='store_true')
 	argsParser.add_argument('-e', '--expression', help='Start parser expression tests', action='store_true')
 	argsParser.add_argument('-p', '--program', help='Start parser pascal program tests', action='store_true')
+	argsParser.add_argument('-a', '--asm', help='Start run asm tests', action='store_true')
 
 	args = argsParser.parse_args()
 
@@ -71,3 +80,6 @@ if __name__ == '__main__':
 
 	if args.program:
 		runTests(options['p'], '-p')
+
+	if args.asm:
+		runTests(options['a'], '-a')

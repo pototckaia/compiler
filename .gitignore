@@ -8,7 +8,7 @@ build/
 *.out*
 .idea
 venv/
-
+*.asm*
 # applied recursively
 
 # You can negate a pattern by starting

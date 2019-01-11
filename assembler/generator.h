@@ -34,6 +34,10 @@ class AsmGenerator : public Visitor {
   void visit(BreakStmt&) override;
   void visit(ContinueStmt&) override;
 
+  void visit(StaticArray&) override;
+  void visit(OpenArray&) override;
+  void visit(Pointer&) override;
+
   void visit(LocalVar&) override;
   void visit(GlobalVar&) override;
   void visit(ParamVar&) override;
@@ -55,8 +59,8 @@ class AsmGenerator : public Visitor {
 
  public:
   std::ofstream asm_file;
-  StackTable stackTable;
 
+  // for lvalue
   bool need_lvalue;
   void visit_lvalue(Expression&);
 
@@ -96,18 +100,28 @@ class AsmGenerator : public Visitor {
     {tok::TokenType::LessOrEquals, SETBE},
   };
 
+  // for break
   std::stack<std::pair<std::string, std::string>> loop;
 
+  // for variable  - local, global, parameter, function, constant
   Operand buf_var_name;
+  StackTable stackTable;
+
+  // for write -> type param
   ptr_Type syscall_param_type;
   bool last_param;
 
+  // generator string constant
   std::stringstream buf_string;
   void clear_buf_string();
   std::string add_string(const std::string& value);
 
+  // for array access
+  ListExpr bounds;
+
+  // global main
   const std::string label_main = "main";
-  // for syscall
+  // for write and read
   const std::string label_fmt_int = "fmt_int";
   const std::string label_fmt_double = "fmt_double";
   const std::string label_fmt_char = "fmt_char";

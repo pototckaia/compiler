@@ -116,7 +116,8 @@ void AsmGenerator::visit(Literal& l) {
   } else if (l.type->isDouble()) {
     asm_file
       << Comment("double literal")
-      << cmd(PUSH, {l.getValue()->getDouble(), double64});
+      << cmd(MOV, {RAX}, {l.getValue()->getDouble(), double64})
+      << cmd(PUSH, {RAX});
   } else if (l.type->isChar()) {
     asm_file
       << Comment("char literal")
@@ -139,16 +140,8 @@ void AsmGenerator::visit(Literal& l) {
 }
 
 void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
-  if (b.left->type->isPointer()) {
-    visit_lvalue(*b.left);
-  } else {
-    b.left->accept(*this);
-  }
-  if (b.right->type->isPointer()) {
-    visit_lvalue(*b.right);
-  } else {
-    b.right->accept(*this);
-  }
+  b.left->accept(*this);
+  b.right->accept(*this);
   auto t = b.getOpr()->getTokenType();
   asm_file
     << Comment("arithmetic operation")
@@ -205,13 +198,8 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit_cmp(BinaryOperation& b) {
-  if (b.left->type->isPointer()) {
-    visit_lvalue(*b.left);
-    visit_lvalue(*b.right);
-  } else {
-    b.left->accept(*this);
-    b.right->accept(*this);
-  }
+  b.left->accept(*this);
+  b.right->accept(*this);
   auto t = b.getOpr()->getTokenType();
   asm_file << Comment("cmp operation");
   if (b.right->type->isDouble()) {
@@ -419,7 +407,24 @@ void AsmGenerator::visit(UnaryOperation& u) {
   }
 }
 
-void AsmGenerator::visit(ArrayAccess&) {
+void AsmGenerator::visit(Pointer& p) {
+//  if (bounds.size() == 1) {
+//    bounds.back()->accept(*this);
+//    bounds.pop_back();
+//
+//  }
+}
+void AsmGenerator::visit(StaticArray&) {}
+void AsmGenerator::visit(OpenArray&) {}
+
+void AsmGenerator::visit(ArrayAccess& a) {
+  Instruction c = need_lvalue ? LEA : MOV;
+  visit_lvalue(*a.nameArray);
+  bounds = std::move(a.listIndex);
+  a.nameArray->type->accept(*this);
+  asm_file
+    << cmd(POP, {RCX})
+    << cmd(c, {EffectiveAddress(RSP)}, {EffectiveAddress(RSP, RCX, 1)}); //
 }
 
 void AsmGenerator::visit(RecordAccess& r) {
@@ -435,7 +440,7 @@ void AsmGenerator::visit(RecordAccess& r) {
 }
 
 void AsmGenerator::visit(Cast& c) {
-  if (need_lvalue || c.expr->type->isPointer()) {
+  if (need_lvalue) {
     visit_lvalue(*c.expr);
   } else {
     c.expr->accept(*this);
@@ -459,11 +464,7 @@ void AsmGenerator::visit(Cast& c) {
 }
 
 void AsmGenerator::visit(AssignmentStmt& a) {
-  if (a.right->type->isPointer() || a.right->type->isProcedureType()) {
-    visit_lvalue(*a.right);
-  } else {
-    a.right->accept(*this);
-  }
+  a.right->accept(*this);
   visit_lvalue(*a.left);
   auto t = a.getOpr()->getTokenType();
   switch (t) {
@@ -539,7 +540,7 @@ void AsmGenerator::visit(Write& w) {
       << cmd(MOV, {RDI}, {RAX})
       << cmd(XOR, {RAX}, {RAX})
       << cmd(CALL, {Printf});
-  } else if (syscall_param_type->isInt()) {
+  } else if (syscall_param_type->isInt() || syscall_param_type->isPointer()) {
     asm_file
       << Comment("printf int")
       << cmd(MOV, {RDI}, {Label(label_fmt_int)})
@@ -650,7 +651,8 @@ void AsmGenerator::visit(ForStmt& f) {
     << cmd(Label(_body))
     << cmd(POP, {R14}) // add_var
     << cmd(POP, {R13}) // high
-    << cmd(CMP, {R13}, {EffectiveAddress(R14)})
+    << cmd(MOV, {RAX}, {EffectiveAddress(R14)})
+    << cmd(CMP, {R13}, {RAX})
     // to - high < *add_var
     // downto - high > *add_var
     << cmd(f.direct ? JL : JG, {Label(_end)})
@@ -661,7 +663,6 @@ void AsmGenerator::visit(ForStmt& f) {
     << cmd(Label(_continue))
     << cmd(POP, {R14}) // add_var
     << cmd(f.direct ? INC : DEC, {EffectiveAddress(R14)})
-    << cmd(DEC, {EffectiveAddress(R14)})
     << cmd(PUSH, {R14})
     << cmd(JMP, {Label(_body)})
     << cmd(Label(_break))
@@ -716,8 +717,12 @@ void AsmGlobalDecl::visit(std::string name, std::string value) {
     << cmd(data)
     << Label(name) << ": " << DB << " '";
   for (auto& e : value) {
-    a << (e == 10) ? "',10,'" :
-         (e == 13) ? "',13,'" : std::string(&e);
+    if (e == 10)
+      a << "',10,'";
+    else if (e == 13)
+      a << "',13,'";
+    else
+      a << e;
   }
   a << "',0\n";
 }

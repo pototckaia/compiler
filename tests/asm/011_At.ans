@@ -1,34 +1,16 @@
-var
-	a, b: integer;
-	c: double;
-	pa : ^integer;
-	pb : ^integer;
-begin
-    a := 10;
-    b := 20;
-    c := 5.5;
-	writeln((@a)^);
-	(@a)^ := 15;
-	writeln((@a)^);
-	writeln(@a - @a);
-	writeln((@c)^);
-
-	pa := @a;
-	writeln(pa^);
-	writeln(Integer(pa = @a));
-
-	pb := @b;
-	writeln(pb^);
-
-	writeln(Integer(pb = @a));
-	writeln(Integer(pb = pa));
-	writeln(Integer(pb = @b));
-	writeln(Integer(pb = pb));
-
-	writeln(Integer(pb <> @a));
-	writeln(Integer(pb <> pa));
-	writeln(Integer(pb <> @b));
-	writeln(Integer(pb <> pb));
-
-	writeln(pb - pa);
-end.
+10
+15
+0
+5.5000000000000000E+00
+15
+1
+20
+0
+0
+1
+1
+1
+1
+0
+0
+8

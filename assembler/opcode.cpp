@@ -182,9 +182,9 @@ Operand::Operand(std::string u, Pref p) { s << p << " \"" << u << "\""; }
 Operand::Operand(long double u, Pref p) {
   s << std::showpoint;
   if (p == Pref::double64)
-    s << p << "("  << u << ")";
+    s << p << "("  << std::to_string(u) << ")";
   else
-    s << p << " " << u;
+    s << p << " " << std::to_string(u);
 }
 Operand::Operand(Label l) { s << l; }
 Operand::Operand(EffectiveAddress e, Pref p) { s << p << " " << e; }

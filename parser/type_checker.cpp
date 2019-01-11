@@ -176,7 +176,7 @@ void FunctionCallChecker::visit(Write&) {
   f.type = std::make_shared<Void>();
   for (auto& e : f.getParam()) {
     auto& type = e->type;
-    if (type->isInt() || type->isDouble() || type->isChar() || type->isString()) {
+    if (type->isInt() || type->isDouble() || type->isChar() || type->isString() || type->isPointer()) {
       continue;
     }
     throw SemanticException(e->line, e->column, "Expect writeable type but find " + type->name);
