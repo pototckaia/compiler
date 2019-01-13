@@ -1,18 +1,25 @@
-var
-	r: record
-		a: array [0..3] of integer;
-	end;
-	d: integer;
-	
+
+procedure f(); forward;
+
+function g(a : integer) : double; forward;
+
+procedure h;
 begin
-	d := (r.a)[0];
-end.
-var
-	r: record
-		a: array [0..3] of integer;
-	end;
-	d: integer;
-	
+	g(124);
+	f()
+end;
+
+procedure f();
 begin
-	d := (r.a)[0];
+	f();
+end;
+
+function g(b : integer) : double;
+begin
+	b := 12;
+	f();
+end;
+
+begin
+	
 end.

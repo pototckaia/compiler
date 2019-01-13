@@ -272,46 +272,6 @@ Block
 		Type expression
 			integer
 		Array Access
-			+
-				Type expression
-					Type alias: pta
-					Decl point: 11,2	
-						Pointer
-						Decl point: 11,8	
-							ta
-				*
-					Type expression
-						integer
-					800
-					Type expression
-						integer
-					12
-					Type expression
-						integer
-				tpta
-				Type expression
-					Type alias: pta
-					Decl point: 11,2	
-						Pointer
-						Decl point: 11,8	
-							ta
-			Type expression
-				integer
-			0
-			Type expression
-				integer
-			0
-			Type expression
-				integer
-			0
-			Type expression
-				integer
-	Assigment
-		:=
-		i
-		Type expression
-			integer
-		Array Access
 			^
 				Type expression
 					Type alias: ta

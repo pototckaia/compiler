@@ -81,9 +81,12 @@ void ArrayAccessChecker::visit(StaticArray& s) {
     return;
   } else if (boundsType > bounds) {
     auto copy = std::make_shared<StaticArray>(s);
-    auto iterEnd = copy->bounds.begin();
-    std::advance(iterEnd, boundsType - bounds);
-    copy->bounds.erase(copy->bounds.begin(), iterEnd);
+    for (int i = 0; i < bounds; ++i) {
+      copy->bounds.pop_front();
+    }
+//    auto iterEnd = copy->bounds.begin();
+//    std::advance(iterEnd, boundsType - bounds);
+//    copy->bounds.erase(copy->bounds.begin(), iterEnd);
     arrayAccess.type = std::move(copy);
     return;
   } else if (boundsType < bounds) {
@@ -540,6 +543,9 @@ void TypeChecker::visit(ArrayAccess& a) {
   }
   wasFunctionCall = false;
 
+  if (!LvalueChecker::is(a.nameArray)) {
+    throw SemanticException(a.nameArray->line, a.nameArray->column, "Expect lvalue in []");
+  }
   a.getName()->accept(*this);
   if (a.getName()->type == nullptr) {
     throw SemanticException(a.getName()->line, a.getName()->column, "Cannot [] on function");
@@ -564,6 +570,9 @@ void TypeChecker::visit(RecordAccess& r) {
   }
   wasFunctionCall = false;
 
+  if (!LvalueChecker::is(r.record)) {
+    throw SemanticException(r.record->line, r.record->column, "Expect lvalue in .");
+  }
   r.getRecord()->accept(*this);
   if (r.getRecord()->type == nullptr) {
     throw SemanticException(r.getRecord()->line, r.getRecord()->column, "Cannot . on function");
@@ -653,7 +662,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
     a.right = std::make_unique<Cast>(typeLeft, std::move(a.right));
     return;
   }
-  if (!typeRight->equalsForCheckArgument(typeLeft.get())) {
+  if (!typeRight->equals(typeLeft.get())) {
     throw SemanticException(a.line, a.column, mes);
   }
 }
