@@ -584,6 +584,9 @@ void TypeChecker::visit(FunctionCall& f) {
   if (isMustFunctionCall) {
     isMustFunctionCall = false;
   }
+  if (!LvalueChecker::is(f.nameFunction)) {
+    throw SemanticException(f.nameFunction->line, f.nameFunction->column, "Expect lvalue in ()");
+  }
   wasFunctionCall = true;
   f.getName()->accept(*this);
   wasFunctionCall = false;
