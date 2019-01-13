@@ -226,12 +226,18 @@ bool OpenArray::equals(SymType* s) const {
 bool OpenArray::equalsForCheckArgument(SymType* s) const {
   if (dynamic_cast<StaticArray*>(s)) {
     auto p = dynamic_cast<StaticArray*>(s);
-    return typeElem->equalsForCheckArgument(p->typeElem.get());
+    auto copy = std::make_shared<StaticArray>(*p);
+    copy->bounds.pop_front();
+    if (copy->bounds.empty()) {
+      return typeElem->equalsForCheckArgument(copy->typeElem.get());
+    } else {
+      return typeElem->equalsForCheckArgument(copy.get());
+    }
   } if (dynamic_cast<Alias*>(s)) {
     auto p = dynamic_cast<Alias*>(s);
     return equalsForCheckArgument(p->type.get());
   }
-  return equals(s);
+  return false;
 }
 
 bool Record::equals(SymType* s) const {
