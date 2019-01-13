@@ -78,6 +78,8 @@ const std::map<Instruction, std::string> mapInstruction = {
   {RESQ, "resq"},
   {TIMES, "times"},
 
+  {REP, "rep"},
+  {MOVSB, "movsb"},
   {MOV, "mov"},
   {MOVQ, "movq"},
   {NOT, "not"},
@@ -200,6 +202,7 @@ Command::Command(Label l, bool isGlobal) { s << "global " << l << "\n"; }
 Command::Command(Instruction i) { s << "\t" << i << "\n";}
 Command::Command(Instruction i, Operand o) { s << "\t" << i << " " << o << "\n"; }
 Command::Command(Instruction i, Operand o1, Operand o2) { s << "\t" << i << " " << o1 << ", " << o2 << "\n"; }
+Command::Command(Instruction i, Instruction i1) { s << "\t" << i << " " << i1 << "\n"; }
 
 std::ostream& operator <<(std::ostream& os, const Command& c) {
   os << c.s.str();

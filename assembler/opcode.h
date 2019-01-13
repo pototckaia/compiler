@@ -39,6 +39,8 @@ enum Instruction {
   RESQ,
   TIMES,
 
+  REP,
+  MOVSB,
   MOV,
   MOVQ,
   NOT,
@@ -163,6 +165,7 @@ class Command {
   Command(Label);
   Command(Label, bool isGlobal);
   Command(Instruction);
+  Command(Instruction, Instruction);
   Command(Instruction, Operand);
   Command(Instruction, Operand, Operand);
   friend std::ostream& operator <<(std::ostream& os, const Command&);
