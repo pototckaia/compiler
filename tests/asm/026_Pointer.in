@@ -1,0 +1,22 @@
+type PL = ^Integer;
+var  p1,p2 : ^Integer;
+a : array [0..4] of integer;
+     
+begin
+  a[0] := -12;
+  a[1] := 1233;
+  a[2] := -399;
+  a[3] := 90;
+  a[4] := 9;
+  p1 := @a[0];
+  writeln((p1 + 1)^, ' ', (p1 + 2)^, ' ', (p1 + 3)^);
+  
+  p2 := @(a[1]);
+  writeln(P2 - P1);
+  writeln((P2 - 1)^);
+
+  p1 += 1;
+  writeln(p1^);
+  p2 -= 1;
+  writeln(p2^);
+end.

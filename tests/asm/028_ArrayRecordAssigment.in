@@ -1,0 +1,18 @@
+type
+  point = record x, y : integer; end;
+  A = array [0..10] of point;
+var
+  a1, a2 : A;
+  i : integer;
+begin
+  for i := 0 to 10 do begin
+    a1[i].x := i * i;
+    a1[i].y := 3 * i;
+  end;
+  a2 := a1;
+  for i := 0 to 10 do begin
+    a1[i].x := i;
+    a1[i].y := -i;
+    writeln(a1[i].x, ' ', a1[i].y, ' ', a2[i].x, ' ', a2[i].y);
+  end;
+end.

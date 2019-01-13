@@ -23,10 +23,34 @@ void AsmGenerator::visit_lvalue(Expression& n) {
   need_lvalue = false;
 }
 
+void AsmGenerator::pushRvalue(ptr_Type& t) {
+  if (t->isTrivial()) {
+    asm_file
+      << Comment("rvalue trivial")
+      << cmd(POP, {RAX}) // address
+      << cmd(PUSH, {adr(RAX)}); // value
+  } else {
+    auto _start = getLabel();
+    auto _end = getLabel();
+    uint64_t len = t->size() / 8;
+    asm_file
+      << Comment("rvalue block")
+      << cmd(POP, {RAX}) // address
+      << cmd(MOV, {RCX}, {len})
+      << cmd(Label(_start))
+      << cmd(PUSH, {adr(RAX)})
+      << cmd(DEC, {RCX})
+      << cmd(JZ, {Label(_end)})
+      << cmd(LEA, {RAX}, {adr(RAX, (uint64_t) 8), none})
+      << cmd(JMP, {Label(_start)})
+      << cmd(Label(_end));
+  }
+}
+
 void AsmGenerator::visit(MainFunction& m) {
   asm_file
     << cmd(Printf) // extern
-    << cmd(Scanf) << "\n"
+    << cmd(Scanf)
     << cmd(label_main, true); // global main
 
   AsmGlobalDecl a(asm_file);
@@ -72,21 +96,21 @@ void AsmGenerator::visit(FunctionCallStmt& f) {
 }
 
 void AsmGenerator::visit(LocalVar& l) {
-  buf_var_name = Operand(EffectiveAddress(RBP, l.offset, true)); // [rbp - offset]
+  buf_var_name = Operand(adr(RBP, l.offset, true), none); // [rbp - offset]
 }
 
 void AsmGenerator::visit(GlobalVar& g) {
-  buf_var_name = Operand(EffectiveAddress(Label(g.label)), none); // [label]
+  buf_var_name = Operand(adr(Label(g.label)), none); // [label]
 }
 
 void AsmGenerator::visit(ParamVar& p) {
-  buf_var_name = Operand(EffectiveAddress(RBP, (int) p.offset)); // [rbp + offset]
+  buf_var_name = Operand(adr(RBP, p.offset), none); // [rbp + offset]
 }
 
 void AsmGenerator::visit(Const&) {}
 
 void AsmGenerator::visit(Function& f) {
-  buf_var_name = Operand(Label(f.get_label())); // label
+  buf_var_name = Operand(adr(Label(f.get_label())), none); // label
 }
 
 void AsmGenerator::visit(Variable& v) {
@@ -95,16 +119,12 @@ void AsmGenerator::visit(Variable& v) {
   } else {
     stackTable.findVar(v.getName()->getValueString())->accept(*this);
   }
-  if (need_lvalue) {
-    asm_file
-      << Comment("lvalue variable")
-      << cmd(LEA, {RAX}, buf_var_name)
-      << cmd(PUSH, {RAX});
-  } else {
-    asm_file
-      << Comment("rvalue variable")
-      << cmd(MOV, {RAX}, buf_var_name)
-      << cmd(PUSH, {RAX});
+  asm_file
+    << Comment("lvalue variable")
+    << cmd(LEA, {RAX}, buf_var_name)
+    << cmd(PUSH, {RAX});
+  if (!need_lvalue) {
+    pushRvalue(v.type);
   }
 }
 
@@ -392,12 +412,13 @@ void AsmGenerator::visit(UnaryOperation& u) {
     case tok::TokenType::Caret: {
       asm_file << Comment("^");
       if (need_lvalue) {
-        visit_lvalue(*u.expr);
+        need_lvalue = false;
+        u.expr->accept(*this);
       } else {
         u.expr->accept(*this);
         asm_file
           << cmd(POP, {RAX})
-          << cmd(PUSH, {EffectiveAddress(RAX)});
+          << cmd(PUSH, {adr(RAX)});
       }
       return;
     }
@@ -408,35 +429,134 @@ void AsmGenerator::visit(UnaryOperation& u) {
 }
 
 void AsmGenerator::visit(Pointer& p) {
-//  if (bounds.size() == 1) {
-//    bounds.back()->accept(*this);
-//    bounds.pop_back();
-//
-//  }
+  bounds.front()->accept(*this);
+  asm_file
+    << Comment("compute pointer offset")
+    << cmd(POP, {RAX}) // index
+    << cmd(MOV, {RCX}, {p.typeBase->size()}) // sizeof 
+    << cmd(IMUL, {RAX}, {RCX}); // index*sizeof
+  if (bounds.size() == 1) {
+    asm_file
+      << Comment("save offset")
+      << cmd(PUSH, {RAX}); // new index
+    return;
+  }
+  asm_file 
+    << Comment("ppp")
+    << Comment("change base")
+    << Comment("^(ppp + 1)")
+    << Comment("")
+    << cmd(POP, {RCX}) // base
+    << cmd(MOV, {RCX}, {adr(RCX, RAX, 1), none})
+    << cmd(PUSH, {RCX}); // new base = *(base + index*sizeof)
+  bounds.pop_front();
+  p.typeBase->accept(*this);
 }
-void AsmGenerator::visit(StaticArray&) {}
-void AsmGenerator::visit(OpenArray&) {}
+
+void AsmGenerator::visit(StaticArray& s) {
+
+  auto real_size = bounds.size();
+  auto array_size = s.bounds.size();
+  auto& real_bounds = bounds;
+  auto& array_bounds = s.bounds;
+
+  std::vector<uint64_t> coeff(array_size, 1);
+  long int i_coeff = array_size - 2;
+  for (auto it = s.bounds.rbegin(); i_coeff != -1 && it != s.bounds.rend();
+       ++it, --i_coeff) {
+    uint64_t len = it->second - it->first + 1;
+    coeff.at(i_coeff) = coeff.at(i_coeff + 1) * len;
+  }
+
+  auto it = array_bounds.begin();
+  i_coeff = 0;
+  asm_file << cmd(PUSH, {(uint64_t)0});
+  for (uint64_t i = 0; i < real_size; ++i, ++i_coeff, ++it) {
+    uint64_t begin = it->first;
+    real_bounds.front()->accept(*this);
+    real_bounds.pop_front();
+
+    asm_file
+      << Comment("compute offset for " + std::to_string(i))
+      << cmd(POP, {RAX}) // index
+      << cmd(MOV, {RCX}, {begin}) // low bound
+      << cmd(SUB, {RAX}, {RCX}) // index - low bound
+      << cmd(IMUL, {RAX}, {coeff.at(i_coeff)}) // (index - low bound)*len[-1]*len[-2]*..*len[i]
+      << cmd(POP, {RCX}) // prev index
+      << cmd(ADD, {RCX}, {RAX}) // prev index + %RAX
+      << cmd(PUSH, {RCX});
+  }
+  asm_file
+    << Comment("save static array offset")
+    << cmd(POP, {RAX})
+    << cmd(IMUL, {RAX}, {s.typeElem->size()}) // index*sizeof
+    << cmd(PUSH, {RAX});
+
+  if (real_size > array_size) {
+    asm_file
+      << Comment("change base")
+      << cmd(POP, {RAX}) // index
+      << cmd(POP, {RCX}) // base
+      << cmd(ADD, {RCX}, {RAX}) // base + index
+      << cmd(PUSH, {RCX}); // new_base
+    s.typeElem->accept(*this);
+  }
+}
+
+void AsmGenerator::visit(OpenArray& o) {
+  bounds.front()->accept(*this);
+  asm_file
+    << Comment("compute open array offset")
+    << cmd(POP, {RAX}) // index
+    << cmd(MOV, {RCX}, {o.typeElem->size()})
+    << cmd(IMUL, {RAX}, {RCX}); // new index = index*sizeof
+  if (bounds.size() == 1) {
+    asm_file
+      << Comment("save open array offset")
+      << cmd(PUSH, {RAX}); // new index
+    return;
+  }
+  asm_file
+    << Comment("continue compute offset")
+    << cmd(POP, {RCX})
+    << cmd(LEA, {RCX}, {adr(RCX, RAX, 1), none})
+    << cmd(PUSH, {RCX}); // new base = base + index*sizeof
+  bounds.pop_front();
+  bounds.front()->type->accept(*this);
+}
 
 void AsmGenerator::visit(ArrayAccess& a) {
-  Instruction c = need_lvalue ? LEA : MOV;
-  visit_lvalue(*a.nameArray);
+  bool lvalue = need_lvalue;
+  if (a.nameArray->type->isPointer()) {
+    need_lvalue = false;
+    a.nameArray->accept(*this);
+  } else {
+    visit_lvalue(*a.nameArray);
+  }
   bounds = std::move(a.listIndex);
   a.nameArray->type->accept(*this);
   asm_file
-    << cmd(POP, {RCX})
-    << cmd(c, {EffectiveAddress(RSP)}, {EffectiveAddress(RSP, RCX, 1)}); //
+    << Comment("push address base[index]")
+    << cmd(POP, {RCX}) // index
+    << cmd(POP, {RAX}) // base
+    << cmd(LEA, {RAX}, {adr(RAX, RCX, 1), none})
+    << cmd(PUSH, {RAX}); // base[index]
+  if (!lvalue) { pushRvalue(a.type); }
 }
 
+void AsmGenerator::visit(Alias& a) { a.type->accept(*this); }
+
 void AsmGenerator::visit(RecordAccess& r) {
-  Instruction c = need_lvalue ? LEA : MOV;
+  bool lvalue = need_lvalue;
   visit_lvalue(*r.record);
   auto record = r.record->type->getRecord();
   auto offset = record->offset(r.field->getValueString());
   asm_file
     << Comment("record access")
     << cmd(POP, {R8}) // add_record
-    << cmd(c, {R8}, {EffectiveAddress(R8, offset), none})
+    << cmd(LEA, {R8}, {adr(R8, offset), none})
     << cmd(PUSH, {R8});
+  if (!lvalue) { pushRvalue(r.type); }
 }
 
 void AsmGenerator::visit(Cast& c) {
@@ -466,42 +586,61 @@ void AsmGenerator::visit(Cast& c) {
 void AsmGenerator::visit(AssignmentStmt& a) {
   a.right->accept(*this);
   visit_lvalue(*a.left);
-  auto t = a.getOpr()->getTokenType();
-  switch (t) {
-    case tok::TokenType::AssignmentWithPlus:
-    case tok::TokenType::AssignmentWithMinus:
-    case tok::TokenType::AssignmentWithAsterisk:
-    case tok::TokenType::AssignmentWithSlash: {
-      asm_file
-        << Comment(tok::toString(t))
-        << cmd(POP, {RAX}) // left - address
-        << cmd(POP, {R8}) // right
-        << cmd(MOV, {R9}, {EffectiveAddress(RAX)}); // *left
-      if (a.left->type->isDouble()) {
-        asm_file
-          << cmd(MOVQ, {XMM0, none}, {R9})
-          << cmd(MOVQ, {XMM1, none}, {R8})
-          << cmd(arith_d.at(t), {XMM0, none}, {XMM1, none})
-          << cmd(MOVQ, {R9}, {XMM0, none});
-      } else {
-        asm_file << cmd(arith_i.at(t), {R9}, {R8});
-      }
-      asm_file
-        << cmd(PUSH, {R9}) // // *left + right
-        << cmd(PUSH, {RAX});
-      break;
-    }
-    default: {
-      break;
-    }
-  }
   if (a.left->type->isTrivial()) {
-    asm_file
-      << Comment("assigment trivial")
+    auto t = a.getOpr()->getTokenType();
+    switch (t) {
+      case tok::TokenType::AssignmentWithPlus:
+      case tok::TokenType::AssignmentWithMinus:
+      case tok::TokenType::AssignmentWithAsterisk:
+      case tok::TokenType::AssignmentWithSlash: {
+        asm_file
+          << Comment(tok::toString(t))
+          << cmd(POP, {RAX}) // left - address
+          << cmd(POP, {R8}) // right
+          << cmd(MOV, {R9}, {adr(RAX)}); // *left
+        if (a.left->type->isDouble()) {
+          asm_file
+            << cmd(MOVQ, {XMM0, none}, {R9})
+            << cmd(MOVQ, {XMM1, none}, {R8})
+            << cmd(arith_d.at(t), {XMM0, none}, {XMM1, none})
+            << cmd(MOVQ, {R9}, {XMM0, none});
+        } else {
+          asm_file << cmd(arith_i.at(t), {R9}, {R8});
+        }
+        asm_file
+          << cmd(PUSH, {R9}) // // *left + right
+          << cmd(PUSH, {RAX});
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+      asm_file
+      << Comment("assignment trivial")
       << cmd(POP, {RAX}) // left
-      << cmd(POP, {EffectiveAddress(RAX)});
+      << cmd(POP, {adr(RAX)});
     return;
   }
+  // count 8 byte
+  uint64_t size = a.left->type->size();
+  uint64_t len = size / 8;
+  auto _start = getLabel();
+  auto _end = getLabel();
+  asm_file
+    << Comment("assignment with copy")
+    << cmd(POP, {RDI}) // adr left - назначение
+    << cmd(POP, {RSI}) // value right - источник
+    << cmd(MOV, {RCX}, {len})
+    << cmd(LEA, {RDI}, {adr(RDI, size - 8), none}) // в конец
+    << cmd(Label(_start))
+    << cmd(MOV, {adr(RDI)}, {RSI})
+    << cmd(DEC, {RCX})
+    << cmd(JZ, {Label(_end)})
+    << cmd(POP, {RSI})
+    << cmd(LEA, {RDI}, {adr(RDI, (uint64_t)8, true), none})
+    << cmd(JMP, {Label(_start)})
+    << cmd(Label(_end));
 }
 
 void AsmGenerator::visit(Read&) {}
@@ -645,13 +784,13 @@ void AsmGenerator::visit(ForStmt& f) {
     // init
     << cmd(POP, {R13}) // high
     << cmd(POP, {R14}) // add_var
-    << cmd(POP, {EffectiveAddress(R14)}) // *add_var = low
+    << cmd(POP, {adr(R14)}) // *add_var = low
     << cmd(PUSH, {R13}) // high
     << cmd(PUSH, {R14}) // add_var
     << cmd(Label(_body))
     << cmd(POP, {R14}) // add_var
     << cmd(POP, {R13}) // high
-    << cmd(MOV, {RAX}, {EffectiveAddress(R14)})
+    << cmd(MOV, {RAX}, {adr(R14)})
     << cmd(CMP, {R13}, {RAX})
     // to - high < *add_var
     // downto - high > *add_var
@@ -662,7 +801,7 @@ void AsmGenerator::visit(ForStmt& f) {
   asm_file
     << cmd(Label(_continue))
     << cmd(POP, {R14}) // add_var
-    << cmd(f.direct ? INC : DEC, {EffectiveAddress(R14)})
+    << cmd(f.direct ? INC : DEC, {adr(R14)})
     << cmd(PUSH, {R14})
     << cmd(JMP, {Label(_body)})
     << cmd(Label(_break))
@@ -683,6 +822,9 @@ void AsmGenerator::visit(ContinueStmt&) {
     << Comment("continue")
     << cmd(JMP, {Label(loop.top().first)});
 }
+
+
+// Global Decl
 
 void AsmGlobalDecl::visit(GlobalVar& v) {
   v.label = getLabelName(v.name);

@@ -1,0 +1,16 @@
+var
+   i: integer;
+   j: record i: ^integer; end;
+begin
+  i := -1234;
+  j.i := @i;
+  write(j.i^, ' ');
+  
+  i := 23343;
+  write(j.i^, ' ');
+
+  j.i^ := 5555;
+  write(j.i^, ' ');
+  
+  write(i, ' ');
+end.

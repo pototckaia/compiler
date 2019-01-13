@@ -1,0 +1,13 @@
+type
+ tpoint = record x, y: double; end;
+ tcurve = array [1..100] of tpoint;
+ tdcurve = record a, b : tcurve; end;
+var
+ curve : tcurve;
+ dcurve: tdcurve;
+begin
+curve[10].x := 10;
+writeln(curve[10].x);
+dcurve.b[20].y := 20;
+writeln(dcurve.b[20].y)
+end.

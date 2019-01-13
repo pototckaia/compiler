@@ -1,0 +1,20 @@
+type
+  TPoint = record
+    x, y: integer;
+  end;
+
+var
+  a, b: TPoint;
+
+begin
+  a.x := 10;
+  a.y := 3856;
+  b := a;
+  a.x := 12;
+  writeln(b.x);
+  writeln(a.x);
+  
+  a.y := 2;
+  writeln(b.y);
+  writeln(a.y);
+end.

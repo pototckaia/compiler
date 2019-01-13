@@ -1,0 +1,49 @@
+Type
+TA = Array[0..9,0..9] of Integer;
+TB = Array[0..9] of Integer;
+
+var
+A,B : TA;
+C1 : TB;
+D3 : array [0..9, 0..9, 0..9] of Integer;
+
+type
+Pinteger = ^integer;
+PPinteger = ^Pinteger;
+PArray2D = ^TA;
+
+var
+p1,p2 : Pinteger;
+i, j : integer;
+ppp : PPinteger;
+
+begin
+  for i := 0 to 9 do begin
+    for j := 0 to 9 do begin
+      a[i][j] := i + j;
+    end;
+  end;
+  writeln(A[1][0]);
+  writeln(A[0 + 1, 1 - 1]);
+  i := A[1][0];
+  writeln(i);
+
+  C1 := A[1];
+  writeln(C1[1], C1[2], C1[3]);
+
+  p1 := @(A[0, 0]);
+  a[0][1] := 122;
+  writeln(p1^);
+  ppp := @p1;
+  writeln(ppp^^);
+  writeln(p1[1]);
+  writeln(ppp[0][1]);
+  writeln(ppp[0, 1]);
+
+  D3[0] := A;
+  A[1][1] := 0;
+  A[2][2] := 0;
+  writeln(D3[0][1][1], D3[0][2][2]);
+  D3[1] := A;
+  writeln(D3[1][1][1], D3[1][2][2]);
+end.

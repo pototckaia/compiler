@@ -37,6 +37,7 @@ class AsmGenerator : public Visitor {
   void visit(StaticArray&) override;
   void visit(OpenArray&) override;
   void visit(Pointer&) override;
+  void visit(Alias&) override;
 
   void visit(LocalVar&) override;
   void visit(GlobalVar&) override;
@@ -118,6 +119,8 @@ class AsmGenerator : public Visitor {
 
   // for array access
   ListExpr bounds;
+
+  void pushRvalue(ptr_Type&);
 
   // global main
   const std::string label_main = "main";

@@ -1,0 +1,19 @@
+type
+  PInt = ^integer;
+var
+  b : PInt;
+  a: integer;
+  c : array [0..2] of integer;
+begin
+	a := 10;
+	b :=  @(c[0]);
+	
+	(b + 1)^ := a;
+	write((b + 1)^, ' ');	
+	write(c[1], ' ');
+
+	b[0] := 122;
+	write(b[0], ' ');
+	write(b^, ' ');
+	write(c[0]);
+end.

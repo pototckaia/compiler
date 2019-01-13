@@ -130,6 +130,7 @@ class EffectiveAddress {
   Register index;
   uint64_t scala;
   int offset;
+  bool isMinus = false;
 };
 
 class Operand {
@@ -179,3 +180,4 @@ class Comment {
   std::string s;
 };
 using cmd = Command;
+using adr = EffectiveAddress;

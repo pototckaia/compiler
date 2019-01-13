@@ -157,21 +157,18 @@ EffectiveAddress::EffectiveAddress(Label l) : isOnlyBase(true) { base << l; }
 EffectiveAddress::EffectiveAddress(Register b, Register i, uint64_t s)
   : index(i), scala(s) { base << b; }
 EffectiveAddress::EffectiveAddress(Register b, uint64_t offset, bool isMinus)
-  : isOnlyBase(true), isOffset(true), offset(offset) {
-  if (isMinus) base << "-";
+  : isOnlyBase(true), isOffset(true), offset(offset), isMinus(isMinus) {
   base << b;
 }
 
 std::ostream& operator <<(std::ostream &os, const EffectiveAddress& c) {
   os << "[" << c.base.str();
+  char opr = c.isMinus ? '-' : '+';
   if (!c.isOnlyBase) {
-    os << "+" << c.index << "*" << c.scala;
+    os << opr << c.index << "*" << c.scala;
   }
   if (c.isOffset) {
-    if (c.offset >= 0) {
-      os << "+";
-    }
-    os << c.offset;
+    os << opr << c.offset;
   }
   os << "]";
   return os;

@@ -46,7 +46,6 @@ def runTests(dirPath, options):
 
 	inputFiles = glob.glob(dirPath + os.sep + '*.in')
 	inputFiles.sort()
-	print(inputFiles)
 	for pos, finput in zip(count(), inputFiles):
 		finput_a = os.path.splitext(finput)[0]
 		foutput = finput_a + '.out'

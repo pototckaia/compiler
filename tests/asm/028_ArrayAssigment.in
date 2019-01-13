@@ -1,0 +1,17 @@
+  type
+  A = array [0..10] of char;
+  B = array [0..10] of char; 
+var
+  second : A;
+  third : B;
+  i : integer;
+begin
+  for i := 0 to 10 do begin
+    second[i] := 'a';
+  end;
+  third := second;
+  for i := 0 to 10 do begin
+    second[i] := 'c';
+    writeln(i, ' ', second[i], ' ', third[i]);
+  end;
+end.
