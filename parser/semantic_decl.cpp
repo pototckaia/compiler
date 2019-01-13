@@ -168,11 +168,15 @@ void SemanticDecl::parseFunctionDeclBegin(std::shared_ptr<FunctionSignature> s) 
 void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
                                         std::shared_ptr<FunctionSignature> s, ptr_Stmt b) {
   if (!s->isProcedure()) {
-    stackTable.top().tableVariable.insert(
-      std::make_shared<ParamVar>(decl->getValueString(), s->returnType));
+    auto nameResult = decl->getValueString();
+    if (s->paramsTable.checkContain(nameResult)) {
+      auto& v = s->paramsTable.find(nameResult);
+      throw AlreadyDefinedException(v->line, v->column, v->name);
+    }
+    auto result = std::make_shared<ParamVar>(nameResult, s->returnType);
+    stackTable.top().tableVariable.insert(result);
   }
   stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
-
   TypeChecker checkType(stackTable);
   b->accept(checkType);
 
@@ -195,7 +199,7 @@ void SemanticDecl::parseConstDecl(const tok::ptr_Token& decl, ptr_Expr expr) {
   if (stackTable.top().checkContain(decl->getValueString())) {
     throw AlreadyDefinedException(decl);
   }
-  auto cons = std::make_shared<Const>(decl);
+  // auto cons = std::make_shared<Const>(decl);
   // TODO
   //cons->value = expr;
 }
