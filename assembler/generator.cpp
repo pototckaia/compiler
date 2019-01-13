@@ -63,7 +63,7 @@ void AsmGenerator::visit(MainFunction& m) {
   }
   for (auto& var : m.decl.tableFunction) {
     auto label = getLabelName(var.second->name);
-    var.second->set_label(label);
+    var.second->setLabel(label);
   }
 
   stackTable.push(m.decl);
@@ -82,6 +82,82 @@ void AsmGenerator::visit(MainFunction& m) {
     << cmd(XOR, {RAX}, {RAX})
     << cmd(RET);
 
+  // function decl
+  for (auto& fun : m.decl.tableFunction) {
+    if (fun.second->isEmbedded()) {
+      continue;
+    }
+
+    // set offset param
+    auto s = fun.second->getSignature();
+    sizeParam = 0;
+    uint64_t offsetParam = 8; // ret
+    stackTable.pushEmpty();
+    for (auto iter = s->paramsList.rbegin(); iter != s->paramsList.rend(); ++iter) {
+      uint64_t sizeElem = (*iter)->size();
+      offsetParam += sizeElem;
+      (*iter)->offset = offsetParam;
+      sizeParam += sizeElem;
+      stackTable.top().tableVariable.insert(*iter);
+      asm_file
+        << Comment((*iter)->name + ": [RBP+" + std::to_string(offsetParam) + "]");
+    }
+
+    auto tableLocal = fun.second->getTable();
+    stackTable.push(tableLocal);
+    uint64_t sizeLocal = tableLocal.sizeVar();
+    uint64_t offsetLocal = 8; // first local var offset
+    // set offset local var
+    for (auto& e : tableLocal.tableVariable) {
+      uint64_t sizeVar = e.second->size();
+      if (!s->isProcedure() && e.first == fun.second->name) { // result var
+        sizeLocal -= sizeVar; // not local
+        e.second->setOffset(offsetParam + sizeVar);
+        asm_file
+          << Comment("result " + e.first + ": [RBP+" + std::to_string(offsetParam + sizeVar) + "]");
+      } else {
+        e.second->setOffset(offsetLocal);
+        offsetLocal += sizeVar;
+        asm_file
+          << Comment(e.first + ": [RBP-" + std::to_string(offsetLocal - sizeVar) + "]");
+      }
+    }
+
+    asm_file
+      << "\n"
+      << Comment("Function call " + fun.first)
+      << cmd(Label(fun.second->getLabel()))
+      << cmd(PUSH, {RBP})
+      << cmd(MOV, {RBP}, {RSP})
+      << cmd(SUB, {RSP}, {sizeLocal});
+
+    for (auto& e : s->paramsList) {
+      if (e->type->isOpenArray() && e->spec == ParamSpec::NotSpec) {
+        auto array = std::dynamic_pointer_cast<OpenArray>(e->type);
+        uint64_t sizeElem = array->typeElem->size();
+        auto _start = getLabel();
+        auto _end = getLabel();
+        asm_file
+          << Comment("Copy open array ")
+          << cmd(LEA, {RAX}, {adr(RBP, e->offset, true)}) //
+          << cmd(MOV, {RCX}, {adr(RAX, (uint64_t) 8, true)}) // -8 -> high
+          << cmd(INC, {RCX})
+          << cmd(MOV, {RDX}, {sizeElem})
+          << cmd(IMUL, {RCX}, {RDX}) // // (high + 1)*sizeElem = len in bit
+          << cmd(SUB, {RSP}, {RCX}) // allocate memory
+          << cmd(MOV, {RSI}, {adr(RAX)}) // address open array -> источник
+          << cmd(MOV, {RDI}, {RSP}) // получатель
+          << cmd(REP, MOVSB)
+          << cmd(MOV, {adr(RAX)}, {RSP}); // replace address on copy
+      }
+    }
+
+    fun.second->getBody()->accept(*this);
+    asm_file
+      << cmd(MOV, {RSP}, {RBP})
+      << cmd(POP, {RBP})
+      << cmd(RET, {sizeParam, none});
+  }
   clear_buf_string();
 }
 
@@ -89,10 +165,6 @@ void AsmGenerator::visit(BlockStmt& b) {
   for (auto& e : b.getBlock()) {
     e->accept(*this);
   }
-}
-
-void AsmGenerator::visit(FunctionCallStmt& f) {
-  f.getFunctionCall()->accept(*this);
 }
 
 void AsmGenerator::visit(LocalVar& l) {
@@ -110,11 +182,16 @@ void AsmGenerator::visit(ParamVar& p) {
 void AsmGenerator::visit(Const&) {}
 
 void AsmGenerator::visit(Function& f) {
-  buf_var_name = Operand(adr(Label(f.get_label())), none); // label
+  buf_var_name = Operand(adr(Label(f.getLabel())), none); // label
+}
+
+void AsmGenerator::visit(ForwardFunction& f) {
+  f.function->accept(*this);
 }
 
 void AsmGenerator::visit(Variable& v) {
-  if (stackTable.isFunction(v.getName()->getValueString())) {
+  if (v.type->isProcedureType() && 
+      stackTable.isFunction(v.getName()->getValueString())) {
     stackTable.findFunction(v.getName()->getValueString())->accept(*this);
   } else {
     stackTable.findVar(v.getName()->getValueString())->accept(*this);
@@ -441,7 +518,7 @@ void AsmGenerator::visit(Pointer& p) {
       << cmd(PUSH, {RAX}); // new index
     return;
   }
-  asm_file 
+  asm_file
     << Comment("ppp")
     << Comment("change base")
     << Comment("^(ppp + 1)")
@@ -454,7 +531,6 @@ void AsmGenerator::visit(Pointer& p) {
 }
 
 void AsmGenerator::visit(StaticArray& s) {
-
   auto real_size = bounds.size();
   auto array_size = s.bounds.size();
   auto& real_bounds = bounds;
@@ -470,7 +546,7 @@ void AsmGenerator::visit(StaticArray& s) {
 
   auto it = array_bounds.begin();
   i_coeff = 0;
-  asm_file << cmd(PUSH, {(uint64_t)0});
+  asm_file << cmd(PUSH, {(uint64_t) 0});
   for (uint64_t i = 0; i < real_size; ++i, ++i_coeff, ++it) {
     uint64_t begin = it->first;
     real_bounds.front()->accept(*this);
@@ -541,7 +617,9 @@ void AsmGenerator::visit(ArrayAccess& a) {
     << cmd(POP, {RAX}) // base
     << cmd(LEA, {RAX}, {adr(RAX, RCX, 1), none})
     << cmd(PUSH, {RAX}); // base[index]
-  if (!lvalue) { pushRvalue(a.type); }
+  if (!lvalue) {
+    pushRvalue(a.type);
+  }
 }
 
 void AsmGenerator::visit(Alias& a) { a.type->accept(*this); }
@@ -556,7 +634,9 @@ void AsmGenerator::visit(RecordAccess& r) {
     << cmd(POP, {R8}) // add_record
     << cmd(LEA, {R8}, {adr(R8, offset), none})
     << cmd(PUSH, {R8});
-  if (!lvalue) { pushRvalue(r.type); }
+  if (!lvalue) {
+    pushRvalue(r.type);
+  }
 }
 
 void AsmGenerator::visit(Cast& c) {
@@ -616,7 +696,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
         break;
       }
     }
-      asm_file
+    asm_file
       << Comment("assignment trivial")
       << cmd(POP, {RAX}) // left
       << cmd(POP, {adr(RAX)});
@@ -638,7 +718,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
     << cmd(DEC, {RCX})
     << cmd(JZ, {Label(_end)})
     << cmd(POP, {RSI})
-    << cmd(LEA, {RDI}, {adr(RDI, (uint64_t)8, true), none})
+    << cmd(LEA, {RDI}, {adr(RDI, (uint64_t) 8, true), none})
     << cmd(JMP, {Label(_start)})
     << cmd(Label(_end));
 }
@@ -649,61 +729,92 @@ void AsmGenerator::visit(Trunc&) {}
 
 void AsmGenerator::visit(Round&) {}
 
-void AsmGenerator::visit(Succ&) {}
+void AsmGenerator::visit(Succ&) {
+  syscall_params.front()->accept(*this);
+  asm_file << cmd(INC, {adr(RSP)});
+}
 
-void AsmGenerator::visit(Prev&) {}
+void AsmGenerator::visit(Prev&) {
+  syscall_params.front()->accept(*this);
+  asm_file << cmd(DEC, {adr(RSP)});
+}
 
-void AsmGenerator::visit(Chr&) {}
+void AsmGenerator::visit(Chr&) {
+  syscall_params.front()->accept(*this);
+}
 
-void AsmGenerator::visit(Ord&) {}
+void AsmGenerator::visit(Ord&) {
+  syscall_params.front()->accept(*this);
+}
 
-void AsmGenerator::visit(High&) {}
+void AsmGenerator::visit(High&) {
+  auto& param = syscall_params.front();
+  if (param->type->isOpenArray()) {
+    // TODO
+//    param->accept(*this);
+//    asm_file << cmd(DEC, {adr(RSP)});
+  } else {
+    auto array = param->type->getStaticArray();
+    asm_file << cmd(PUSH, {array->bounds.front().second});
+  }
+}
 
-void AsmGenerator::visit(Low&) {}
+void AsmGenerator::visit(Low&) {
+  auto& param = syscall_params.front();
+  if (param->type->isOpenArray()) {
+    // TODO
+//    param->accept(*this);
+//    asm_file << cmd(DEC, {adr(RSP)});
+  } else {
+    auto array = param->type->getStaticArray();
+    asm_file << cmd(PUSH, {array->bounds.front().first});
+  }
+}
 
-void AsmGenerator::visit(Exit&) {}
+void AsmGenerator::visit(Exit& e) {
+  // TODO : assigment
+  asm_file
+    << cmd(MOV, {RSP}, {RBP})
+    << cmd(POP, {RBP})
+    << cmd(RET, {sizeParam, none});
+}
 
 void AsmGenerator::visit(Write& w) {
-  if (syscall_param_type == nullptr && w.isnewLine) {
-    asm_file
-      << Comment("printf new line")
-      << cmd(MOV, {RDI}, {Label(label_fmt_new_line)})
-      << cmd(CALL, {Printf});
-    return;
+  auto params = std::move(syscall_params);
+  for (auto& e : params) {
+    e->accept(*this);
+    if (e->type->isString()) {
+      asm_file
+        << Comment("printf string")
+        << cmd(POP, {RAX})
+        << cmd(MOV, {RDI}, {RAX})
+        << cmd(XOR, {RAX}, {RAX})
+        << cmd(CALL, {Printf});
+    } else if (e->type->isInt() || e->type->isPointer()) {
+      asm_file
+        << Comment("printf int")
+        << cmd(MOV, {RDI}, {Label(label_fmt_int)})
+        << cmd(POP, {RSI})
+        << cmd(XOR, {RAX}, {RAX})
+        << cmd(CALL, {Printf});
+    } else if (e->type->isDouble()) {
+      asm_file
+        << Comment("printf double")
+        << cmd(MOV, {RDI}, {Label(label_fmt_double)})
+        << cmd(POP, {RAX})
+        << cmd(MOVQ, {XMM0, none}, {RAX})
+        << cmd(MOV, {RAX}, {(uint64_t) 1})
+        << cmd(CALL, {Printf});
+    } else if (e->type->isChar()) {
+      asm_file
+        << Comment("printf char")
+        << cmd(MOV, {RDI}, {Label(label_fmt_char)})
+        << cmd(POP, {RSI})
+        << cmd(XOR, {RAX}, {RAX})
+        << cmd(CALL, {Printf});
+    }
   }
-
-  if (syscall_param_type->isString()) {
-    asm_file
-      << Comment("printf string")
-      << cmd(POP, {RAX})
-      << cmd(MOV, {RDI}, {RAX})
-      << cmd(XOR, {RAX}, {RAX})
-      << cmd(CALL, {Printf});
-  } else if (syscall_param_type->isInt() || syscall_param_type->isPointer()) {
-    asm_file
-      << Comment("printf int")
-      << cmd(MOV, {RDI}, {Label(label_fmt_int)})
-      << cmd(POP, {RSI})
-      << cmd(XOR, {RAX}, {RAX})
-      << cmd(CALL, {Printf});
-  } else if (syscall_param_type->isDouble()) {
-    asm_file
-      << Comment("printf double")
-      << cmd(MOV, {RDI}, {Label(label_fmt_double)})
-      << cmd(POP, {RAX})
-      << cmd(MOVQ, {XMM0, none}, {RAX})
-      << cmd(MOV, {RAX}, {(uint64_t) 1})
-      << cmd(CALL, {Printf});
-  } else if (syscall_param_type->isChar()) {
-    asm_file
-      << Comment("printf char")
-      << cmd(MOV, {RDI}, {Label(label_fmt_char)})
-      << cmd(POP, {RSI})
-      << cmd(XOR, {RAX}, {RAX})
-      << cmd(CALL, {Printf});
-  }
-
-  if (last_param && w.isnewLine) {
+  if (w.isnewLine) {
     asm_file
       << Comment("printf new line")
       << cmd(MOV, {RDI}, {Label(label_fmt_new_line)})
@@ -711,21 +822,55 @@ void AsmGenerator::visit(Write& w) {
   }
 }
 
+void AsmGenerator::visit(FunctionCallStmt& f) {
+  isSkipResult = true;
+  f.getFunctionCall()->accept(*this);
+  isSkipResult = false;
+}
+
 void AsmGenerator::visit(FunctionCall& f) {
+  asm_file << Comment("function call");
   if (f.getName()->embeddedFunction != nullptr) {
-    int i = 0;
-    for (const auto& param : f.listParam) {
-      syscall_param_type = param->type;
-      last_param = i == (f.listParam.size() - 1);
-      param->accept(*this);
-      f.nameFunction->embeddedFunction->accept(*this);
-      ++i;
-    }
-    if (i == 0 && dynamic_cast<Write*>(f.getName()->embeddedFunction.get())) {
-      syscall_param_type = nullptr;
-      f.nameFunction->embeddedFunction->accept(*this);
-    }
+    syscall_params = std::move(f.listParam);
+    f.nameFunction->embeddedFunction->accept(*this);
     return;
+  } else {
+    auto s = f.nameFunction->type->getSignature();
+    uint64_t sizeReturn = 0;
+    if (!s->isProcedure()) {
+      sizeReturn = s->returnType->size();
+      asm_file
+        << Comment("allocate return type")
+        << cmd(SUB, {RSP}, {sizeReturn}); // allocate return type
+    }
+    // arguments push
+    auto iterParams = s->paramsList.begin();
+    for (auto iterArgs = f.listParam.begin(); iterArgs != f.listParam.end(); ++iterArgs, ++iterParams) {
+      if ((*iterParams)->type->isOpenArray()) {
+        auto array = (*iterArgs)->type->getStaticArray();
+        asm_file
+          << Comment("open array parameter")
+          << cmd(PUSH, {array->bounds.front().second}); // high
+        visit_lvalue(**iterArgs); // address
+        continue;
+      }
+      asm_file << Comment("argument");
+      if ((*iterParams)->spec == ParamSpec::NotSpec) {
+        (*iterArgs)->accept(*this);
+      } else {
+        visit_lvalue(**iterArgs);
+      }
+    }
+    visit_lvalue(*f.nameFunction);
+    asm_file
+      << Comment("call function")
+      << cmd(POP, {RAX}) // address
+      << cmd(CALL, {RAX});
+    if (isSkipResult) {
+      asm_file
+        << Comment("skip result")
+        << cmd(ADD, {RSP}, {sizeReturn});
+    }
   }
 }
 

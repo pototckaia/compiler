@@ -22,11 +22,9 @@ class AsmGenerator : public Visitor {
   void visit(UnaryOperation&) override;
   void visit(ArrayAccess&) override;
   void visit(RecordAccess&) override;
-  void visit(FunctionCall&) override;
   void visit(Cast&) override;
-
   void visit(AssignmentStmt&) override;
-  void visit(FunctionCallStmt&) override;
+
   void visit(BlockStmt&) override;
   void visit(IfStmt&) override;
   void visit(WhileStmt&) override;
@@ -43,9 +41,14 @@ class AsmGenerator : public Visitor {
   void visit(GlobalVar&) override;
   void visit(ParamVar&) override;
   void visit(Const&) override;
-
+  void visit(ForwardFunction&) override;
   void visit(Function&) override;
+
+  void visit(FunctionCallStmt&) override;
+  void visit(FunctionCall&) override;
+
   void visit(MainFunction&) override;
+
   void visit(Read&) override;
   void visit(Write&) override;
   void visit(Trunc&) override;
@@ -60,6 +63,10 @@ class AsmGenerator : public Visitor {
 
  public:
   std::ofstream asm_file;
+
+  // for functionCallStmt
+  bool isSkipResult = false;
+  uint64_t sizeParam = 0;
 
   // for lvalue
   bool need_lvalue;
@@ -109,7 +116,7 @@ class AsmGenerator : public Visitor {
   StackTable stackTable;
 
   // for write -> type param
-  ptr_Type syscall_param_type;
+  ListExpr syscall_params;
   bool last_param;
 
   // generator string constant
