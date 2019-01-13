@@ -60,6 +60,14 @@ void Tables::resolveForwardFunction() {
   forwardFunction.clear();
 }
 
+uint64_t Tables::sizeVar() {
+  uint64_t s = 0;
+  for (auto& v : tableVariable) {
+    s += v.second->type->size();
+  }
+  return s;
+}
+
 StackTable::StackTable(const Tables& global) : stack(1, global) {}
 
 bool StackTable::checkContain(const std::string& n) {
@@ -363,9 +371,7 @@ Low::Low() : SymFun("low") {}
 Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {  };
 
 // in byte
-uint64_t SymVar::size() const {
-  return type->size();
-}
+uint64_t SymVar::size() const { return type->size(); }
 
 uint64_t SymType::size() const { return 8; }
 uint64_t Void::size() const { return 0; }
@@ -380,7 +386,7 @@ uint64_t StaticArray::size() const {
   return size_type;
 }
 
-uint64_t OpenArray::size() const { return 16; }
+uint64_t OpenArray::size() const { return 0; }
 
 uint64_t Record::size() const {
   uint64_t size = 0;
@@ -388,6 +394,13 @@ uint64_t Record::size() const {
     size += e->size();
   }
   return size;
+}
+
+uint64_t ParamVar::size() const {
+  if (type->isOpenArray() || spec == ParamSpec::NotSpec) {
+    return type->size();
+  }
+  return 8; // pointer
 }
 
 void Record::addVar(const ptr_Var& v) {
@@ -410,6 +423,13 @@ bool SymType::isTrivial() const {
          this->isChar() || this->isPointer() ||
          this->isProcedureType();
 }
+
+SymFun::ptr_Sign& SymFun::getSignature() { return signature; }
+ptr_Stmt& Function::getBody() { return body; }
+Tables& Function::getTable() { return localVar; }
+SymFun::ptr_Sign& ForwardFunction::getSignature() { return function->signature; }
+ptr_Stmt& ForwardFunction::getBody() { return function->getBody(); }
+Tables& ForwardFunction::getTable() { return function->getTable(); }
 
 // accept
 

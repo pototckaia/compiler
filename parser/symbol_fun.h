@@ -18,6 +18,8 @@ class Function : public SymFun {
   ptr_Stmt body;
   void accept(Visitor& v) override;
   bool isEmbedded() const override { return false; }
+  ptr_Stmt& getBody() override;
+  Tables& getTable() override;
 };
 
 class ForwardFunction : public Function {
@@ -29,10 +31,13 @@ class ForwardFunction : public Function {
   bool isEmbedded() const override { return false; }
   bool isForward() const override { return true; }
 
-  std::string get_label() override { return function->get_label(); }
-  void set_label(const std::string& s) override { function->set_label(s); }
+  std::string getLabel() override { return function->getLabel(); }
+  void setLabel(const std::string& s) override { function->setLabel(s); }
 
   std::shared_ptr<SymFun> function;
+  SymFun::ptr_Sign& getSignature() override;
+  ptr_Stmt& getBody() override;
+  Tables& getTable() override;
 };
 
 class MainFunction : public SymFun {

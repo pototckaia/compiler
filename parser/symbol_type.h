@@ -5,6 +5,8 @@
 #include <cstdint>
 
 class Record;
+class FunctionSignature;
+class StaticArray;
 
 class SymType : public Symbol {
  public:
@@ -27,6 +29,8 @@ class SymType : public Symbol {
   virtual bool isStaticArray() const { return false; }
   virtual ptr_Type getPointerBase() { return nullptr; }
   virtual Record* getRecord() { return nullptr; }
+  virtual FunctionSignature* getSignature() { return nullptr; }
+  virtual StaticArray* getStaticArray() { return nullptr; }
   bool isTrivial() const;
 
   virtual uint64_t size() const;
@@ -154,6 +158,7 @@ class StaticArray : public SymType {
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isStaticArray() const override { return true; }
+  StaticArray* getStaticArray() { return this; }
   uint64_t size() const override;
 };
 
@@ -197,6 +202,7 @@ class FunctionSignature : public SymType {
   bool isProcedure() const { return returnType->isVoid(); }
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
+  FunctionSignature* getSignature() override { return this; }
 
   TableSymbol<std::shared_ptr<ParamVar>> paramsTable;
   ListParam paramsList;

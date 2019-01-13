@@ -9,6 +9,7 @@ class LocalVar : public SymVar {
   void accept(Visitor& v) override;
 
   uint64_t offset = 0;
+  void setOffset(uint64_t s) override { offset = s; }
 };
 
 class GlobalVar : public SymVar {
@@ -17,6 +18,7 @@ class GlobalVar : public SymVar {
   void accept(Visitor& v) override;
 
   std::string label;
+  void setOffset(uint64_t s) override {}
 };
 
 enum class ParamSpec {
@@ -35,8 +37,10 @@ class ParamVar : public SymVar {
   ParamSpec spec = ParamSpec::NotSpec;
   void accept(Visitor& v) override;
   bool equals(ParamVar&) const;
+  uint64_t size() const override;
 
   uint64_t offset = 0;
+  void setOffset(uint64_t s) override { offset = s; }
 };
 
 class Const : public SymVar {

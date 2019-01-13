@@ -8,6 +8,7 @@
 class ASTNode;
 class Expression;
 class ASTNodeStmt;
+class Tables;
 
 using ptr_Node = std::shared_ptr<ASTNode>;
 
@@ -64,12 +65,17 @@ class SymFun : public Symbol {
   SymFun(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
     : Symbol(t), signature(std::move(f)) {}
 
+  using ptr_Sign = std::shared_ptr<FunctionSignature>;
   virtual bool isEmbedded() const { return true; }
-  std::shared_ptr<FunctionSignature> signature;
+  ptr_Sign signature;
 
-  virtual void set_label(const std::string& s) { label = s; }
-  virtual std::string get_label() { return label; }
+  virtual void setLabel(const std::string& s) { label = s; }
+  virtual std::string getLabel() { return label; }
   std::string label;
+
+  virtual ptr_Sign& getSignature();
+  virtual ptr_Stmt& getBody() { throw std::logic_error("get Body"); };
+  virtual Tables& getTable() {throw std::logic_error("get Table"); };
 };
 
 class SymVar : public Symbol {
@@ -82,4 +88,5 @@ class SymVar : public Symbol {
   virtual uint64_t size() const;
   ptr_Type type;
   ptr_Expr defaultValue;
+  virtual void setOffset(uint64_t) = 0;
 };

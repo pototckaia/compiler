@@ -41,6 +41,7 @@ class Tables {
 
   void insert(const std::shared_ptr<ForwardType>&);
   void insert(const std::shared_ptr<ForwardFunction>&);
+  uint64_t sizeVar();
 
   void resolveForwardType();
   void resolveForwardFunction();
