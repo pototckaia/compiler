@@ -27,11 +27,12 @@ class SymType : public Symbol {
   virtual bool isProcedureType() const { return false; }
   virtual bool isOpenArray() const { return false; }
   virtual bool isStaticArray() const { return false; }
+  bool isTrivial() const;
+
   virtual ptr_Type getPointerBase() { return nullptr; }
   virtual Record* getRecord() { return nullptr; }
   virtual FunctionSignature* getSignature() { return nullptr; }
   virtual StaticArray* getStaticArray() { return nullptr; }
-  bool isTrivial() const;
 
   virtual uint64_t size() const;
 
@@ -115,10 +116,13 @@ class Alias : public SymType {
   bool isProcedureType() const override { return type->isProcedureType(); }
   bool isStaticArray() const override { return type->isStaticArray(); }
   bool isOpenArray() const override { return type->isOpenArray(); }
+
   ptr_Type getPointerBase() override { return type->getPointerBase(); }
   Record* getRecord() override { return type->getRecord(); }
-  uint64_t size() const override;
+  FunctionSignature* getSignature() override { return type->getSignature(); }
+  StaticArray* getStaticArray() override { return type->getStaticArray(); }
 
+  uint64_t size() const override;
   ptr_Type type;
 };
 
