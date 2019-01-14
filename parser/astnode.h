@@ -89,4 +89,5 @@ class SymVar : public Symbol {
   ptr_Type type;
   ptr_Expr defaultValue;
   virtual void setOffset(uint64_t) = 0;
+  virtual uint64_t getOffset() = 0;
 };

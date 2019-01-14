@@ -10,6 +10,7 @@ class LocalVar : public SymVar {
 
   uint64_t offset = 0;
   void setOffset(uint64_t s) override { offset = s; }
+  uint64_t getOffset() override { return offset; }
 };
 
 class GlobalVar : public SymVar {
@@ -19,6 +20,7 @@ class GlobalVar : public SymVar {
 
   std::string label;
   void setOffset(uint64_t s) override {}
+  uint64_t getOffset() override { return 0; }
 };
 
 enum class ParamSpec {
@@ -41,6 +43,7 @@ class ParamVar : public SymVar {
 
   uint64_t offset = 0;
   void setOffset(uint64_t s) override { offset = s; }
+  uint64_t getOffset() override { return offset; }
 };
 
 class Const : public SymVar {
