@@ -344,10 +344,10 @@ Prev::Prev()  : SymFun("prev") {
 
 Chr::Chr() : SymFun("chr") {
   SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
+  SymFun::signature->returnType = std::make_shared<Char>();
   ListParam p;
   auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Char>();
+  var->type = std::make_shared<Int>();
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -355,10 +355,10 @@ Chr::Chr() : SymFun("chr") {
 
 Ord::Ord() : SymFun("ord") {
   SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Char>();
+  SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
   auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
+  var->type = std::make_shared<Char>();
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
