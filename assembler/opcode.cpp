@@ -130,6 +130,7 @@ const std::map<Instruction, std::string> mapInstruction = {
   {TEST, "test"},
   {INC, "inc"},
   {DEC, "dec"},
+  {ROUNDSD, "roundsd"},
 };
 
 std::ostream& operator <<(std::ostream &os, const Instruction& c) {
@@ -201,7 +202,12 @@ Command::Command(Label l) { s << l << ":\n"; }
 Command::Command(Label l, bool isGlobal) { s << "global " << l << "\n"; }
 Command::Command(Instruction i) { s << "\t" << i << "\n";}
 Command::Command(Instruction i, Operand o) { s << "\t" << i << " " << o << "\n"; }
-Command::Command(Instruction i, Operand o1, Operand o2) { s << "\t" << i << " " << o1 << ", " << o2 << "\n"; }
+Command::Command(Instruction i, Operand o1, Operand o2) { 
+  s << "\t" << i << " " << o1 << ", " << o2 << "\n"; 
+}
+Command::Command(Instruction i, Operand o1, Operand o2, Operand o3) { 
+  s << "\t" << i << " " << o1 << ", " << o2 << ", " << o3<< "\n"; 
+}
 Command::Command(Instruction i, Instruction i1) { s << "\t" << i << " " << i1 << "\n"; }
 
 std::ostream& operator <<(std::ostream& os, const Command& c) {

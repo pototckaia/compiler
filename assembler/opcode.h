@@ -43,15 +43,18 @@ enum Instruction {
   MOVSB,
   MOV,
   MOVQ,
+  LEA,
+
+  PUSH,
+  POP,
+
+  CALL,
+  RET,
+
   NOT,
   XOR,
   AND,
   OR,
-  PUSH,
-  POP,
-  CALL,
-  LEA,
-  RET,
   ADD,
   SUB,
   IMUL,
@@ -59,6 +62,9 @@ enum Instruction {
   CQO,
   INC,
   DEC,
+  NEG,
+  SHL,
+  SHR,
 
   SETE,
   SETNE,
@@ -72,6 +78,8 @@ enum Instruction {
   SETBE,
 
   CMP,
+  TEST,
+
   CVTSI2SD,
   CVTSD2SI,
   ADDSD,
@@ -81,9 +89,8 @@ enum Instruction {
   MOVSD,
   COMISD,
   XORPD,
-  NEG,
-  SHL,
-  SHR,
+  ROUNDSD,
+
   JZ,
   JNZ,
   JMP,
@@ -92,7 +99,6 @@ enum Instruction {
   JLE,
   JG,
   JL,
-  TEST,
 };
 
 enum Section {
@@ -168,6 +174,7 @@ class Command {
   Command(Instruction, Instruction);
   Command(Instruction, Operand);
   Command(Instruction, Operand, Operand);
+  Command(Instruction, Operand, Operand, Operand);
   friend std::ostream& operator <<(std::ostream& os, const Command&);
 
  private:
