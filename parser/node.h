@@ -14,6 +14,7 @@ class Expression : public virtual ASTNode {
 
   ptr_Type type;
   std::shared_ptr<SymFun> embeddedFunction;
+  virtual std::string getVarName() { return ""; }
 };
 
 class Variable : public Expression {
@@ -22,6 +23,7 @@ class Variable : public Expression {
   Variable(std::unique_ptr<tok::TokenBase>, ptr_Type);
 
   const auto& getName() const { return name; }
+  std::string getVarName() override { return name->getValueString(); }
   void accept(Visitor&) override;
 
  private:
