@@ -48,6 +48,7 @@ class AsmGenerator : public Visitor {
   void visit(FunctionCall&) override;
 
   void visit(MainFunction&) override;
+  void visit_function(SymFun&);
 
   void visit(Read&) override;
   void visit(Write&) override;
