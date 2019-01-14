@@ -19,6 +19,7 @@ class Expression : public virtual ASTNode {
 class Variable : public Expression {
  public:
   Variable(std::unique_ptr<tok::TokenBase>);
+  Variable(std::unique_ptr<tok::TokenBase>, ptr_Type);
 
   const auto& getName() const { return name; }
   void accept(Visitor&) override;

@@ -4,6 +4,8 @@
 
 Variable::Variable(std::unique_ptr<tok::TokenBase> n)
   : ASTNode(n->getLine(), n->getColumn()), name(std::move(n)) {}
+Variable::Variable(std::unique_ptr<tok::TokenBase> n, ptr_Type t)
+  : ASTNode(-1, -1), Expression(std::move(t)), name(std::move(n)) {}
 
 Literal::Literal(std::unique_ptr<tok::TokenBase> v)
   : ASTNode(v->getLine(), v->getColumn()), value(std::move(v)) {}
