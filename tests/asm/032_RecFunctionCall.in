@@ -1,0 +1,17 @@
+procedure foo; forward;
+
+var count : integer;
+
+procedure foo;
+begin
+	writeln('call foo ', count);
+	count += 1;
+	if count = 7 then begin
+		exit();
+	end;
+	foo();
+end;
+
+begin
+	foo();
+end.

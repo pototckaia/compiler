@@ -1,0 +1,12 @@
+function f(i, k: integer, var c: char):integer;
+begin
+  write(c);
+end;
+
+var pc:^char;
+var c : char;
+begin
+pc := @c;
+c := '1';
+f(1, 2, pc^);
+end.

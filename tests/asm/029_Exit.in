@@ -1,0 +1,10 @@
+var
+  i : integer;
+begin
+ if 1 + 1 = 2 then begin
+  writeln(14);
+  i := 133;
+  exit();
+ end;
+ writeln(12);
+end.

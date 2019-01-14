@@ -1,0 +1,12 @@
+procedure foo(x : char, var a: integer);
+begin
+  a := ord(x);
+  writeln(x, ' ', a);
+end;
+
+var i : integer;
+begin
+  i := 12;
+  foo('1', i);
+  write(i);
+end.

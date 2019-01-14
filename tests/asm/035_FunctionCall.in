@@ -1,0 +1,23 @@
+var
+a, b, n: integer;
+
+function foo(x, y: double) : integer; forward;
+
+function foo(a, b: double): integer;
+var i : integer;
+begin
+  foo := 1;
+  for i := 0 to n do begin
+     foo := Trunc(foo*2*a);
+     writeln(foo);
+  end;
+  foo := Trunc(a * b);
+end;
+
+begin
+  n := 10;
+  a := 1;
+  b := 2;
+  n := n + foo(1, 2);
+  writeln(n);
+end.

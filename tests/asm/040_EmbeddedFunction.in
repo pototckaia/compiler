@@ -1,0 +1,34 @@
+var i : integer;
+    d : double;
+    c : char;
+var
+  ar : array [1..2] of integer;
+
+procedure test (a : array of integer);
+begin
+    writeln(high(a));
+    writeln(high(ar));
+
+    writeln(low(a));
+    writeln(low(ar));
+end;
+
+begin
+    test(ar);
+    i := 65;
+    c := '1';
+    writeln(ord(c));
+    i := ord(c);
+    writeln(chr(i));
+
+    writeln(succ(90));
+    writeln(prev(123));
+
+    d := 123.1233;
+    i := 12;
+    writeln(round(d));
+    writeln(round(i));
+
+    writeln(trunc(d));
+    writeln(trunc(i));
+end.

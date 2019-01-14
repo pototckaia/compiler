@@ -1,0 +1,12 @@
+var
+   c: integer;
+
+function foo(): integer;
+begin
+  foo := 1200;
+end;
+
+begin
+   c := foo() div 50;
+   write(c);
+end.

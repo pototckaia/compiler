@@ -1,0 +1,24 @@
+procedure MyProc; begin
+  writeln('My Proc')
+end;
+
+procedure ThisProc; begin
+  writeln('This Proc');
+end;
+
+Type proc = procedure;
+Var P : proc;
+var a: array [1..2] of proc;
+var i : integer;
+
+begin
+  P := @MyProc;
+  P();
+  a[1] := p;
+  P := @ThisProc;
+  P();
+  a[2] := p;
+  for i := Low(a) to High(a) do begin
+   a[i]();
+   end;
+end.

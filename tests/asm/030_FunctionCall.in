@@ -1,0 +1,57 @@
+
+var a : array [0..3] of integer;
+var i : integer;
+
+procedure foo;
+var i : integer;
+var ar : array [0..3] of char;
+var foo : integer;
+begin
+    i := 123;
+    writeln(i);
+    ar[0] := 'F';
+    ar[1] := 'o';
+    ar[2] := 'o';
+    ar[3] := '2';
+    writeln('Foo1 ', i);
+    foo := 12;
+    for i := Low(ar) to High(ar) do begin
+        write(ar[i], ' ');    
+    end;
+    writeln();
+    for i := Low(a) to high(a) do begin 
+        a[i] := i;
+        write(a[i], ' '); 
+    end;
+    i := 123;
+    writeln();
+    foo := i * 2 * 2;
+    write(foo);
+    exit();
+end;
+
+
+function bee (i : integer) : char;
+begin
+    if i = -1 then begin
+        bee := '-';
+    end else begin
+        exit('1');
+    end;
+end;
+
+function hoo : char;
+begin
+    hoo := 'h';
+    writeln();
+    writeln('Hoo ', hoo);
+end;
+
+begin
+    foo();
+    hoo();
+    writeln(bee(1));
+    writeln(bee(-1));
+    writeln(hoo());
+    exit();
+end.
