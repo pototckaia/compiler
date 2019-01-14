@@ -175,8 +175,10 @@ void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
     }
     auto result = std::make_shared<ParamVar>(nameResult, s->returnType);
     stackTable.top().tableVariable.insert(result);
+    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType, result));
+  } else {
+    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
   }
-  stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
   TypeChecker checkType(stackTable);
   b->accept(checkType);
 

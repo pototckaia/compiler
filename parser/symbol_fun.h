@@ -117,6 +117,9 @@ class Low : public SymFun {
 class Exit : public SymFun {
  public:
   Exit(ptr_Type returnType);
+  Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var);
+
   void accept(Visitor& v) override;
   ptr_Type returnType;
+  std::shared_ptr<ParamVar> assignmentVar = nullptr;
 };

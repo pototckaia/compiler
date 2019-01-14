@@ -368,9 +368,11 @@ High::High() : SymFun("high") {}
 
 Low::Low() : SymFun("low") {}
 
-Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {  };
+Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {};
+Exit::Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var)
+  : SymFun("exit"), returnType(std::move(returnType)), assignmentVar(std::move(var)) {}
 
-// in byte
+  // in byte
 uint64_t SymVar::size() const { return type->size(); }
 
 uint64_t SymType::size() const { return 8; }
