@@ -1,0 +1,17 @@
+function foo : integer; forward;
+
+var count : integer;
+
+function foo : integer;
+begin
+	writeln('call foo ', count);
+	count += 1;
+	if count = 7 then begin
+		exit(count);
+	end;
+	foo := foo() + 1;
+end;
+
+begin
+	writeln(foo());
+end.

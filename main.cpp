@@ -54,8 +54,8 @@ void parserProgramTest(const std::string& inputFileName, const std::string& outp
 void createAsm(const std::string& inputFileName, const std::string& outputFileName) {
   Parser p(inputFileName);
   AsmGenerator g(outputFileName);
-    auto tree = p.parseProgram();
-    tree->accept(g);
+  auto tree = p.parseProgram();
+  tree->accept(g);
 }
 
 void parseCommandArgs(int args, char* argv[]);
@@ -71,13 +71,12 @@ void parseCommandArgs(int args, char* argv[]) {
 
 	options
 		.add_options()
-        ("i,input", "Input file", cxxopts::value<std::string>(input))
-				("o,output", "Output file", cxxopts::value<std::string>(output))
-        ("l,lexer", "Generate a stream of tokens", cxxopts::value<bool>())
-        ("e,expression", "Build Ast-tree simple pascal expression", cxxopts::value<bool>())
-        ("p,parser", "Build Ast-tree pascal program", cxxopts::value<bool>())
-        ("a,assembler", "Create .asm file", cxxopts::value<bool>())
-	;
+      ("i,input", "Input file", cxxopts::value<std::string>(input))
+			("o,output", "Output file", cxxopts::value<std::string>(output))
+      ("l,lexer", "Generate a stream of tokens", cxxopts::value<bool>())
+      ("e,expression", "Build Ast-tree simple pascal expression", cxxopts::value<bool>())
+      ("p,parser", "Build Ast-tree pascal program", cxxopts::value<bool>())
+      ("a,assembler", "Create .asm file", cxxopts::value<bool>());
 
 	try {
     auto result = options.parse(args, argv);
@@ -89,8 +88,11 @@ void parseCommandArgs(int args, char* argv[]) {
 
     if (!result.count("o")) {
       output = input;
-      auto typeFile = std::find_if(output.rbegin(), output.rend(), [](int ch){ return ch == '.'; });
-      output.erase(typeFile.base() - 1, output.end());
+      auto typeFile = std::find_if(
+                                  output.rbegin(),
+                                  output.rend(),
+                                  [](int ch){ return ch == '.'; });
+      output.erase(typeFile.base()-1, output.end());
 
       if (result.count("a")) {
         output += ".asm";
