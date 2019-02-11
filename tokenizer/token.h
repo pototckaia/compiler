@@ -1,89 +1,35 @@
 #pragma once
 
 #include <string>
-#include <memory>
 #include <stdexcept>
-#include <list>
+#include <variant>
 
 #include "token_type.h"
 
-namespace tok {
-
-class TokenBase;
-
-using ptr_Token = std::unique_ptr<tok::TokenBase>;
-using ListToken = std::list<ptr_Token>;
-
 std::string getPoint(int line, int column);
+std::string getPoint(const Token&);
 
-std::string getPoint(const tok::ptr_Token& t);
-
-class TokenBase {
+class Token {
  public:
-  TokenBase() = delete;
-  TokenBase(int line, int column, tok::TokenType token_type, const std::string& strValue);
-  virtual ~TokenBase() = default;
+  Token() = delete;
+  Token(int line, int column, TokenType, std::string strValue);
+  Token(int line, int column, uint64_t, std::string strValue);
+  Token(int line, int column, double, std::string strValue);
+  Token(int line, int column, std::string, std::string strValue);
 
-  virtual std::string toString() const;
+  std::string toString() const;
+  int getLine() const;
+  int getColumn() const;
+  TokenType getTokenType() const;
+  bool is(TokenType t) const;
 
-  int getLine() const { return line; }
-  int getColumn() const { return column; }
-  tok::TokenType getTokenType() const { return tokenType; }
-
-  virtual uint64_t getInt() const { throw std::logic_error("Token type not Int"); }
-  virtual long double getDouble() const { throw std::logic_error("Token type not Double"); }
-  virtual std::string getValueString() const { return strValue; }
-  bool is(tok::TokenType t) { return tokenType == t; }
-
- protected:
-  std::string beginOfString() const;
+  uint64_t getInt() const;
+  long double getDouble() const;
+  std::string getString() const;
 
  private:
   int line, column;
-  tok::TokenType tokenType;
+  TokenType tokenType;
   std::string strValue;
+  std::variant<double, uint64_t, std::string> value;
 };
-
-template<typename T>
-class NumberConstant : public TokenBase {
- public:
-  NumberConstant() = delete;
-  NumberConstant(int line, int column, tok::TokenType token_type,
-                 T& value, const std::string& strValue);
-  ~NumberConstant() = default;
-
-  std::string toString() const override;
-
-  std::string getValueString() const override { return std::to_string(value); }
-
-  uint64_t getInt() const override {
-    if (getTokenType() == tok::TokenType::Int) { return value; }
-    return TokenBase::getInt();
-  }
-
-  long double getDouble() const override {
-    if (getTokenType() == tok::TokenType::Double) { return value; }
-    return TokenBase::getDouble();
-  }
-
- private:
-  T value;
-};
-
-class StringConstant : public TokenBase {
- public:
-  StringConstant() = delete;
-
-  StringConstant(int line, int column, tok::TokenType token_type,
-                 const std::string& value, const std::string& strValue);
-  ~StringConstant() = default;
-
-  std::string toString() const override;
-
-  std::string getValueString() const override { return value; }
-
- private:
-  std::string value;
-};
-
-} // namespace tok

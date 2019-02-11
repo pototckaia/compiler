@@ -1,13 +1,12 @@
 #pragma once
 
-#include <map>
 #include <string>
 
-#define TOKEN_TYPE(X, XX) \
+#define TOKEN_TYPE(X) \
   X(Int,                   "Int") \
   X(Id,                    "Id") \
   X(Double,                "Double") \
-  X(String,                "String") \ 
+  X(String,                "String") \
   X(Plus,                   "+") \
   X(Minus,                  "-") \
   X(Asterisk,               "*") \
@@ -38,7 +37,6 @@
   X(CloseParenthesis,       ")") \
   X(OpenSquareBracket,      "[") \
   X(CloseSquareBracket,     "]") \
-  X(Comment,                "Comment") \
   X(EndOfFile,              "EOF")
 
 
@@ -65,7 +63,7 @@
   X(Not,       "not") \
   X(Of,        "of") \
   X(Or,        "or") \
-  X(Out,       "out")\
+  X(Out,       "out") \
   X(Procedure, "procedure") \
   X(Program,   "program") \
   X(Record,    "record") \
@@ -74,7 +72,7 @@
   X(Shr,       "shr") \
   X(Then,      "then") \
   X(To,        "to") \
-  X(True,      "true")\
+  X(True,      "true") \
   X(Type,      "type") \
   X(Until,     "until") \
   X(Var,       "var") \
@@ -82,23 +80,16 @@
   X(With,      "with") \
   X(Xor,       "xor") \
 
-namespace tok {
 
 #define MAKE_ENUM(E, S) E,
-#define MAKE_ENUM_WITH_N(E, S, N) E = N,
 enum class TokenType {
-  TOKEN_TYPE(MAKE_ENUM, MAKE_ENUM_WITH_N)
+  TOKEN_TYPE(MAKE_ENUM)
   KEYWORD_TYPE(MAKE_ENUM)
 };
-#undef MAKE_ENUM_WITH_N
 #undef MAKE_ENUM
 
-std::string toStringGroup(TokenType);
-
+std::string getGroup(TokenType);
 std::string toString(TokenType);
 
 TokenType getKeywordType(const std::string&);
-
 bool isKeyword(const std::string&);
-
-} // namespace tok

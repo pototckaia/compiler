@@ -1,12 +1,18 @@
 #include "token.h"
 
-#include <string>
 
-using namespace tok;
-
-TokenBase::TokenBase(int line, int column, tok::TokenType tokenType, const std::string& strValue)
+TokenBase::TokenBase(int line, int column, 
+					 tok::TokenType tokenType, const std::string& strValue)
   : line(line), column(column),
     tokenType(tokenType),
+    value(toString(tokenType)),
+    strValue(strValue) {}
+
+TokenBase::TokenBase(int line, int column, 
+					 tok::TokenType tokenType, const std::string& strValue)
+  : line(line), column(column),
+    tokenType(tokenType),
+    value(toString(tokenType)),
     strValue(strValue) {}
 
 std::string TokenBase::toString() const {
@@ -19,25 +25,6 @@ std::string TokenBase::beginOfString() const {
 }
 
 
-StringConstant::StringConstant(int line, int column, tok::TokenType token_type,
-                               const std::string& value, const std::string& strValue)
-  : TokenBase(line, column, token_type, strValue), value(value) {}
-
-std::string StringConstant::toString() const {
-  return TokenBase::beginOfString() + "\t\"" + value + "\"";
-}
-
-
-template<typename T>
-NumberConstant<T>::NumberConstant(int line, int column, tok::TokenType tokenType,
-                                  T& value, const std::string& strValue)
-  : TokenBase(line, column, tokenType, strValue), value(value) {}
-
-template<typename T>
-std::string NumberConstant<T>::toString() const {
-  return TokenBase::beginOfString() + "\t" + std::to_string(value);
-}
-
 std::string tok::getPoint(int line, int column) {
   return std::to_string(line) + "," + std::to_string(column) + "\t";
 }
@@ -46,8 +33,12 @@ std::string tok::getPoint(const tok::ptr_Token& t) {
   return tok::getPoint(t->getLine(), t->getColumn());
 }
 
-template
-class tok::NumberConstant<uint64_t>;
 
-template
-class tok::NumberConstant<long double>;
+  int getLine() const { return line; }
+  int getColumn() const { return column; }
+  TokenType getTokenType() const { return tokenType; }
+  bool is(TokenType t) { return tokenType == t; }
+
+  uint64_t getInt() const { return std::get<uint64_t>(value); }
+  long double getDouble() const { return std::get<double>(value); }
+  std::string getString() const { return std::get<std::string>(value); }

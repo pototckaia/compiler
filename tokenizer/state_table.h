@@ -43,53 +43,51 @@
 }\
 
 #define FROM_FINAL_STATE_TO_TOKEN \
-{\
-{ -1, tok::TokenType::Double},\
-{ -4, tok::TokenType::Id},\
-{-35, tok::TokenType::Id},\
-{ -2, tok::TokenType::Int},\
-{ -8, tok::TokenType::Int},\
-{-10, tok::TokenType::Int},\
-{-16, tok::TokenType::Int},\
-{-39, tok::TokenType::Int},\
-{ -3, tok::TokenType::String},\
-{ -5, tok::TokenType::Assignment},\
-{ -6, tok::TokenType::AssignmentWithPlus},\
-{ -7, tok::TokenType::AssignmentWithMinus},\
-{-40, tok::TokenType::AssignmentWithAsterisk},\
-{ -9, tok::TokenType::AssignmentWithSlash},\
-{-37, tok::TokenType::Plus},\
-{-11, tok::TokenType::Minus},\
-{-12, tok::TokenType::Asterisk},\
-{-13, tok::TokenType::Slash},\
-{-14, tok::TokenType::DoubleAsterisk},\
-{-15, tok::TokenType::At},\
-{-38, tok::TokenType::Caret},\
-{-17, tok::TokenType::SymmetricDiff},\
-{-18, tok::TokenType::ShiftRight},\
-{-19, tok::TokenType::ShiftLeft},\
-{-20, tok::TokenType::Equals},\
-{-22, tok::TokenType::StrictLess},\
-{-23, tok::TokenType::LessOrEquals},\
-{-21, tok::TokenType::StrictGreater},\
-{-24, tok::TokenType::GreaterOrEquals},\
-{-25, tok::TokenType::NotEquals},\
-{-26, tok::TokenType::Colon},\
-{-31, tok::TokenType::Comma},\
-{-28, tok::TokenType::Dot},\
-{-29, tok::TokenType::DoubleDot},\
-{-27, tok::TokenType::Semicolon},\
-{-30, tok::TokenType::OpenSquareBracket},\
-{-32, tok::TokenType::CloseSquareBracket},\
-{-33, tok::TokenType::OpenParenthesis},\
-{-34, tok::TokenType::CloseParenthesis}, }\
+{{ -1,TokenType::Double},\
+{ -4, TokenType::Id},\
+{-35, TokenType::Id},\
+{ -2, TokenType::Int},\
+{ -8, TokenType::Int},\
+{-10, TokenType::Int},\
+{-16, TokenType::Int},\
+{-39, TokenType::Int},\
+{ -3, TokenType::String},\
+{ -5, TokenType::Assignment},\
+{ -6, TokenType::AssignmentWithPlus},\
+{ -7, TokenType::AssignmentWithMinus},\
+{-40, TokenType::AssignmentWithAsterisk},\
+{ -9, TokenType::AssignmentWithSlash},\
+{-37, TokenType::Plus},\
+{-11, TokenType::Minus},\
+{-12, TokenType::Asterisk},\
+{-13, TokenType::Slash},\
+{-14, TokenType::DoubleAsterisk},\
+{-15, TokenType::At},\
+{-38, TokenType::Caret},\
+{-17, TokenType::SymmetricDiff},\
+{-18, TokenType::ShiftRight},\
+{-19, TokenType::ShiftLeft},\
+{-20, TokenType::Equals},\
+{-22, TokenType::StrictLess},\
+{-23, TokenType::LessOrEquals},\
+{-21, TokenType::StrictGreater},\
+{-24, TokenType::GreaterOrEquals},\
+{-25, TokenType::NotEquals},\
+{-26, TokenType::Colon},\
+{-31, TokenType::Comma},\
+{-28, TokenType::Dot},\
+{-29, TokenType::DoubleDot},\
+{-27, TokenType::Semicolon},\
+{-30, TokenType::OpenSquareBracket},\
+{-32, TokenType::CloseSquareBracket},\
+{-33, TokenType::OpenParenthesis},\
+{-34, TokenType::CloseParenthesis}, }\
 
 #define WITHOUT_PREVIEW \
 {-5, -6, -7, -40, -9, -14, -15, -17, -18, -19, -20, -23, -24, -25, -27, -29, -30, -31, -32, -34, -38}
 
 #define CHANGE_BASE \
-{
-{std::make_pair(0,12),  2}, {std::make_pair(17,19), 2},\
+{{std::make_pair(0,12),  2}, {std::make_pair(17,19), 2},\
 {std::make_pair(0, 1),  8}, {std::make_pair(17,21), 8},\
 {std::make_pair(0,14), 10}, {std::make_pair(17,19),10},\
 {std::make_pair(0, 4), 16}, {std::make_pair(17,20),16}}\

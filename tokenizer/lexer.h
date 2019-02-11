@@ -14,20 +14,15 @@ namespace lx {
 class Lexer {
  public:
   explicit Lexer(const std::string&);
-
   ~Lexer() = default;
 
   std::unique_ptr<tok::TokenBase> next();
 
  private:
   inline void errorHandler(int state);
-
   inline void checkLenId(int prevState, int newState);
-
   inline bool isEndComment(int prevState, int newState);
-
   inline bool isWhitespace(int prevState, int newState);
-
   inline bool isPreview(int);
 
   struct pairHash {
