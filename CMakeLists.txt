@@ -12,18 +12,21 @@ set(LEX_SOURCES
         tokenizer/lexer.h tokenizer/lexer.cpp tokenizer/state_table.h)
 
 set(PAR_SOURCES
-        parser/astnode.h
-        parser/node.cpp parser/node.h
         parser/parser.cpp parser/parser.h
         parser/printf_visitor.cpp parser/visitor.h
-        parser/table_symbol.h parser/symbol_type.h parser/symbol_fun.h parser/symbol_var.h parser/symbol.cpp
         parser/type_checker.cpp parser/type_checker.h
         parser/semantic_decl.h parser/semantic_decl.cpp)
+
+set(NODE_SOURCE
+        node/astnode.h
+        node/node.cpp node/node.h
+        node/table_symbol.h node/symbol_type.h
+        node/symbol_fun.h node/symbol_var.h node/symbol.cpp)
 
 set(GEN_SOURCES
         assembler/opcode.h assembler/opcode.cpp
         assembler/generator.cpp assembler/generator.h)
 
-include_directories(tokenizer parser include-lib assembler)
+include_directories(tokenizer parser include-lib assembler node)
 
-add_executable(Compile ${MAIN_SOURCES} ${LEX_SOURCES} ${PAR_SOURCES} ${GEN_SOURCES})
+add_executable(Compile ${MAIN_SOURCES} ${LEX_SOURCES} ${PAR_SOURCES} ${GEN_SOURCES} ${NODE_SOURCE})
