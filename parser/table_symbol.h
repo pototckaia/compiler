@@ -78,6 +78,7 @@ class StackTable {
   std::shared_ptr<Const> findConst(const std::string&);
   ptr_Var findVar(const std::string&);
 
+ private:
   std::list<Tables> stack;
 };
 
@@ -89,10 +90,10 @@ void TableSymbol<T>::replace(T t) {
 
 template<class T>
 void TableSymbol<T>::insert(T t) {
-  if (checkContain(t->name)) {
-    throw std::logic_error("Already defined " + t->name);
+  if (checkContain(t->getName())) {
+    throw std::logic_error("Already defined " + t->getName());
   }
-  table[t->name] = std::forward<T>(t);
+  table[t->getName()] = std::forward<T>(t);
 }
 
 template<class T>

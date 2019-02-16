@@ -25,7 +25,7 @@ std::string toString(TokenType k) {
 
 
 #define MAKE_LIST(E, S) {S, TokenType::E},
-static std::map<std::string, TokenType> mapKeyword({KEYWORD_TYPE(MAKE_LIST)});
+static std::unordered_map<std::string, TokenType> mapKeyword({KEYWORD_TYPE(MAKE_LIST)});
 #undef MAKE_LIST
 
 TokenType getKeywordType(const std::string& s) {

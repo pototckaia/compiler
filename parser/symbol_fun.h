@@ -8,47 +8,66 @@
 class Function : public SymFun {
  public:
   using SymFun::SymFun;
-  Function(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f,
+  // TODO move to cpp
+  Function(const Token& t, std::shared_ptr<FunctionSignature> f,
            ptr_Stmt p, Tables l)
     : SymFun(t, std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
 
   ~Function() override;
 
+	void accept(Visitor& v) override;
+	bool isEmbedded() const override { return false; }
+
+	ptr_Stmt& getBody() override;
+	Tables& getTable() override;
+
+ private:
   Tables localVar;
   ptr_Stmt body;
-  void accept(Visitor& v) override;
-  bool isEmbedded() const override { return false; }
-  ptr_Stmt& getBody() override;
-  Tables& getTable() override;
 };
 
 class ForwardFunction : public Function {
  public:
-  ForwardFunction(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
+	// TODO move to cpp
+  ForwardFunction(const Token& t, std::shared_ptr<FunctionSignature> f)
     : Function(t, std::move(f)) {}
 
   void accept(Visitor& v) override;
-  bool isEmbedded() const override { return false; }
+
+	bool isEmbedded() const override { return false; }
   bool isForward() const override { return true; }
 
   std::string getLabel() override { return function->getLabel(); }
   void setLabel(const std::string& s) override { function->setLabel(s); }
 
-  std::shared_ptr<SymFun> function;
   SymFun::ptr_Sign& getSignature() override;
-  ptr_Stmt& getBody() override;
-  Tables& getTable() override;
+	ptr_Stmt& getBody() override;
+	Tables& getTable() override;
+
+	const auto& getFunction() { return function; }
+	void setFunction(const std::shared_ptr<SymFun>& fun) { function = fun; }
+
+ private:
+	std::shared_ptr<SymFun> function;
+
 };
 
 class MainFunction : public SymFun {
  public:
   using SymFun::SymFun;
+  // TODO move to cpp
   MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
   void accept(Visitor& v) override;
+
   bool isEmbedded() const override { return false; }
 
+  const auto& getBodyMain() { return body; }
+  // TODO not work visit
+  auto& getDecl() { return decl; }
+
+ private:
   ptr_Stmt body;
   Tables decl;
 };
@@ -120,6 +139,9 @@ class Exit : public SymFun {
   Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var);
 
   void accept(Visitor& v) override;
+  const auto& getReturnType() { return returnType; }
+
+ private:
   ptr_Type returnType;
   std::shared_ptr<ParamVar> assignmentVar = nullptr;
 };

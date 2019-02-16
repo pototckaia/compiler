@@ -8,9 +8,9 @@ class CompilerException : public std::exception {
  public:
   explicit CompilerException(std::string ss) : s(std::move(ss)) {}
   explicit CompilerException(int line, int column, std::string ss)
-    : s(tok::getPoint(line, column) + std::move(ss)) {}
-  explicit CompilerException(const tok::ptr_Token& t, std::string ss)
-    : CompilerException(t->getLine(), t->getColumn(), std::move(ss)) {}
+    : s(getPoint(line, column) + std::move(ss)) {}
+  explicit CompilerException(const Token& t, std::string ss)
+    : CompilerException(t.getLine(), t.getColumn(), std::move(ss)) {}
 
   const char* what() const noexcept override { return s.c_str(); }
   ~CompilerException() override = default;
@@ -35,27 +35,27 @@ class ParserException : public CompilerException {
  public:
   explicit ParserException(int line, int column, std::string s)
     : CompilerException(line, column, "Illegal expression: " + std::move(s)) {}
-  explicit ParserException(int line, int column, tok::TokenType t)
-    : ParserException(line, column, tok::toString(t)) {}
+  explicit ParserException(int line, int column, TokenType t)
+    : ParserException(line, column, toString(t)) {}
   explicit ParserException(int line, int column, std::string except, std::string get)
     : CompilerException(line, column,
       "Expect: \""  + std::move(except) + "\" but find \"" + std::move(get) + "\"") {}
-  explicit ParserException(int line, int column, tok::TokenType exceptType, tok::TokenType getType)
-    : ParserException(line, column, tok::toString(exceptType), tok::toString(getType)) {}
+  explicit ParserException(int line, int column, TokenType exceptType, TokenType getType)
+    : ParserException(line, column, toString(exceptType), toString(getType)) {}
 };
 
 class AlreadyDefinedException : public CompilerException {
  public:
   explicit AlreadyDefinedException(int line, int column, std::string n)
     : CompilerException(line, column, "Already defined \"" + std::move(n) + "\"") {}
-  explicit AlreadyDefinedException(const tok::ptr_Token& t)
-    : CompilerException(tok::getPoint(t) + "Already defined \"" + t->getValueString() + "\"") {}
+  explicit AlreadyDefinedException(const Token& t)
+    : CompilerException(getPoint(t) + "Already defined \"" + t.getString() + "\"") {}
 };
 
 class NotDefinedException: public CompilerException {
  public:
   explicit NotDefinedException(std::string ss)
    : CompilerException("Not defined \"" + std::move(ss) + "\"") {};
-  explicit NotDefinedException(const tok::ptr_Token& t)
-   : CompilerException(tok::getPoint(t) + "Not defined \"" + t->getValueString() + "\"") {};
+  explicit NotDefinedException(const Token& t)
+   : CompilerException(getPoint(t) + "Not defined \"" + t.getStrValue() + "\"") {};
 };

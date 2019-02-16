@@ -51,8 +51,8 @@ class ArrayAccessChecker : public BaseTypeChecker {
   static void make(ArrayAccess&, ptr_Type&);
 
   ArrayAccessChecker(ArrayAccess& a)
-  : BaseTypeChecker(tok::getPoint(a.line, a.column) +
-                    "Array access to type \"" + a.getName()->type->name + "\" not valid"),
+  : BaseTypeChecker(getPoint(a.getLine(), a.getColumn()) +
+                    "Array access to type \"" + a.getName()->getType()->getName() + "\" not valid"),
     arrayAccess(a),
     sizeBounds(a.getListIndex().size()) {}
 
@@ -70,8 +70,8 @@ class RecordAccessChecker : public BaseTypeChecker {
   static void make(RecordAccess&, ptr_Type&);
 
   RecordAccessChecker(RecordAccess& a)
-    : BaseTypeChecker(tok::getPoint(a.line, a.column) +
-                      "Record access to type \"" + a.getRecord()->type->name + "\" not valid"),
+    : BaseTypeChecker(getPoint(a.getLine(), a.getColumn()) +
+                      "Record access to type \"" + a.getRecord()->getType()->getName() + "\" not valid"),
       recordAccess(a) {}
 
   void visit(Record&) override;
@@ -85,7 +85,7 @@ class FunctionCallChecker : public BaseTypeChecker {
   static void make(FunctionCall&, const ptr_Symbol&);
 
   FunctionCallChecker(FunctionCall& f)
-    : BaseTypeChecker(tok::getPoint(f.line, f.column) + "Expect function or procedure"), f(f) {}
+    : BaseTypeChecker(getPoint(f.getLine(), f.getColumn()) + "Expect function or procedure"), f(f) {}
 
   void visit(FunctionSignature& f) override;
   void visit(Read&) override;

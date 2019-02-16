@@ -6,7 +6,7 @@ LexerBuffer::LexerBuffer(const std::string& fileName)
   : lexer(fileName), buffer() {}
 
 
-std::unique_ptr<tok::TokenBase> LexerBuffer::next() {
+Token LexerBuffer::next() {
   if (!buffer.empty()) {
     auto tok(std::move(*buffer.begin()));
     buffer.pop_front();
@@ -15,8 +15,8 @@ std::unique_ptr<tok::TokenBase> LexerBuffer::next() {
   return lexer.next();
 }
 
-const std::unique_ptr<tok::TokenBase>& LexerBuffer::get() {
-  std::list<std::unique_ptr<tok::TokenBase>>::iterator it;
+const Token& LexerBuffer::get() {
+  std::list<Token>::iterator it;
 
   if (!buffer.empty()) {
     it = buffer.begin();
@@ -28,9 +28,10 @@ const std::unique_ptr<tok::TokenBase>& LexerBuffer::get() {
   return *it;
 }
 
-void LexerBuffer::push_back(std::unique_ptr<tok::TokenBase> t) {
+void LexerBuffer::push_back(Token t) {
   buffer.emplace_back(std::move(t));
 }
+
 LexerBuffer& LexerBuffer::operator++() {
   next();
   return *this;

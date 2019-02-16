@@ -10,78 +10,98 @@
 class Expression : public virtual ASTNode {
  public:
   Expression() = default;
-  Expression(ptr_Type t) : type(std::move(t)) {}
+  Expression(ptr_Type t);
 
-  ptr_Type type;
-  std::shared_ptr<SymFun> embeddedFunction;
-  virtual std::string getVarName() { return ""; }
+  // TODO: replace
+	virtual std::string getVarName() { return ""; }
+
+	auto& getType() { return type; }
+	void setType(const ptr_Type& type_) { type = type_; }
+	auto& getEmbeddedFunction() { return embeddedFunction; }
+	void setEmbeddedFunction(const std::shared_ptr<SymFun>& e) { embeddedFunction = e; }
+
+ protected:
+	ptr_Type type;
+
+  // TODO: replace
+	std::shared_ptr<SymFun> embeddedFunction;
 };
 
 class Variable : public Expression {
  public:
-  Variable(std::unique_ptr<tok::TokenBase>);
-  Variable(std::unique_ptr<tok::TokenBase>, ptr_Type);
+  Variable(const Token&);
+  Variable(const Token&, ptr_Type);
 
+  // TODO rename
   const auto& getName() const { return name; }
-  std::string getVarName() override { return name->getValueString(); }
+  std::string getVarName() override { return name.getString(); }
   void accept(Visitor&) override;
 
  private:
-  ptr_Token name;
+  Token name;
 };
 
 
 class Literal : public Expression {
  public:
-  Literal(std::unique_ptr<tok::TokenBase>);
-  Literal(std::unique_ptr<tok::TokenBase> v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
+  Literal(const Token&);
+	Literal(const Token& v, ptr_Type t);
 
+	// TODO rename
   const auto& getValue() const { return value; }
   void accept(Visitor&) override;
 
  private:
-  ptr_Token value;
+  Token value;
 };
 
 
 class BinaryOperation : public Expression {
  public:
-  BinaryOperation(std::unique_ptr<tok::TokenBase>,
-                  ptr_Expr,
-                  ptr_Expr);
+  BinaryOperation(const Token&, ptr_Expr, ptr_Expr);
 
-  const auto& getLeft() const { return left; }
+  // TODO rename
+  auto& getLeft() { return left; }
   const auto& getRight() const { return right; }
   const auto& getOpr() const { return opr; }
 
+  void setRight(ptr_Expr r) { right = std::move(r); }
+	void setLeft(ptr_Expr r) { left = std::move(r); }
+
   void accept(Visitor&) override ;
 
-  ptr_Token opr;
+ private:
+  Token opr;
   ptr_Expr left;
   ptr_Expr right;
 };
 
 class UnaryOperation : public Expression {
  public:
-  UnaryOperation(std::unique_ptr<tok::TokenBase>, ptr_Expr);
+  UnaryOperation(const Token&, ptr_Expr);
 
+  // TODO rename
   const auto& getOpr() const { return opr; }
-  const auto& getExpr() const { return expr; }
+  auto& getExpr() { return expr; }
 
   void accept(Visitor&) override;
 
-  ptr_Token opr;
+ private:
+  Token opr;
   ptr_Expr expr;
 };
 
 class ArrayAccess : public Expression {
  public:
-  ArrayAccess(const ptr_Token& d, ptr_Expr name, ListExpr i);
+  ArrayAccess(const Token&, ptr_Expr, ListExpr);
 
-  const auto& getName() const { return nameArray; }
+  // TODO rename
+  auto& getName() { return nameArray; }
   const auto& getListIndex() const { return listIndex; };
 
   void accept(Visitor&) override;
+
+ private:
   ptr_Expr nameArray;
   ListExpr listIndex;
 };
@@ -89,13 +109,17 @@ class ArrayAccess : public Expression {
 class FunctionCall : public Expression {
  public:
   FunctionCall() = default;
-  FunctionCall(const ptr_Token& d, ptr_Expr, ListExpr);
+  FunctionCall(const Token&, ptr_Expr, ListExpr);
 
-  const auto& getName() const { return nameFunction; }
-  const auto& getParam() const { return listParam; };
+  // TODO replace
+  auto& getName() { return nameFunction; }
+  // TODO do cast in parser
+  ListExpr& getParam() { return listParam; };
+  void setParam(const ListExpr& exp) { listParam = exp; }
 
   void accept(Visitor&) override;
 
+ private:
   ptr_Expr nameFunction;
   ListExpr listParam;
 };
@@ -103,32 +127,35 @@ class FunctionCall : public Expression {
 class Cast : public Expression {
  public:
   Cast(ptr_Type to, ptr_Expr expr);
+  // TODO why this??
   Cast(FunctionCall);
+
   void accept(Visitor& v) override;
+	const auto& getExpr() { return expr; }
+
+ private:
   ptr_Expr expr;
 };
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<tok::TokenBase>);
+  RecordAccess(const Token&, ptr_Expr, Token);
 
-  auto& getRecord() const { return record; }
-  auto& getField() const { return field; };
+  auto& getRecord() { return record; }
+  const auto& getField() const { return field; };
 
   void accept(Visitor&) override;
 
+ private:
   ptr_Expr record;
-  ptr_Token field;
+  Token field;
 };
 
 class ASTNodeStmt : public virtual ASTNode {};
 
 class AssignmentStmt : public ASTNodeStmt, public BinaryOperation {
  public:
-  AssignmentStmt(ptr_Token,
-    ptr_Expr,
-    ptr_Expr);
-
+  using BinaryOperation::BinaryOperation;
   void accept(Visitor&) override;
 };
 
@@ -163,11 +190,13 @@ class IfStmt : public ASTNodeStmt {
   IfStmt(ptr_Expr, ptr_Stmt, ptr_Stmt);
 
   const auto& getCondition() const { return condition; }
+  void setCondition(ptr_Expr c) { condition = std::move(c); }
   const auto& getThen() const { return then_stmt; }
   const auto& getElse() const { return else_stmt; }
 
   void accept(Visitor&) override;
 
+ private:
   ptr_Expr condition;
   ptr_Stmt then_stmt;
   ptr_Stmt else_stmt = nullptr;
@@ -180,10 +209,12 @@ class WhileStmt : public LoopStmt {
   WhileStmt(ptr_Expr, ptr_Stmt);
 
   const auto& getCondition() const { return condition; }
+	void setCondition(ptr_Expr c) { condition = std::move(c); }
   const auto& getBlock() const { return block; }
 
   void accept(Visitor&) override;
 
+ private:
   ptr_Expr condition;
   ptr_Stmt block;
 };
@@ -194,7 +225,7 @@ class ForStmt : public LoopStmt {
           ptr_Expr, ptr_Expr, bool,
           ptr_Stmt);
 
-  auto& getVar() const { return var; }
+  const auto& getVar() const { return var; }
   const auto& getLow() const { return low; }
   const auto& getHigh() const { return high; }
   bool getDirect() const { return direct; }
@@ -202,6 +233,7 @@ class ForStmt : public LoopStmt {
 
   void accept(Visitor&) override;
 
+ private:
   std::unique_ptr<Variable> var;
   ptr_Stmt block;
   ptr_Expr low;

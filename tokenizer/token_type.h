@@ -52,7 +52,7 @@
   X(Downto,    "downto") \
   X(Else,      "else") \
   X(End,       "end") \
-  X(False,     "false")
+  X(False,     "false") \
   X(For,       "for") \
   X(Function,  "function") \
   X(Goto,      "goto") \

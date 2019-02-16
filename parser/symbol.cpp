@@ -7,16 +7,29 @@
 #include "../exception.h"
 #include "visitor.h"
 
+
+FunctionSignature::FunctionSignature(int line, int column, ListParam param, ptr_Type returnType)
+  : SymType(line, column),
+    paramsList(std::move(param)), returnType(std::move(returnType)) {}
+
+FunctionSignature::FunctionSignature(ptr_Type returnType)
+  : returnType(std::move(returnType)) {}
+
+StaticArray::StaticArray(int line, int column, StaticArray::BoundsType b, ptr_Type t)
+  : SymType(line, column), bounds(std::move(b)), typeElem(std::move(t)) {}
+
+ParamVar::ParamVar(ptr_Type type, ParamSpec s) : SymVar("", std::move(type)), spec(s) {}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);
 }
 
 void Tables::insertCheck(const std::shared_ptr<Symbol>& t) {
-  if (checkContain(t->name) &&
-    (!tableVariable.find(t->name)->isForward() ||
-     !tableFunction.find(t->name)->isForward())) {
-    throw AlreadyDefinedException(t->line, t->column, t->name);
+  if (checkContain(t->getName()) &&
+    (!tableVariable.find(t->getName())->isForward() ||
+     !tableFunction.find(t->getName())->isForward())) {
+    throw AlreadyDefinedException(t->getLine(), t->getColumn(), t->getName());
   }
 }
 
@@ -34,28 +47,28 @@ void Tables::insert(const std::shared_ptr<ForwardFunction>& f) {
 
 void Tables::resolveForwardType() {
   for (auto& e : forwardType) {
-    if (tableType.find(e->name)->isForward()) {
-      throw SemanticException(e->line, e->column, "Type \"" + e->name + "\" not resolve");
+    if (tableType.find(e->getName())->isForward()) {
+      throw SemanticException(e->getLine(), e->getColumn(), "Type \"" + e->getName() + "\" not resolve");
     }
-    e->type = tableType.find(e->name);
+    e->setReftType(tableType.find(e->getName()));
   }
   forwardType.clear();
 }
 
 void Tables::resolveForwardFunction() {
   for (auto& e : forwardFunction) {
-    auto& function = tableFunction.find(e->name);
+    auto& function = tableFunction.find(e->getName());
     if (function->isForward()) {
-      throw SemanticException(e->line, e->column, "Function \"" + e->name + "\" not resolve");
+      throw SemanticException(e->getLine(), e->getColumn(), "Function \"" + e->getName() + "\" not resolve");
     }
-    if (function->signature == nullptr) {
+    if (function->getSignature() == nullptr) {
       throw std::logic_error("Signature nullptr");
     }
-    if (!function->signature->equals(e->signature.get())) {
-      throw SemanticException(e->line, e->column,
-        "Signature resolve function not equals with forward function " + e->name);
+    if (!function->getSignature()->equals(e->getSignature().get())) {
+      throw SemanticException(e->getLine(), e->getColumn(),
+        "Signature resolve function not equals with forward function " + e->getName());
     }
-    e->function = function;
+    e->setFunction(function);
   }
   forwardFunction.clear();
 }
@@ -63,7 +76,7 @@ void Tables::resolveForwardFunction() {
 uint64_t Tables::sizeVar() {
   uint64_t s = 0;
   for (auto& v : tableVariable) {
-    s += v.second->type->size();
+    s += v.second->getType()->size();
   }
   return s;
 }
@@ -181,9 +194,9 @@ std::string toString(ParamSpec p) {
 
 bool SymType::checkAlias(SymType* s) const {
   if (dynamic_cast<Alias*>(s)) {
-    return equals(dynamic_cast<Alias*>(s)->type.get());
+    return equals(dynamic_cast<Alias*>(s)->getRefType().get());
   } else if (dynamic_cast<ForwardType*>(s)) {
-    return equals(dynamic_cast<ForwardType*>(s)->type.get());
+    return equals(dynamic_cast<ForwardType*>(s)->getRefType().get());
   }
   return false;
 }
@@ -235,15 +248,15 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
   if (dynamic_cast<StaticArray*>(s)) {
     auto p = dynamic_cast<StaticArray*>(s);
     auto copy = std::make_shared<StaticArray>(*p);
-    copy->bounds.pop_front();
-    if (copy->bounds.empty()) {
-      return typeElem->equalsForCheckArgument(copy->typeElem.get());
+    copy->getBounds().pop_front();
+    if (copy->getBounds().empty()) {
+      return typeElem->equalsForCheckArgument(copy->getRefType().get());
     } else {
       return typeElem->equalsForCheckArgument(copy.get());
     }
   } if (dynamic_cast<Alias*>(s)) {
     auto p = dynamic_cast<Alias*>(s);
-    return equalsForCheckArgument(p->type.get());
+    return equalsForCheckArgument(p->getRefType().get());
   }
   return false;
 }
@@ -251,7 +264,7 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
 bool Record::equals(SymType* s) const {
   if (dynamic_cast<Record*>(s)) {
     auto record = dynamic_cast<Record*>(s);
-    return (!isAnonymous() && s->name == name) ||
+    return (!isAnonymous() && s->getName() == name) ||
            (isAnonymous() && this == record);
   }
   return checkAlias(s);
@@ -299,68 +312,44 @@ Read::Read(bool newLine) {
 }
 
 Round::Round() : SymFun("round") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Double>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Int>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 }
 
 Trunc::Trunc() : SymFun("trunc") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Double>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Int>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 };
 
 Succ::Succ() : SymFun("succ") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Int>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 }
 
 Prev::Prev()  : SymFun("prev") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Int>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 }
 
 Chr::Chr() : SymFun("chr") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Char>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Char>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 }
 
 Ord::Ord() : SymFun("ord") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Char>();
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
+  SymFun::signature = std::make_shared<FunctionSignature>(std::make_shared<Int>);
+  auto var = std::make_shared<ParamVar>(std::make_shared<Char>, ParamSpec::NotSpec);
+  ListParam p(1, var);
   SymFun::signature->setParamsList(p);
 }
 
@@ -413,7 +402,7 @@ void Record::addVar(const ptr_Var& v) {
 uint64_t Record::offset(const std::string& name) {
   uint64_t offset = 0;
   auto iter = fieldsList.begin();
-  while (iter != fieldsList.end() && (*iter)->name != name) {
+  while (iter != fieldsList.end() && (*iter)->getName() != name) {
     offset += (*iter)->size();
     ++iter;
   }
@@ -429,7 +418,7 @@ bool SymType::isTrivial() const {
 SymFun::ptr_Sign& SymFun::getSignature() { return signature; }
 ptr_Stmt& Function::getBody() { return body; }
 Tables& Function::getTable() { return localVar; }
-SymFun::ptr_Sign& ForwardFunction::getSignature() { return function->signature; }
+SymFun::ptr_Sign& ForwardFunction::getSignature() { return function->getSignature(); }
 ptr_Stmt& ForwardFunction::getBody() { return function->getBody(); }
 Tables& ForwardFunction::getTable() { return function->getTable(); }
 
