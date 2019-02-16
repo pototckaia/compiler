@@ -38,7 +38,6 @@
   X(CloseParenthesis,       ")") \
   X(OpenSquareBracket,      "[") \
   X(CloseSquareBracket,     "]") \
-  X(Comment,                "Comment") \
   X(EndOfFile,              "EOF")
 
 
@@ -91,7 +90,7 @@ enum class TokenType {
 };
 #undef MAKE_ENUM
 
-std::string toStringGroup(TokenType);
+std::string getGroup(TokenType);
 
 std::string toString(TokenType);
 

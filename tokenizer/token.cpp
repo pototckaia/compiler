@@ -15,7 +15,7 @@ std::string TokenBase::toString() const {
 
 std::string TokenBase::beginOfString() const {
   return std::to_string(line) + "\t" + std::to_string(column) + "\t" +
-         tok::toStringGroup(tokenType) + "\t\"" + strValue + "\"\t";
+			tok::getGroup(tokenType) + "\t\"" + strValue + "\"\t";
 }
 
 
