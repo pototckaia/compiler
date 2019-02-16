@@ -88,8 +88,7 @@
 {-5, -6, -7, -40, -9, -14, -15, -17, -18, -19, -20, -23, -24, -25, -27, -29, -30, -31, -32, -34, -38}
 
 #define CHANGE_BASE \
-{
-{std::make_pair(0,12),  2}, {std::make_pair(17,19), 2},\
+{{std::make_pair(0,12),  2}, {std::make_pair(17,19), 2},\
 {std::make_pair(0, 1),  8}, {std::make_pair(17,21), 8},\
 {std::make_pair(0,14), 10}, {std::make_pair(17,19),10},\
 {std::make_pair(0, 4), 16}, {std::make_pair(17,20),16}}\

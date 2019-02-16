@@ -7,7 +7,7 @@
   X(Int,                   "Int") \
   X(Id,                    "Id") \
   X(Double,                "Double") \
-  X(String,                "String") \ 
+  X(String,                "String") \
   X(Plus,                   "+") \
   X(Minus,                  "-") \
   X(Asterisk,               "*") \
@@ -54,7 +54,7 @@
   X(Downto,    "downto") \
   X(Else,      "else") \
   X(End,       "end") \
-  X(False,     "false")
+  X(False,     "false")\
   X(For,       "for") \
   X(Function,  "function") \
   X(Goto,      "goto") \
