@@ -4,7 +4,7 @@
 # You can end patterns with a forward slash (/) 
 # to specify a directory.
 cmake*/
-build/
+lib/
 *.out*
 .idea
 venv/
