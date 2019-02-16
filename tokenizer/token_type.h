@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#define TOKEN_TYPE(X, XX) \
+#define TOKEN_TYPE(X) \
   X(Int,                   "Int") \
   X(Id,                    "Id") \
   X(Double,                "Double") \
@@ -85,12 +85,10 @@
 namespace tok {
 
 #define MAKE_ENUM(E, S) E,
-#define MAKE_ENUM_WITH_N(E, S, N) E = N,
 enum class TokenType {
-  TOKEN_TYPE(MAKE_ENUM, MAKE_ENUM_WITH_N)
+  TOKEN_TYPE(MAKE_ENUM)
   KEYWORD_TYPE(MAKE_ENUM)
 };
-#undef MAKE_ENUM_WITH_N
 #undef MAKE_ENUM
 
 std::string toStringGroup(TokenType);
