@@ -8,12 +8,13 @@
 class Function : public SymFun {
  public:
   using SymFun::SymFun;
-  Function(const ptr_Token& t, std::shared_ptr<FunctionSignature> f,
+  // todo move to cpp
+  Function(const Token& t, std::shared_ptr<FunctionSignature> f,
            ptr_Stmt p, Tables l)
     : SymFun(t, std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
 
   ~Function() override;
-
+// todo private
   Tables localVar;
   ptr_Stmt body;
   void accept(Visitor& v) override;
@@ -24,7 +25,8 @@ class Function : public SymFun {
 
 class ForwardFunction : public Function {
  public:
-  ForwardFunction(const ptr_Token& t, std::shared_ptr<FunctionSignature> f)
+	// todo move to cpp
+  ForwardFunction(const Token& t, std::shared_ptr<FunctionSignature> f)
     : Function(t, std::move(f)) {}
 
   void accept(Visitor& v) override;
@@ -34,6 +36,7 @@ class ForwardFunction : public Function {
   std::string getLabel() override { return function->getLabel(); }
   void setLabel(const std::string& s) override { function->setLabel(s); }
 
+	// todo move to cpp setter to function
   std::shared_ptr<SymFun> function;
   SymFun::ptr_Sign& getSignature() override;
   ptr_Stmt& getBody() override;
@@ -43,12 +46,13 @@ class ForwardFunction : public Function {
 class MainFunction : public SymFun {
  public:
   using SymFun::SymFun;
+	// todo move to cpp
   MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
   void accept(Visitor& v) override;
   bool isEmbedded() const override { return false; }
-
+// todo privat
   ptr_Stmt body;
   Tables decl;
 };
@@ -120,6 +124,7 @@ class Exit : public SymFun {
   Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var);
 
   void accept(Visitor& v) override;
+  // todo private
   ptr_Type returnType;
   std::shared_ptr<ParamVar> assignmentVar = nullptr;
 };

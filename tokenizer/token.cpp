@@ -2,50 +2,73 @@
 
 #include <string>
 
-Token::Token(int line, int column, TokenType tokenType, const std::string& strValue)
-  : line(line), column(column),
-    tokenType(tokenType),
-    strValue(strValue) {}
-
-std::string Token::toString() const {
-  return beginOfString() + "\t\"" + strValue + "\"";
+std::string getPoint(int line, int column, std::string sep) {
+	return std::to_string(line) + std::move(sep) +
+				 std::to_string(column) + "\t";
 }
 
-std::string Token::beginOfString() const {
-  return std::to_string(line) + "\t" + std::to_string(column) + "\t" +
-			getGroup(tokenType) + "\t\"" + strValue + "\"\t";
+std::string getPoint(const Token& t, std::string sep) {
+	return getPoint(t.getLine(), t.getColumn(), std::move(sep));
 }
 
+Token::Token(int line, int column,
+					   TokenType tokenType, const std::string& strValue)
+    : line(line), column(column),
+      tokenType(tokenType),
+      strValue(strValue),
+      value(strValue) {}
 
-StringConstant::StringConstant(int line, int column, TokenType token_type,
-                               const std::string& value, const std::string& strValue)
-  : Token(line, column, token_type, strValue), value(value) {}
+Token::Token(int line, int column, TokenType tokenType)
+    : Token(line, column, tokenType, toString(tokenType)) {}
 
-std::string StringConstant::toString() const {
-  return Token::beginOfString() + "\t\"" + value + "\"";
+Token::Token(int line, int column,
+						 uint64_t value, const std::string& strValue)
+		: line(line), column(column),
+			tokenType(TokenType::Int),
+			strValue(strValue),
+			value(value) {}
+
+Token::Token(int line, int column,
+						 long double value, const std::string& strValue)
+		: line(line), column(column),
+			tokenType(TokenType::Double),
+			strValue(strValue),
+			value(value) {}
+
+Token::Token(int line, int column,
+						 TokenType tokenType,
+						 const std::string& value,
+						 const std::string& strValue)
+		: line(line), column(column),
+			tokenType(tokenType),
+			strValue(strValue),
+			value(value) {}
+
+
+uint64_t Token::getInt() const {
+	return std::get<uint64_t>(value);
 }
 
-
-template<typename T>
-NumberConstant<T>::NumberConstant(int line, int column, TokenType tokenType,
-                                  T& value, const std::string& strValue)
-  : Token(line, column, tokenType, strValue), value(value) {}
-
-template<typename T>
-std::string NumberConstant<T>::toString() const {
-  return Token::beginOfString() + "\t" + std::to_string(value);
+long double Token::getDouble() const {
+	return std::get<long double>(value);
 }
 
-std::string getPoint(int line, int column) {
-  return std::to_string(line) + "," + std::to_string(column) + "\t";
+// helper type for the visitor
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+std::string Token::getString() const {
+	return std::visit(
+			overloaded{
+					[](uint64_t arg) { return std::to_string(arg); },
+					[](long double arg) { return std::to_string(arg); },
+					[](std::string arg) { return arg; },},
+			value);
 }
 
-std::string getPoint(const ptr_Token& t) {
-  return getPoint(t->getLine(), t->getColumn());
+std::string Token::getTestLine() const {
+	return getPoint(*this, "\t") +
+				 getGroup(tokenType) + "\t" +
+				 "\"" + strValue + "\"\t" +
+				 getString();
 }
-
-template
-class NumberConstant<uint64_t>;
-
-template
-class NumberConstant<long double>;

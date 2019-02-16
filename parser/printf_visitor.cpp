@@ -17,12 +17,12 @@ void PrintVisitor::print(const ptr_Type& e) {
 // Expression
 
 void PrintVisitor::visit(Literal& l) {
-  print(l.getValue()->getValueString());
+  print(l.getValue().getString());
   print(l.type);
 }
 
 void PrintVisitor::visit(Variable& v) {
-  print(v.getName()->getValueString());
+  print(v.getName().getString());
   if (v.type != nullptr)
     print(v.type);
   else
@@ -30,7 +30,7 @@ void PrintVisitor::visit(Variable& v) {
 }
 
 void PrintVisitor::visit(BinaryOperation& b) {
-  print(b.getOpr()->getValueString());
+  print(b.getOpr().getString());
   ++depth;
   print(b.type);
   b.getRight()->accept(*this);
@@ -39,7 +39,7 @@ void PrintVisitor::visit(BinaryOperation& b) {
 }
 
 void PrintVisitor::visit(UnaryOperation& u) {
-  print(u.getOpr()->getValueString());
+  print(u.getOpr().getString());
   ++depth;
   print(u.type);
   u.getExpr()->accept(*this);
@@ -76,7 +76,7 @@ void PrintVisitor::visit(RecordAccess& r) {
   print("Record Access");
   ++depth;
   r.getRecord()->accept(*this);
-  print(r.getField()->getValueString());
+  print(r.getField().getString());
   print(r.type);
   --depth;
 }
@@ -94,7 +94,7 @@ void PrintVisitor::visit(Cast& t) {
 void PrintVisitor::visit(AssignmentStmt& a) {
   print("Assigment");
   ++depth;
-  print(a.getOpr()->getValueString());
+  print(a.getOpr().getString());
   a.getLeft()->accept(*this);
   a.getRight()->accept(*this);
   --depth;

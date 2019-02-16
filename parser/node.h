@@ -10,78 +10,81 @@
 class Expression : public virtual ASTNode {
  public:
   Expression() = default;
+  // todo move to cpp
   Expression(ptr_Type t) : type(std::move(t)) {}
 
+  // todo protected setter
   ptr_Type type;
   std::shared_ptr<SymFun> embeddedFunction;
+  // todo remove
   virtual std::string getVarName() { return ""; }
 };
 
 class Variable : public Expression {
  public:
-  Variable(std::unique_ptr<Token>);
-  Variable(std::unique_ptr<Token>, ptr_Type);
+  Variable(const Token&);
+  Variable(const Token&, ptr_Type);
 
   const auto& getName() const { return name; }
-  std::string getVarName() override { return name->getValueString(); }
+  std::string getVarName() override { return name.getString(); }
   void accept(Visitor&) override;
 
  private:
-  ptr_Token name;
+  Token name;
 };
 
 
 class Literal : public Expression {
  public:
-  Literal(std::unique_ptr<Token>);
-  Literal(std::unique_ptr<Token> v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
+  Literal(const Token&);
+  // todo move to cpp
+  Literal(const Token& v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
 
   const auto& getValue() const { return value; }
   void accept(Visitor&) override;
 
  private:
-  ptr_Token value;
+  Token value;
 };
 
 
 class BinaryOperation : public Expression {
  public:
-  BinaryOperation(std::unique_ptr<Token>,
-                  ptr_Expr,
-                  ptr_Expr);
+  BinaryOperation(const Token&, ptr_Expr, ptr_Expr);
 
   const auto& getLeft() const { return left; }
   const auto& getRight() const { return right; }
   const auto& getOpr() const { return opr; }
 
   void accept(Visitor&) override ;
-
-  ptr_Token opr;
+// todo private
+  Token opr;
   ptr_Expr left;
   ptr_Expr right;
 };
 
 class UnaryOperation : public Expression {
  public:
-  UnaryOperation(std::unique_ptr<Token>, ptr_Expr);
+  UnaryOperation(Token, ptr_Expr);
 
   const auto& getOpr() const { return opr; }
   const auto& getExpr() const { return expr; }
 
   void accept(Visitor&) override;
-
-  ptr_Token opr;
+// todo private
+  Token opr;
   ptr_Expr expr;
 };
 
 class ArrayAccess : public Expression {
  public:
-  ArrayAccess(const ptr_Token& d, ptr_Expr name, ListExpr i);
+  ArrayAccess(const Token& d, ptr_Expr name, ListExpr i);
 
   const auto& getName() const { return nameArray; }
   const auto& getListIndex() const { return listIndex; };
 
   void accept(Visitor&) override;
+  // todo private
   ptr_Expr nameArray;
   ListExpr listIndex;
 };
@@ -89,13 +92,13 @@ class ArrayAccess : public Expression {
 class FunctionCall : public Expression {
  public:
   FunctionCall() = default;
-  FunctionCall(const ptr_Token& d, ptr_Expr, ListExpr);
+  FunctionCall(const Token& d, ptr_Expr, ListExpr);
 
   const auto& getName() const { return nameFunction; }
   const auto& getParam() const { return listParam; };
 
   void accept(Visitor&) override;
-
+// todo private
   ptr_Expr nameFunction;
   ListExpr listParam;
 };
@@ -103,32 +106,31 @@ class FunctionCall : public Expression {
 class Cast : public Expression {
  public:
   Cast(ptr_Type to, ptr_Expr expr);
+  // todo why this?
   Cast(FunctionCall);
   void accept(Visitor& v) override;
+  // todo private
   ptr_Expr expr;
 };
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<Token>);
+  RecordAccess(const Token& d, ptr_Expr, Token);
 
   auto& getRecord() const { return record; }
   auto& getField() const { return field; };
 
   void accept(Visitor&) override;
-
+// todo private
   ptr_Expr record;
-  ptr_Token field;
+  Token field;
 };
 
 class ASTNodeStmt : public virtual ASTNode {};
 
 class AssignmentStmt : public ASTNodeStmt, public BinaryOperation {
  public:
-  AssignmentStmt(ptr_Token,
-    ptr_Expr,
-    ptr_Expr);
-
+  using BinaryOperation::BinaryOperation;
   void accept(Visitor&) override;
 };
 
@@ -167,7 +169,7 @@ class IfStmt : public ASTNodeStmt {
   const auto& getElse() const { return else_stmt; }
 
   void accept(Visitor&) override;
-
+// todo private
   ptr_Expr condition;
   ptr_Stmt then_stmt;
   ptr_Stmt else_stmt = nullptr;
@@ -183,7 +185,7 @@ class WhileStmt : public LoopStmt {
   const auto& getBlock() const { return block; }
 
   void accept(Visitor&) override;
-
+// todo private
   ptr_Expr condition;
   ptr_Stmt block;
 };
@@ -201,7 +203,7 @@ class ForStmt : public LoopStmt {
   const auto& getBlock() const { return block; }
 
   void accept(Visitor&) override;
-
+// todo private
   std::unique_ptr<Variable> var;
   ptr_Stmt block;
   ptr_Expr low;

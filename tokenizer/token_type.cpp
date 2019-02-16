@@ -20,7 +20,7 @@ std::string toString(TokenType t) {
 #undef MAKE_CASE_KEYWORD
 #undef MAKE_CASE_TOKEN
 
-
+// TODO replace to unborded map
 #define MAKE_LIST(E, S) {S, TokenType::E},
 static std::map<std::string, TokenType> mapKeyword({KEYWORD_TYPE(MAKE_LIST)});
 #undef MAKE_LIST

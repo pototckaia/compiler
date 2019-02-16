@@ -9,8 +9,8 @@ class CompilerException : public std::exception {
   explicit CompilerException(std::string ss) : s(std::move(ss)) {}
   explicit CompilerException(int line, int column, std::string ss)
     : s(getPoint(line, column) + std::move(ss)) {}
-  explicit CompilerException(const ptr_Token& t, std::string ss)
-    : CompilerException(t->getLine(), t->getColumn(), std::move(ss)) {}
+  explicit CompilerException(const Token& t, std::string ss)
+    : CompilerException(t.getLine(), t.getColumn(), std::move(ss)) {}
 
   const char* what() const noexcept override { return s.c_str(); }
   ~CompilerException() override = default;
@@ -48,14 +48,14 @@ class AlreadyDefinedException : public CompilerException {
  public:
   explicit AlreadyDefinedException(int line, int column, std::string n)
     : CompilerException(line, column, "Already defined \"" + std::move(n) + "\"") {}
-  explicit AlreadyDefinedException(const ptr_Token& t)
-    : CompilerException(getPoint(t) + "Already defined \"" + t->getValueString() + "\"") {}
+  explicit AlreadyDefinedException(const Token& t)
+    : CompilerException(getPoint(t) + "Already defined \"" + t.getString() + "\"") {}
 };
 
 class NotDefinedException: public CompilerException {
  public:
   explicit NotDefinedException(std::string ss)
    : CompilerException("Not defined \"" + std::move(ss) + "\"") {};
-  explicit NotDefinedException(const ptr_Token& t)
-   : CompilerException(getPoint(t) + "Not defined \"" + t->getValueString() + "\"") {};
+  explicit NotDefinedException(const Token& t)
+   : CompilerException(getPoint(t) + "Not defined \"" + t.getString() + "\"") {};
 };

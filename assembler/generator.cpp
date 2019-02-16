@@ -223,10 +223,10 @@ void AsmGenerator::visit(ForwardFunction& f) {
 
 void AsmGenerator::visit(Variable& v) {
   if (v.type->isProcedureType() && 
-      stackTable.isFunction(v.getName()->getValueString())) {
-    stackTable.findFunction(v.getName()->getValueString())->accept(*this);
+      stackTable.isFunction(v.getName().getString())) {
+    stackTable.findFunction(v.getName().getString())->accept(*this);
   } else {
-    stackTable.findVar(v.getName()->getValueString())->accept(*this);
+    stackTable.findVar(v.getName().getString())->accept(*this);
   }
   asm_file
     << Comment("lvalue variable")
@@ -241,27 +241,27 @@ void AsmGenerator::visit(Literal& l) {
   if (l.type->isInt()) {
     asm_file
       << Comment("int literal")
-      << cmd(PUSH, {l.getValue()->getInt()});
+      << cmd(PUSH, {l.getValue().getInt()});
   } else if (l.type->isDouble()) {
     asm_file
       << Comment("double literal")
-      << cmd(MOV, {RAX}, {l.getValue()->getDouble(), double64})
+      << cmd(MOV, {RAX}, {l.getValue().getDouble(), double64})
       << cmd(PUSH, {RAX});
   } else if (l.type->isChar()) {
     asm_file
       << Comment("char literal")
-      << cmd(PUSH, {l.getValue()->getValueString()});
+      << cmd(PUSH, {l.getValue().getString()});
   } else if (l.type->isString()) {
-    auto label_name = add_string(l.getValue()->getValueString());
+    auto label_name = add_string(l.getValue().getString());
     asm_file
       << Comment("string literal")
       << cmd(PUSH, {Label(label_name)});
-  } else if (l.getValue()->getTokenType() == TokenType::Nil ||
-             l.getValue()->getTokenType() == TokenType::False) {
+  } else if (l.getValue().is(TokenType::Nil) ||
+             l.getValue().is(TokenType::False)) {
     asm_file
       << Comment("false or nil literal")
       << cmd(PUSH, {(uint64_t) 0});
-  } else if (l.getValue()->getTokenType() == TokenType::True) {
+  } else if (l.getValue().is(TokenType::True)) {
     asm_file
       << Comment("true literal")
       << cmd(PUSH, {(uint64_t) 1});
@@ -271,7 +271,7 @@ void AsmGenerator::visit(Literal& l) {
 void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
   b.left->accept(*this);
   b.right->accept(*this);
-  auto t = b.getOpr()->getTokenType();
+  auto t = b.getOpr().getTokenType();
   asm_file
     << Comment("arithmetic operation")
     << cmd(POP, {RCX}) // right
@@ -285,7 +285,7 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
       << cmd(MOVQ, {RAX}, {XMM0, none})
       << cmd(PUSH, {RAX});
   } else {
-    switch (b.getOpr()->getTokenType()) {
+    switch (b.getOpr().getTokenType()) {
       case TokenType::Plus:
       case TokenType::Minus:
       case TokenType::Asterisk: {
@@ -329,7 +329,7 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
 void AsmGenerator::visit_cmp(BinaryOperation& b) {
   b.left->accept(*this);
   b.right->accept(*this);
-  auto t = b.getOpr()->getTokenType();
+  auto t = b.getOpr().getTokenType();
   asm_file << Comment("cmp operation");
   if (b.right->type->isDouble()) {
     asm_file
@@ -352,7 +352,7 @@ void AsmGenerator::visit_cmp(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit_logical(BinaryOperation& b) {
-  switch (b.getOpr()->getTokenType()) {
+  switch (b.getOpr().getTokenType()) {
     case TokenType::Xor: {
       b.left->accept(*this);
       b.right->accept(*this);
@@ -442,7 +442,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit(BinaryOperation& b) {
-  switch (b.getOpr()->getTokenType()) {
+  switch (b.getOpr().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus:
     case TokenType::Slash:
@@ -476,7 +476,7 @@ void AsmGenerator::visit(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit(UnaryOperation& u) {
-  switch (u.getOpr()->getTokenType()) {
+  switch (u.getOpr().getTokenType()) {
     case TokenType::Minus: {
       u.expr->accept(*this);
       asm_file << Comment("unary minus");
@@ -660,7 +660,7 @@ void AsmGenerator::visit(RecordAccess& r) {
   bool lvalue = need_lvalue;
   visit_lvalue(*r.record);
   auto record = r.record->type->getRecord();
-  auto offset = record->offset(r.field->getValueString());
+  auto offset = record->offset(r.field.getString());
   asm_file
     << Comment("record access")
     << cmd(POP, {R8}) // add_record
@@ -699,7 +699,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
   a.right->accept(*this);
   visit_lvalue(*a.left);
   if (a.left->type->isTrivial()) {
-    auto t = a.getOpr()->getTokenType();
+    auto t = a.getOpr().getTokenType();
     switch (t) {
       case TokenType::AssignmentWithPlus:
       case TokenType::AssignmentWithMinus:
@@ -819,11 +819,10 @@ void AsmGenerator::visit(Low&) {
 void AsmGenerator::visit(Exit& e) {
   if (!e.returnType->isVoid()) {
     AssignmentStmt c( // result := expr;
-      std::make_unique<Token>(-1, -1, TokenType::Assignment,
-        toString(TokenType::Assignment)),
+      Token(-1, -1, TokenType::Assignment),
       std::make_unique<Variable>(
-        std::make_unique<StringConstant>(-1, -1, TokenType::String,
-          e.assignmentVar->name, e.assignmentVar->name),
+        Token(-1, -1, TokenType::String,
+              e.assignmentVar->name, e.assignmentVar->name),
         e.returnType),
       std::move(syscall_params.front())
     );

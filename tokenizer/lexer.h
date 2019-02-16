@@ -14,20 +14,15 @@ namespace lx {
 class Lexer {
  public:
   explicit Lexer(const std::string&);
-
   ~Lexer() = default;
 
-  std::unique_ptr<Token> next();
+  Token next();
 
  private:
   inline void errorHandler(int state);
-
   inline void checkLenId(int prevState, int newState);
-
   inline bool isEndComment(int prevState, int newState);
-
   inline bool isWhitespace(int prevState, int newState);
-
   inline bool isPreview(int);
 
   struct pairHash {
@@ -43,7 +38,7 @@ class Lexer {
 
   std::ifstream readFile;
 
-  const int startState = 0;
+  const int startState = START_STATE;
   const int eofState = EOF_STATE;
   const int checkIdState = CHECK_ID;
   const int twicePutbackState = TWICE_PUT_BACK;

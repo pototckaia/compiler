@@ -13,17 +13,14 @@ class LexerBuffer {
  public:
   explicit LexerBuffer(const std::string& fileName);
 
-  std::unique_ptr<Token> next();
-
-  const std::unique_ptr<Token>& get();
-
-  void push_back(std::unique_ptr<Token> token);
-
+  Token next();
+  const Token& get();
+  void push_back(Token token);
   LexerBuffer& operator++();
 
  private:
   Lexer lexer;
-  std::list<std::unique_ptr<Token>> buffer;
+  std::list<Token> buffer;
 };
 
 } // namespace lexer

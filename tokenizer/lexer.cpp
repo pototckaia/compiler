@@ -12,6 +12,7 @@ Lexer::Lexer(const std::string& filename)
   : line(1), column(1),
     readFile(filename, std::ifstream::in) {}
 
+    // TODO rename error message
 void Lexer::errorHandler(int state) {
   std::string c(1, curSymbol);
   switch (state) {
@@ -36,6 +37,7 @@ void Lexer::errorHandler(int state) {
   }
 }
 
+// TODO move constant to state_table
 void Lexer::checkLenId(int prevState, int newState) {
   bool isIdContinue = (prevState == 2 && newState == 2) || (prevState == 14 && newState == 14);
   if (isIdContinue && valToken.size() > maxLenId) {
@@ -55,9 +57,9 @@ bool Lexer::isWhitespace(int prevState, int newState) {
   return prevState == 0 && newState == 0;
 }
 
-std::unique_ptr<Token> Lexer::next() {
+Token Lexer::next() {
   if (readFile.bad()) {
-    return std::make_unique<Token>(line, beginToken, TokenType::EndOfFile, "");
+    return Token(line, beginToken, TokenType::EndOfFile);
   }
 
   strToken = "";
@@ -74,7 +76,7 @@ std::unique_ptr<Token> Lexer::next() {
     curSymbol = readFile.get();
     if (curSymbol < 0) {
       curSymbol = 4;
-    } // hack
+    } // hack to end file
 
     newState = stateTable[prevState][curSymbol];
     std::pair<int, int> pairState(prevState, newState);
@@ -118,7 +120,7 @@ std::unique_ptr<Token> Lexer::next() {
   errorHandler(newState);
 
   if (readFile.bad() || newState == eofState) {
-    return std::make_unique<Token>(line, beginToken, TokenType::EndOfFile, "");
+    return Token(line, beginToken, TokenType::EndOfFile);
   }
 
   if (withoutPreview.count(newState) == 0) {
@@ -140,24 +142,24 @@ std::unique_ptr<Token> Lexer::next() {
 
   if (newState == checkIdState && isKeyword(valToken)) {
     tokenType = getKeywordType(valToken);
-    return std::make_unique<StringConstant>(line, beginToken, tokenType, valToken, strToken);
+    return Token(line, beginToken, tokenType, valToken, strToken);
   }
 
   switch (tokenType) {
     case TokenType::Int: {
-      auto value = (uint64_t) std::stoll(valToken, nullptr, baseIntConvert);
-      return std::make_unique<NumberConstant<uint64_t>>(line, beginToken, tokenType, value, strToken);
+      uint64_t value = std::stoll(valToken, nullptr, baseIntConvert);
+      return Token(line, beginToken, value, strToken);
     }
     case TokenType::Double: {
       auto value = std::stold(valToken);
-      return std::make_unique<NumberConstant<long double>>(line, beginToken, tokenType, value, strToken);
+      return Token(line, beginToken, value, strToken);
     }
     case TokenType::String:
     case TokenType::Id: {
-      return std::make_unique<StringConstant>(line, beginToken, tokenType, valToken, strToken);
+      return Token(line, beginToken, tokenType, valToken, strToken);
     }
     default: {
-      return std::make_unique<Token>(line, beginToken, tokenType, strToken);
+      return Token(line, beginToken, tokenType, strToken);
     }
   }
 
@@ -168,8 +170,5 @@ template<class T1, class T2>
 std::size_t Lexer::pairHash::operator()(const std::pair<T1, T2>& p) const {
   auto h1 = std::hash<T1>{}(p.first);
   auto h2 = std::hash<T2>{}(p.second);
-
-  // Mainly for demonstration purposes, i.e. works but is overly simple
-  // In the real world, use sth. like boost.hash_combine
   return h1 ^ h2;
 };

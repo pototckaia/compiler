@@ -27,7 +27,7 @@ void LvalueChecker::visit(Cast& f) {
 }
 
 void LvalueChecker::visit(UnaryOperation& u) {
-  lvalue = u.getOpr()->getTokenType() == TokenType::Caret;
+  lvalue = u.getOpr().getTokenType() == TokenType::Caret;
 }
 
 void BaseTypeChecker::visit(Int&) { throw SemanticException(errorMes); }
@@ -113,10 +113,10 @@ void RecordAccessChecker::make(RecordAccess& r, ptr_Type& t) {
 }
 
 void RecordAccessChecker::visit(Record& r) {
-  if (!r.getTable().checkContain(recordAccess.getField()->getValueString())) {
+  if (!r.getTable().checkContain(recordAccess.getField().getString())) {
     throw NotDefinedException(recordAccess.getField());
   }
-  recordAccess.type = r.getTable().find(recordAccess.getField()->getValueString())->type;
+  recordAccess.type = r.getTable().find(recordAccess.getField().getString())->type;
 }
 
 void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
@@ -247,7 +247,7 @@ void TypeChecker::visit(Literal& l) {
   if (isMustFunctionCall) {
     throw SemanticException(l.line, l.column, "Expect function call ");
   }
-  switch (l.getValue()->getTokenType()) {
+  switch (l.getValue().getTokenType()) {
     case TokenType::Int: {
       l.type = std::make_shared<Int>();
       break;
@@ -261,7 +261,7 @@ void TypeChecker::visit(Literal& l) {
       break;
     }
     case TokenType::String: {
-      if (l.getValue()->getValueString().size() > 1) {
+      if (l.getValue().getString().size() > 1) {
         l.type = std::make_shared<String>();
       } else {
         l.type = std::make_shared<Char>();
@@ -283,10 +283,10 @@ void TypeChecker::visit(Variable& v) {
     throw SemanticException(v.line, v.column, "Expect function call");
   }
 
-  if (stackTable.isFunction(v.getName()->getValueString())) {
-    auto f = stackTable.findFunction(v.getName()->getValueString());
+  if (stackTable.isFunction(v.getName().getString())) {
+    auto f = stackTable.findFunction(v.getName().getString());
     if (f->isEmbedded()) {
-      v.embeddedFunction = stackTable.findFunction(v.getName()->getValueString());
+      v.embeddedFunction = stackTable.findFunction(v.getName().getString());
       v.type = nullptr;
       return;
     } else if (stackTable.top().tableVariable.checkContain(f->name) &&
@@ -301,15 +301,15 @@ void TypeChecker::visit(Variable& v) {
   }
 
   // TODO const
-  if (stackTable.isConst(v.getName()->getValueString())) {
-    v.type = stackTable.findConst(v.getName()->getValueString())->type;
+  if (stackTable.isConst(v.getName().getString())) {
+    v.type = stackTable.findConst(v.getName().getString())->type;
     return;
   }
 
-  if (!stackTable.isVar(v.getName()->getValueString())) {
+  if (!stackTable.isVar(v.getName().getString())) {
     throw NotDefinedException(v.getName());
   }
-  v.type = stackTable.findVar(v.getName()->getValueString())->type;
+  v.type = stackTable.findVar(v.getName().getString())->type;
 }
 
 bool TypeChecker::setCast(BinaryOperation& b, bool isAssigment) {
@@ -340,12 +340,12 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
 
-  if ((b.getOpr()->is(TokenType::Plus) ||
-       b.getOpr()->is(TokenType::AssignmentWithPlus)) &&
+  if ((b.getOpr().is(TokenType::Plus) ||
+       b.getOpr().is(TokenType::AssignmentWithPlus)) &&
       leftType->isPointer() && rightType->isPointer()) {
     return false;
-  } else if ((b.getOpr()->is(TokenType::Minus) ||
-              b.getOpr()->is(TokenType::AssignmentWithMinus)) &&
+  } else if ((b.getOpr().is(TokenType::Minus) ||
+              b.getOpr().is(TokenType::AssignmentWithMinus)) &&
              leftType->isPointer() && rightType->isPointer()) {
     b.type = std::make_shared<Int>();
     return true;
@@ -358,12 +358,11 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
 
   auto m = [](ptr_Expr& r, uint64_t s) -> ptr_Expr {
     auto c = std::make_unique<BinaryOperation>(
-      std::make_unique<Token>(-1, -1, TokenType::Asterisk, toString(TokenType::Asterisk)),
+      Token(-1, -1, TokenType::Asterisk),
       std::move(r),
-      std::make_unique<Literal>(std::make_unique<NumberConstant<uint64_t>>(
-        -1, -1,
-        TokenType::Int, s, ""),
-                                std::make_shared<Int>())
+      std::make_unique<Literal>(
+          Token(-1, -1, s, ""),
+          std::make_shared<Int>())
     );
     c->type = std::make_unique<Int>();
     return c;
@@ -374,7 +373,7 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
     b.type = leftType;
     b.right = m(b.right, leftType->getPointerBase()->size());
     return true;
-  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr()->is(TokenType::Plus)) {
+  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr().is(TokenType::Plus)) {
     b.type = rightType;
     b.left = m(b.left, rightType->getPointerBase()->size());
     return true;
@@ -390,8 +389,8 @@ bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
 
   bool isPass = (leftType->isDouble() || leftType->isInt()) && leftType->equals(rightType.get());
   b.type = leftType;
-  if (b.getOpr()->getTokenType() == TokenType::Slash ||
-      b.getOpr()->getTokenType() == TokenType::AssignmentWithSlash) {
+  if (b.getOpr().is(TokenType::Slash) ||
+      b.getOpr().is(TokenType::AssignmentWithSlash)) {
     if (leftType->isInt() && rightType->isInt()) {
       isPass = !isAssigment;
       b.left = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.left));
@@ -404,7 +403,7 @@ bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
 
 void TypeChecker::visit(BinaryOperation& b) {
   if (isMustFunctionCall) {
-    throw SemanticException(b.line, b.column, "Expect function call but find " + b.getOpr()->getValueString());
+    throw SemanticException(b.line, b.column, "Expect function call but find " + b.getOpr().getString());
   }
   wasFunctionCall = false;
 
@@ -414,14 +413,14 @@ void TypeChecker::visit(BinaryOperation& b) {
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
   if (leftType == nullptr || rightType == nullptr) {
-    throw SemanticException(b.line, b.column, "Cannot " + b.getOpr()->getValueString() + " function");
+    throw SemanticException(b.line, b.column, "Cannot " + b.getOpr().getString() + " function");
   }
 
-  std::string mes = "Operation " + b.getOpr()->getValueString() +
+  std::string mes = "Operation " + b.getOpr().getString() +
                     " to types \"" + leftType->name + "\" and \"" + rightType->name + "\" not valid";
   bool isPass;
 
-  switch (b.getOpr()->getTokenType()) {
+  switch (b.getOpr().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus: { // + -
       isPass = checkTypePlusMinus(b);
@@ -468,7 +467,7 @@ void TypeChecker::visit(BinaryOperation& b) {
       break;
     }
     default: {
-      throw std::logic_error("Not valid BinaryOperation tokenType " + toString(b.getOpr()->getTokenType()));
+      throw std::logic_error("Not valid BinaryOperation tokenType " + toString(b.getOpr().getTokenType()));
     }
   }
 
@@ -479,7 +478,7 @@ void TypeChecker::visit(BinaryOperation& b) {
 
 void TypeChecker::visit(UnaryOperation& u) {
   if (isMustFunctionCall) {
-    throw SemanticException(u.line, u.column, "Expect function call but find " + u.getOpr()->getValueString());
+    throw SemanticException(u.line, u.column, "Expect function call but find " + u.getOpr().getString());
   }
   wasFunctionCall = false;
 
@@ -487,15 +486,15 @@ void TypeChecker::visit(UnaryOperation& u) {
   auto& childType = u.getExpr()->type;
   if (childType == nullptr) {
     throw SemanticException(u.line, u.column,
-                            "Cannot " + u.getOpr()->getValueString() + " embedded function");
+                            "Cannot " + u.getOpr().getString() + " embedded function");
   }
 
   bool isPass = false;
-  std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOpr()->getTokenType());
-  std::string mes = "Operation " + u.getOpr()->getValueString() +
+  std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOpr().getTokenType());
+  std::string mes = "Operation " + u.getOpr().getString() +
                     " to types \"" + childType->name + "\" not valid";
 
-  switch (u.getOpr()->getTokenType()) {
+  switch (u.getOpr().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus: {
       isPass = childType->isInt() || childType->isDouble();
@@ -529,7 +528,7 @@ void TypeChecker::visit(UnaryOperation& u) {
     }
     default:
       throw std::logic_error("Not valid UnaryOperation tokenType " +
-                             toString(u.getOpr()->getTokenType()));
+                             toString(u.getOpr().getTokenType()));
   }
 
   if (!isPass) {
@@ -632,12 +631,12 @@ void TypeChecker::visit(AssignmentStmt& a) {
   if (!LvalueChecker::is(a.left)) {
     throw SemanticException(a.left->line, a.left->column, "Expect lvalue in assigment");
   }
-  std::string mes = "Operation " + a.getOpr()->getValueString() +
+  std::string mes = "Operation " + a.getOpr().getString() +
                     " to types \"" + a.getLeft()->type->name + "\" and \"" +
                     a.getRight()->type->name + "\" not valid";
   auto typeRight = a.getRight()->type;
   auto typeLeft = a.getLeft()->type;
-  switch (a.getOpr()->getTokenType()) {
+  switch (a.getOpr().getTokenType()) {
     case TokenType::AssignmentWithMinus:
     case TokenType::AssignmentWithPlus: {
       if (!checkTypePlusMinus(a, true)) {

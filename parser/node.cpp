@@ -2,33 +2,30 @@
 #include "visitor.h"
 
 
-Variable::Variable(std::unique_ptr<Token> n)
-  : ASTNode(n->getLine(), n->getColumn()), name(std::move(n)) {}
-Variable::Variable(std::unique_ptr<Token> n, ptr_Type t)
+Variable::Variable(const Token& n)
+  : ASTNode(n.getLine(), n.getColumn()), name(std::move(n)) {}
+Variable::Variable(const Token& n, ptr_Type t)
   : ASTNode(-1, -1), Expression(std::move(t)), name(std::move(n)) {}
 
-Literal::Literal(std::unique_ptr<Token> v)
-  : ASTNode(v->getLine(), v->getColumn()), value(std::move(v)) {}
+Literal::Literal(const Token& v)
+  : ASTNode(v.getLine(), v.getColumn()), value(std::move(v)) {}
 
-BinaryOperation::BinaryOperation(std::unique_ptr<Token> op,
+BinaryOperation::BinaryOperation(const Token& op,
                                  ptr_Expr left,
                                  ptr_Expr right)
-  : ASTNode(op->getLine(), op->getColumn()),
+  : ASTNode(op.getLine(), op.getColumn()),
     opr(std::move(op)), left(std::move(left)), right(std::move(right)) {
 
 }
 
-UnaryOperation::UnaryOperation(std::unique_ptr<Token> opr, ptr_Expr expr)
-  : ASTNode(opr->getLine(), opr->getColumn()), opr(std::move(opr)), expr(std::move(expr)) {}
+UnaryOperation::UnaryOperation(Token opr, ptr_Expr expr)
+  : ASTNode(opr.getLine(), opr.getColumn()), opr(std::move(opr)), expr(std::move(expr)) {}
 
-ArrayAccess::ArrayAccess(const ptr_Token& d, ptr_Expr name, ListExpr i)
+ArrayAccess::ArrayAccess(const Token& d, ptr_Expr name, ListExpr i)
   : ASTNode(d), nameArray(std::move(name)), listIndex(std::move(i)) {}
 
-FunctionCall::FunctionCall(const ptr_Token& d, ptr_Expr nameFunction, ListExpr listParam)
+FunctionCall::FunctionCall(const Token& d, ptr_Expr nameFunction, ListExpr listParam)
   : ASTNode(d), nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
-
-AssignmentStmt::AssignmentStmt(ptr_Token op, ptr_Expr l, ptr_Expr r)
-  : ASTNode(op), BinaryOperation(std::move(op), std::move(l), std::move(r)) {}
 
 FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 
@@ -38,7 +35,7 @@ Cast::Cast(FunctionCall f)
   : ASTNode(f.line, f.column), Expression(std::move(f.type)),
     expr(std::move(f.listParam.back())) {}
 
-RecordAccess::RecordAccess(const ptr_Token& d, ptr_Expr record, std::unique_ptr<Token> field)
+RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
   : ASTNode(d), record(std::move(record)), field(std::move(field)) {}
 
 BlockStmt::BlockStmt(ListStmt block) : stmts(std::move(block)) {}

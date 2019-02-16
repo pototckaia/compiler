@@ -11,6 +11,7 @@ class StaticArray;
 class SymType : public Symbol {
  public:
   using Symbol::Symbol;
+  // todo normal double dispatch
   virtual bool equals(SymType* s) const = 0;
   virtual bool equalsForCheckArgument(SymType* s) const { return equals(s); } // вызывет paramenter передается argument
   bool isAnonymous() const { return name.empty(); }
@@ -29,6 +30,7 @@ class SymType : public Symbol {
   virtual bool isStaticArray() const { return false; }
   bool isTrivial() const;
 
+  // todo remove it
   virtual ptr_Type getPointerBase() { return nullptr; }
   virtual Record* getRecord() { return nullptr; }
   virtual FunctionSignature* getSignature() { return nullptr; }
@@ -101,7 +103,7 @@ class TPointer : public SymType {
 class Alias : public SymType {
  public:
   using SymType::SymType;
-  Alias(const ptr_Token& t, ptr_Type p)
+  Alias(const Token& t, ptr_Type p)
     : SymType(t), type(std::move(p)) {}
 
   void accept(Visitor& v) override;
@@ -123,16 +125,18 @@ class Alias : public SymType {
   StaticArray* getStaticArray() override { return type->getStaticArray(); }
 
   uint64_t size() const override;
+  // todo protected
   ptr_Type type;
 };
 
 class ForwardType : public Alias {
  public:
-  ForwardType(const ptr_Token& t) : Alias(t) {}
+  ForwardType(const Token& t) : Alias(t) {}
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isForward() const override { return true; }
+  // setter to type
 };
 
 
@@ -140,14 +144,14 @@ class Pointer : public SymType {
  public:
   using SymType::SymType;
   Pointer(ptr_Type p) : SymType(), typeBase(std::move(p)) {}
-  Pointer(const ptr_Token& t, ptr_Type p)
+  Pointer(const Token& t, ptr_Type p)
     : SymType(t), typeBase(std::move(p)) {}
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isTypePointer() const override { return true; }
   ptr_Type getPointerBase() override { return typeBase; }
-
+// todo private
   ptr_Type typeBase;
 };
 
@@ -168,8 +172,8 @@ class StaticArray : public SymType {
 
 class OpenArray : public SymType{
  public:
-  OpenArray(const ptr_Token& decl, ptr_Type type)
-    : SymType(decl->getLine(), decl->getColumn()), typeElem(std::move(type)) {}
+  OpenArray(const Token& decl, ptr_Type type)
+    : SymType(decl.getLine(), decl.getColumn()), typeElem(std::move(type)) {}
 
   ptr_Type typeElem;
   void accept(Visitor& v) override;
