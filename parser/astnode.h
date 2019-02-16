@@ -12,7 +12,7 @@ class Tables;
 
 using ptr_Node = std::shared_ptr<ASTNode>;
 
-using ptr_Token = std::unique_ptr<TokenBase>;
+using ptr_Token = std::unique_ptr<Token>;
 using ptr_Expr = std::unique_ptr<Expression>;
 using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 

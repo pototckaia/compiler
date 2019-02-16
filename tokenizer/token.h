@@ -7,20 +7,20 @@
 
 #include "token_type.h"
 
-class TokenBase;
+class Token;
 
-using ptr_Token = std::unique_ptr<TokenBase>;
+using ptr_Token = std::unique_ptr<Token>;
 using ListToken = std::list<ptr_Token>;
 
 std::string getPoint(int line, int column);
 
 std::string getPoint(const ptr_Token& t);
 
-class TokenBase {
+class Token {
  public:
-  TokenBase() = delete;
-  TokenBase(int line, int column, TokenType token_type, const std::string& strValue);
-  virtual ~TokenBase() = default;
+  Token() = delete;
+  Token(int line, int column, TokenType token_type, const std::string& strValue);
+  virtual ~Token() = default;
 
   virtual std::string toString() const;
 
@@ -43,7 +43,7 @@ class TokenBase {
 };
 
 template<typename T>
-class NumberConstant : public TokenBase {
+class NumberConstant : public Token {
  public:
   NumberConstant() = delete;
   NumberConstant(int line, int column, TokenType token_type,
@@ -56,19 +56,19 @@ class NumberConstant : public TokenBase {
 
   uint64_t getInt() const override {
     if (getTokenType() == TokenType::Int) { return value; }
-    return TokenBase::getInt();
+    return Token::getInt();
   }
 
   long double getDouble() const override {
     if (getTokenType() == TokenType::Double) { return value; }
-    return TokenBase::getDouble();
+    return Token::getDouble();
   }
 
  private:
   T value;
 };
 
-class StringConstant : public TokenBase {
+class StringConstant : public Token {
  public:
   StringConstant() = delete;
 

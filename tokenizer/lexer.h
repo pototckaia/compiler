@@ -17,7 +17,7 @@ class Lexer {
 
   ~Lexer() = default;
 
-  std::unique_ptr<TokenBase> next();
+  std::unique_ptr<Token> next();
 
  private:
   inline void errorHandler(int state);

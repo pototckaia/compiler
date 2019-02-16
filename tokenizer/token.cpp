@@ -2,16 +2,16 @@
 
 #include <string>
 
-TokenBase::TokenBase(int line, int column, TokenType tokenType, const std::string& strValue)
+Token::Token(int line, int column, TokenType tokenType, const std::string& strValue)
   : line(line), column(column),
     tokenType(tokenType),
     strValue(strValue) {}
 
-std::string TokenBase::toString() const {
+std::string Token::toString() const {
   return beginOfString() + "\t\"" + strValue + "\"";
 }
 
-std::string TokenBase::beginOfString() const {
+std::string Token::beginOfString() const {
   return std::to_string(line) + "\t" + std::to_string(column) + "\t" +
 			getGroup(tokenType) + "\t\"" + strValue + "\"\t";
 }
@@ -19,21 +19,21 @@ std::string TokenBase::beginOfString() const {
 
 StringConstant::StringConstant(int line, int column, TokenType token_type,
                                const std::string& value, const std::string& strValue)
-  : TokenBase(line, column, token_type, strValue), value(value) {}
+  : Token(line, column, token_type, strValue), value(value) {}
 
 std::string StringConstant::toString() const {
-  return TokenBase::beginOfString() + "\t\"" + value + "\"";
+  return Token::beginOfString() + "\t\"" + value + "\"";
 }
 
 
 template<typename T>
 NumberConstant<T>::NumberConstant(int line, int column, TokenType tokenType,
                                   T& value, const std::string& strValue)
-  : TokenBase(line, column, tokenType, strValue), value(value) {}
+  : Token(line, column, tokenType, strValue), value(value) {}
 
 template<typename T>
 std::string NumberConstant<T>::toString() const {
-  return TokenBase::beginOfString() + "\t" + std::to_string(value);
+  return Token::beginOfString() + "\t" + std::to_string(value);
 }
 
 std::string getPoint(int line, int column) {

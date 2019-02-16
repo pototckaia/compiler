@@ -19,8 +19,8 @@ class Expression : public virtual ASTNode {
 
 class Variable : public Expression {
  public:
-  Variable(std::unique_ptr<TokenBase>);
-  Variable(std::unique_ptr<TokenBase>, ptr_Type);
+  Variable(std::unique_ptr<Token>);
+  Variable(std::unique_ptr<Token>, ptr_Type);
 
   const auto& getName() const { return name; }
   std::string getVarName() override { return name->getValueString(); }
@@ -33,8 +33,8 @@ class Variable : public Expression {
 
 class Literal : public Expression {
  public:
-  Literal(std::unique_ptr<TokenBase>);
-  Literal(std::unique_ptr<TokenBase> v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
+  Literal(std::unique_ptr<Token>);
+  Literal(std::unique_ptr<Token> v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
 
   const auto& getValue() const { return value; }
   void accept(Visitor&) override;
@@ -46,7 +46,7 @@ class Literal : public Expression {
 
 class BinaryOperation : public Expression {
  public:
-  BinaryOperation(std::unique_ptr<TokenBase>,
+  BinaryOperation(std::unique_ptr<Token>,
                   ptr_Expr,
                   ptr_Expr);
 
@@ -63,7 +63,7 @@ class BinaryOperation : public Expression {
 
 class UnaryOperation : public Expression {
  public:
-  UnaryOperation(std::unique_ptr<TokenBase>, ptr_Expr);
+  UnaryOperation(std::unique_ptr<Token>, ptr_Expr);
 
   const auto& getOpr() const { return opr; }
   const auto& getExpr() const { return expr; }
@@ -110,7 +110,7 @@ class Cast : public Expression {
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<TokenBase>);
+  RecordAccess(const ptr_Token& d, ptr_Expr, std::unique_ptr<Token>);
 
   auto& getRecord() const { return record; }
   auto& getField() const { return field; };

@@ -358,7 +358,7 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
 
   auto m = [](ptr_Expr& r, uint64_t s) -> ptr_Expr {
     auto c = std::make_unique<BinaryOperation>(
-      std::make_unique<TokenBase>(-1, -1, TokenType::Asterisk, toString(TokenType::Asterisk)),
+      std::make_unique<Token>(-1, -1, TokenType::Asterisk, toString(TokenType::Asterisk)),
       std::move(r),
       std::make_unique<Literal>(std::make_unique<NumberConstant<uint64_t>>(
         -1, -1,

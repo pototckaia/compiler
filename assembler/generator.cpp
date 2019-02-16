@@ -819,7 +819,7 @@ void AsmGenerator::visit(Low&) {
 void AsmGenerator::visit(Exit& e) {
   if (!e.returnType->isVoid()) {
     AssignmentStmt c( // result := expr;
-      std::make_unique<TokenBase>(-1, -1, TokenType::Assignment,
+      std::make_unique<Token>(-1, -1, TokenType::Assignment,
         toString(TokenType::Assignment)),
       std::make_unique<Variable>(
         std::make_unique<StringConstant>(-1, -1, TokenType::String,

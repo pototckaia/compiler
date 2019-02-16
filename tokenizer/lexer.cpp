@@ -55,9 +55,9 @@ bool Lexer::isWhitespace(int prevState, int newState) {
   return prevState == 0 && newState == 0;
 }
 
-std::unique_ptr<TokenBase> Lexer::next() {
+std::unique_ptr<Token> Lexer::next() {
   if (readFile.bad()) {
-    return std::make_unique<TokenBase>(line, beginToken, TokenType::EndOfFile, "");
+    return std::make_unique<Token>(line, beginToken, TokenType::EndOfFile, "");
   }
 
   strToken = "";
@@ -118,7 +118,7 @@ std::unique_ptr<TokenBase> Lexer::next() {
   errorHandler(newState);
 
   if (readFile.bad() || newState == eofState) {
-    return std::make_unique<TokenBase>(line, beginToken, TokenType::EndOfFile, "");
+    return std::make_unique<Token>(line, beginToken, TokenType::EndOfFile, "");
   }
 
   if (withoutPreview.count(newState) == 0) {
@@ -157,7 +157,7 @@ std::unique_ptr<TokenBase> Lexer::next() {
       return std::make_unique<StringConstant>(line, beginToken, tokenType, valToken, strToken);
     }
     default: {
-      return std::make_unique<TokenBase>(line, beginToken, tokenType, strToken);
+      return std::make_unique<Token>(line, beginToken, tokenType, strToken);
     }
   }
 
