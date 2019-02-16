@@ -1,7 +1,5 @@
 #include "token_type.h"
 
-namespace tok {
-
 #define MAKE_CASE_TOKEN(E, S) case TokenType::E: { return S; }
 #define MAKE_CASE_KEYWORD(E, S) case TokenType::E: { return "Keyword"; }
 
@@ -35,5 +33,4 @@ bool isKeyword(const std::string& s) {
   return mapKeyword.count(s) > 0;
 }
 
-} // namespace tok
 

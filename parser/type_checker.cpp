@@ -27,7 +27,7 @@ void LvalueChecker::visit(Cast& f) {
 }
 
 void LvalueChecker::visit(UnaryOperation& u) {
-  lvalue = u.getOpr()->getTokenType() == tok::TokenType::Caret;
+  lvalue = u.getOpr()->getTokenType() == TokenType::Caret;
 }
 
 void BaseTypeChecker::visit(Int&) { throw SemanticException(errorMes); }
@@ -248,19 +248,19 @@ void TypeChecker::visit(Literal& l) {
     throw SemanticException(l.line, l.column, "Expect function call ");
   }
   switch (l.getValue()->getTokenType()) {
-    case tok::TokenType::Int: {
+    case TokenType::Int: {
       l.type = std::make_shared<Int>();
       break;
     }
-    case tok::TokenType::Double: {
+    case TokenType::Double: {
       l.type = std::make_shared<Double>();
       break;
     }
-    case tok::TokenType::Nil: {
+    case TokenType::Nil: {
       l.type = std::make_shared<TPointer>();
       break;
     }
-    case tok::TokenType::String: {
+    case TokenType::String: {
       if (l.getValue()->getValueString().size() > 1) {
         l.type = std::make_shared<String>();
       } else {
@@ -268,8 +268,8 @@ void TypeChecker::visit(Literal& l) {
       }
       break;
     }
-    case tok::TokenType::False:
-    case tok::TokenType::True: {
+    case TokenType::False:
+    case TokenType::True: {
       l.type = std::make_shared<Boolean>();
       break;
     }
@@ -340,12 +340,12 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
 
-  if ((b.getOpr()->is(tok::TokenType::Plus) ||
-       b.getOpr()->is(tok::TokenType::AssignmentWithPlus)) &&
+  if ((b.getOpr()->is(TokenType::Plus) ||
+       b.getOpr()->is(TokenType::AssignmentWithPlus)) &&
       leftType->isPointer() && rightType->isPointer()) {
     return false;
-  } else if ((b.getOpr()->is(tok::TokenType::Minus) ||
-              b.getOpr()->is(tok::TokenType::AssignmentWithMinus)) &&
+  } else if ((b.getOpr()->is(TokenType::Minus) ||
+              b.getOpr()->is(TokenType::AssignmentWithMinus)) &&
              leftType->isPointer() && rightType->isPointer()) {
     b.type = std::make_shared<Int>();
     return true;
@@ -358,11 +358,11 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
 
   auto m = [](ptr_Expr& r, uint64_t s) -> ptr_Expr {
     auto c = std::make_unique<BinaryOperation>(
-      std::make_unique<tok::TokenBase>(-1, -1, tok::TokenType::Asterisk, tok::toString(tok::TokenType::Asterisk)),
+      std::make_unique<TokenBase>(-1, -1, TokenType::Asterisk, toString(TokenType::Asterisk)),
       std::move(r),
-      std::make_unique<Literal>(std::make_unique<tok::NumberConstant<uint64_t>>(
+      std::make_unique<Literal>(std::make_unique<NumberConstant<uint64_t>>(
         -1, -1,
-        tok::TokenType::Int, s, ""),
+        TokenType::Int, s, ""),
                                 std::make_shared<Int>())
     );
     c->type = std::make_unique<Int>();
@@ -374,7 +374,7 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
     b.type = leftType;
     b.right = m(b.right, leftType->getPointerBase()->size());
     return true;
-  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr()->is(tok::TokenType::Plus)) {
+  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr()->is(TokenType::Plus)) {
     b.type = rightType;
     b.left = m(b.left, rightType->getPointerBase()->size());
     return true;
@@ -390,8 +390,8 @@ bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
 
   bool isPass = (leftType->isDouble() || leftType->isInt()) && leftType->equals(rightType.get());
   b.type = leftType;
-  if (b.getOpr()->getTokenType() == tok::TokenType::Slash ||
-      b.getOpr()->getTokenType() == tok::TokenType::AssignmentWithSlash) {
+  if (b.getOpr()->getTokenType() == TokenType::Slash ||
+      b.getOpr()->getTokenType() == TokenType::AssignmentWithSlash) {
     if (leftType->isInt() && rightType->isInt()) {
       isPass = !isAssigment;
       b.left = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.left));
@@ -422,45 +422,45 @@ void TypeChecker::visit(BinaryOperation& b) {
   bool isPass;
 
   switch (b.getOpr()->getTokenType()) {
-    case tok::TokenType::Plus:
-    case tok::TokenType::Minus: { // + -
+    case TokenType::Plus:
+    case TokenType::Minus: { // + -
       isPass = checkTypePlusMinus(b);
       break;
     }
-    case tok::TokenType::Asterisk:
-    case tok::TokenType::Slash: { // *
+    case TokenType::Asterisk:
+    case TokenType::Slash: { // *
       isPass = checkTypeSlashAsterisk(b);
       break;
     }
-    case tok::TokenType::Div:
-    case tok::TokenType::Mod:
-    case tok::TokenType::ShiftLeft:
-    case tok::TokenType::Shl:
-    case tok::TokenType::ShiftRight:
-    case tok::TokenType::Shr: {
+    case TokenType::Div:
+    case TokenType::Mod:
+    case TokenType::ShiftLeft:
+    case TokenType::Shl:
+    case TokenType::ShiftRight:
+    case TokenType::Shr: {
       isPass = leftType->isInt() && rightType->isInt();
       b.type = leftType;
       break;
     }
-    case tok::TokenType::And:
-    case tok::TokenType::Or:
-    case tok::TokenType::Xor: {
+    case TokenType::And:
+    case TokenType::Or:
+    case TokenType::Xor: {
       isPass = (leftType->isInt() || leftType->isBool()) && leftType->equals(rightType.get());
       b.type = leftType;
       break;
     }
-    case tok::TokenType::Equals:
-    case tok::TokenType::NotEquals: {
+    case TokenType::Equals:
+    case TokenType::NotEquals: {
       if (leftType->isPointer() && rightType->isPointer()) {
         isPass = setCast(b, false) || leftType->equals(rightType.get());
         b.type = std::make_shared<Boolean>();
         break;
       }
     }
-    case tok::TokenType::StrictLess:
-    case tok::TokenType::StrictGreater:
-    case tok::TokenType::LessOrEquals:
-    case tok::TokenType::GreaterOrEquals: {
+    case TokenType::StrictLess:
+    case TokenType::StrictGreater:
+    case TokenType::LessOrEquals:
+    case TokenType::GreaterOrEquals: {
       isPass = ((leftType->isInt() || leftType->isDouble() || leftType->isChar()) &&
                 leftType->equals(rightType.get())) ||
                setCast(b, false);
@@ -468,7 +468,7 @@ void TypeChecker::visit(BinaryOperation& b) {
       break;
     }
     default: {
-      throw std::logic_error("Not valid BinaryOperation tokenType " + tok::toString(b.getOpr()->getTokenType()));
+      throw std::logic_error("Not valid BinaryOperation tokenType " + toString(b.getOpr()->getTokenType()));
     }
   }
 
@@ -491,23 +491,23 @@ void TypeChecker::visit(UnaryOperation& u) {
   }
 
   bool isPass = false;
-  std::string mesLvalue = "Expect lvalue in operator " + tok::toString(u.getOpr()->getTokenType());
+  std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOpr()->getTokenType());
   std::string mes = "Operation " + u.getOpr()->getValueString() +
                     " to types \"" + childType->name + "\" not valid";
 
   switch (u.getOpr()->getTokenType()) {
-    case tok::TokenType::Plus:
-    case tok::TokenType::Minus: {
+    case TokenType::Plus:
+    case TokenType::Minus: {
       isPass = childType->isInt() || childType->isDouble();
       u.type = childType;
       break;
     }
-    case tok::TokenType::Not: {
+    case TokenType::Not: {
       isPass = childType->isInt() || childType->isBool();
       u.type = childType;
       break;
     }
-    case tok::TokenType::Caret: {
+    case TokenType::Caret: {
       if (!childType->isTypePointer()) {
         isPass = false;
         break;
@@ -516,7 +516,7 @@ void TypeChecker::visit(UnaryOperation& u) {
       u.type = childType->getPointerBase();
       break;
     }
-    case tok::TokenType::At: {
+    case TokenType::At: {
       if (!LvalueChecker::is(u.expr)) {
         throw SemanticException(u.line, u.column, mesLvalue);
       }
@@ -529,7 +529,7 @@ void TypeChecker::visit(UnaryOperation& u) {
     }
     default:
       throw std::logic_error("Not valid UnaryOperation tokenType " +
-                             tok::toString(u.getOpr()->getTokenType()));
+                             toString(u.getOpr()->getTokenType()));
   }
 
   if (!isPass) {
@@ -638,23 +638,23 @@ void TypeChecker::visit(AssignmentStmt& a) {
   auto typeRight = a.getRight()->type;
   auto typeLeft = a.getLeft()->type;
   switch (a.getOpr()->getTokenType()) {
-    case tok::TokenType::AssignmentWithMinus:
-    case tok::TokenType::AssignmentWithPlus: {
+    case TokenType::AssignmentWithMinus:
+    case TokenType::AssignmentWithPlus: {
       if (!checkTypePlusMinus(a, true)) {
         throw SemanticException(a.line, a.column, mes);
       }
       typeRight = a.type;
       break;
     }
-    case tok::TokenType::AssignmentWithSlash:
-    case tok::TokenType::AssignmentWithAsterisk: {
+    case TokenType::AssignmentWithSlash:
+    case TokenType::AssignmentWithAsterisk: {
       if (!checkTypeSlashAsterisk(a, true)) {
         throw SemanticException(a.line, a.column, mes);
       }
       typeRight = a.type;
       break;
     }
-    case tok::TokenType::Assignment: {
+    case TokenType::Assignment: {
       break;
     }
     default: {

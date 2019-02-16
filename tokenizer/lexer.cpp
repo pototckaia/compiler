@@ -55,9 +55,9 @@ bool Lexer::isWhitespace(int prevState, int newState) {
   return prevState == 0 && newState == 0;
 }
 
-std::unique_ptr<tok::TokenBase> Lexer::next() {
+std::unique_ptr<TokenBase> Lexer::next() {
   if (readFile.bad()) {
-    return std::make_unique<tok::TokenBase>(line, beginToken, tok::TokenType::EndOfFile, "");
+    return std::make_unique<TokenBase>(line, beginToken, TokenType::EndOfFile, "");
   }
 
   strToken = "";
@@ -118,7 +118,7 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
   errorHandler(newState);
 
   if (readFile.bad() || newState == eofState) {
-    return std::make_unique<tok::TokenBase>(line, beginToken, tok::TokenType::EndOfFile, "");
+    return std::make_unique<TokenBase>(line, beginToken, TokenType::EndOfFile, "");
   }
 
   if (withoutPreview.count(newState) == 0) {
@@ -134,30 +134,30 @@ std::unique_ptr<tok::TokenBase> Lexer::next() {
   column = numSymbol;
   auto tokenType = toTokenType.at(newState);
 
-  if (tokenType ==  tok::TokenType::Id) {
+  if (tokenType ==  TokenType::Id) {
     std::transform(valToken.begin(), valToken.end(), valToken.begin(), ::tolower);
   }
 
-  if (newState == checkIdState && tok::isKeyword(valToken)) {
-    tokenType = tok::getKeywordType(valToken);
-    return std::make_unique<tok::StringConstant>(line, beginToken, tokenType, valToken, strToken);
+  if (newState == checkIdState && isKeyword(valToken)) {
+    tokenType = getKeywordType(valToken);
+    return std::make_unique<StringConstant>(line, beginToken, tokenType, valToken, strToken);
   }
 
   switch (tokenType) {
-    case tok::TokenType::Int: {
+    case TokenType::Int: {
       auto value = (uint64_t) std::stoll(valToken, nullptr, baseIntConvert);
-      return std::make_unique<tok::NumberConstant<uint64_t>>(line, beginToken, tokenType, value, strToken);
+      return std::make_unique<NumberConstant<uint64_t>>(line, beginToken, tokenType, value, strToken);
     }
-    case tok::TokenType::Double: {
+    case TokenType::Double: {
       auto value = std::stold(valToken);
-      return std::make_unique<tok::NumberConstant<long double>>(line, beginToken, tokenType, value, strToken);
+      return std::make_unique<NumberConstant<long double>>(line, beginToken, tokenType, value, strToken);
     }
-    case tok::TokenType::String:
-    case tok::TokenType::Id: {
-      return std::make_unique<tok::StringConstant>(line, beginToken, tokenType, valToken, strToken);
+    case TokenType::String:
+    case TokenType::Id: {
+      return std::make_unique<StringConstant>(line, beginToken, tokenType, valToken, strToken);
     }
     default: {
-      return std::make_unique<tok::TokenBase>(line, beginToken, tokenType, strToken);
+      return std::make_unique<TokenBase>(line, beginToken, tokenType, strToken);
     }
   }
 

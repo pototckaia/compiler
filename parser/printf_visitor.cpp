@@ -185,7 +185,7 @@ void PrintVisitor::visit(Void& v) {
 
 void PrintVisitor::visit(Alias& a) {
   print("Type alias: " + a.name);
-  print("Decl point: " + tok::getPoint(a.line, a.column));
+  print("Decl point: " + getPoint(a.line, a.column));
   ++depth;
   a.type->accept(*this);
   --depth;
@@ -193,7 +193,7 @@ void PrintVisitor::visit(Alias& a) {
 
 void PrintVisitor::visit(Pointer& p) {
   print("Pointer");
-  print("Decl point: " + tok::getPoint(p.line, p.column));
+  print("Decl point: " + getPoint(p.line, p.column));
   ++depth;
   print(p.typeBase->name);
   --depth;
@@ -201,7 +201,7 @@ void PrintVisitor::visit(Pointer& p) {
 
 void PrintVisitor::visit(StaticArray& a) {
   print("Static array");
-  print("Decl point: " + tok::getPoint(a.line, a.column));
+  print("Decl point: " + getPoint(a.line, a.column));
   ++depth;
 
   print("Size");
@@ -217,7 +217,7 @@ void PrintVisitor::visit(StaticArray& a) {
 
 void PrintVisitor::visit(OpenArray& o) {
   print("Open array");
-  print("Decl point: " + tok::getPoint(o.line, o.column));
+  print("Decl point: " + getPoint(o.line, o.column));
   ++depth;
   o.typeElem->accept(*this);
   --depth;
@@ -225,7 +225,7 @@ void PrintVisitor::visit(OpenArray& o) {
 
 void PrintVisitor::visit(Record& r) {
   print("Record");
-  print("Decl point: " + tok::getPoint(r.line, r.column));
+  print("Decl point: " + getPoint(r.line, r.column));
   ++depth;
   visit(r.getTable());
   --depth;
@@ -237,7 +237,7 @@ void PrintVisitor::visit(FunctionSignature& s) {
   } else {
     print ("Function");
   }
-  print("Decl point: " + tok::getPoint(s.line, s.column));
+  print("Decl point: " + getPoint(s.line, s.column));
   ++depth;
   for (auto& e : s.paramsList) {
    e->accept(*this);
@@ -253,7 +253,7 @@ void PrintVisitor::visit(FunctionSignature& s) {
 
 void PrintVisitor::visit(ForwardType& f) {
   print("Forward type " + f.name);
-  print("Decl point: " + tok::getPoint(f.line, f.column));
+  print("Decl point: " + getPoint(f.line, f.column));
   ++depth;
   f.type->accept(*this);
   --depth;
@@ -261,7 +261,7 @@ void PrintVisitor::visit(ForwardType& f) {
 
 void PrintVisitor::visit(LocalVar& l) {
   print("Local variable: " + l.name);
-  print("Decl point: " + tok::getPoint(l.line, l.column));
+  print("Decl point: " + getPoint(l.line, l.column));
   ++depth;
   l.type->accept(*this);
   --depth;
@@ -269,7 +269,7 @@ void PrintVisitor::visit(LocalVar& l) {
 
 void PrintVisitor::visit(GlobalVar& l) {
   print("Global variable: " + l.name);
-  print("Decl point: " + tok::getPoint(l.line, l.column));
+  print("Decl point: " + getPoint(l.line, l.column));
   ++depth;
   l.type->accept(*this);
   --depth;
@@ -277,7 +277,7 @@ void PrintVisitor::visit(GlobalVar& l) {
 
 void PrintVisitor::visit(Const& c) {
   print("Const value: " + c.name);
-  print("Decl point: " + tok::getPoint(c.line, c.column));
+  print("Decl point: " + getPoint(c.line, c.column));
   ++depth;
   c.value->accept(*this);
   --depth;
@@ -285,7 +285,7 @@ void PrintVisitor::visit(Const& c) {
 
 void PrintVisitor::visit(ParamVar& p) {
   print("Param value: " + p.name);
-  print("Decl point: " + tok::getPoint(p.line, p.column));
+  print("Decl point: " + getPoint(p.line, p.column));
   ++depth;
   print(toString(p.spec));
   p.type->accept(*this);
@@ -294,7 +294,7 @@ void PrintVisitor::visit(ParamVar& p) {
 
 void PrintVisitor::visit(ForwardFunction& f) {
   print("Forward function: " + f.name);
-  print("Decl point: " + tok::getPoint(f.line, f.column));
+  print("Decl point: " + getPoint(f.line, f.column));
   ++depth;
   f.signature->accept(*this);
   f.function->accept(*this);
@@ -303,7 +303,7 @@ void PrintVisitor::visit(ForwardFunction& f) {
 
 void PrintVisitor::visit(Function& f) {
   print("Function or Procedure: " + f.name);
-  print("Decl point: " + tok::getPoint(f.line, f.column));
+  print("Decl point: " + getPoint(f.line, f.column));
   ++depth;
   f.signature->accept(*this);
   visit(f.localVar);

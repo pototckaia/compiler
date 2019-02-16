@@ -256,12 +256,12 @@ void AsmGenerator::visit(Literal& l) {
     asm_file
       << Comment("string literal")
       << cmd(PUSH, {Label(label_name)});
-  } else if (l.getValue()->getTokenType() == tok::TokenType::Nil ||
-             l.getValue()->getTokenType() == tok::TokenType::False) {
+  } else if (l.getValue()->getTokenType() == TokenType::Nil ||
+             l.getValue()->getTokenType() == TokenType::False) {
     asm_file
       << Comment("false or nil literal")
       << cmd(PUSH, {(uint64_t) 0});
-  } else if (l.getValue()->getTokenType() == tok::TokenType::True) {
+  } else if (l.getValue()->getTokenType() == TokenType::True) {
     asm_file
       << Comment("true literal")
       << cmd(PUSH, {(uint64_t) 1});
@@ -286,20 +286,20 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
       << cmd(PUSH, {RAX});
   } else {
     switch (b.getOpr()->getTokenType()) {
-      case tok::TokenType::Plus:
-      case tok::TokenType::Minus:
-      case tok::TokenType::Asterisk: {
+      case TokenType::Plus:
+      case TokenType::Minus:
+      case TokenType::Asterisk: {
         asm_file << cmd(arith_i.at(t), {RAX}, {RCX});
         break;
       }
-      case tok::TokenType::Div: {
+      case TokenType::Div: {
         asm_file
           << cmd(XOR, {RDX}, {RDX})
           << cmd(CQO)
           << cmd(arith_i.at(t), {RCX});
         break;
       }
-      case tok::TokenType::Mod: {
+      case TokenType::Mod: {
         asm_file
           << cmd(XOR, {RDX}, {RDX})
           << cmd(CQO)
@@ -307,14 +307,14 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
           << cmd(MOV, {RAX}, {RDX});
         break;
       }
-      case tok::TokenType::ShiftLeft:
-      case tok::TokenType::Shl: {
+      case TokenType::ShiftLeft:
+      case TokenType::Shl: {
         asm_file
           << cmd(SHL, {RAX}, {CL, Pref::b});
         break;
       }
-      case tok::TokenType::ShiftRight:
-      case tok::TokenType::Shr: {
+      case TokenType::ShiftRight:
+      case TokenType::Shr: {
         asm_file
           << cmd(SHR, {RAX}, {CL, Pref::b});
         break;
@@ -353,7 +353,7 @@ void AsmGenerator::visit_cmp(BinaryOperation& b) {
 
 void AsmGenerator::visit_logical(BinaryOperation& b) {
   switch (b.getOpr()->getTokenType()) {
-    case tok::TokenType::Xor: {
+    case TokenType::Xor: {
       b.left->accept(*this);
       b.right->accept(*this);
       asm_file << Comment("xor operation");
@@ -364,7 +364,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         << cmd(PUSH, {RAX});
       return;
     }
-    case tok::TokenType::And: {
+    case TokenType::And: {
       if (b.type->isInt()) {
         b.left->accept(*this);
         b.right->accept(*this);
@@ -400,7 +400,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         return;
       }
     }
-    case tok::TokenType::Or: {
+    case TokenType::Or: {
       if (b.type->isInt()) {
         b.left->accept(*this);
         b.right->accept(*this);
@@ -443,31 +443,31 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
 
 void AsmGenerator::visit(BinaryOperation& b) {
   switch (b.getOpr()->getTokenType()) {
-    case tok::TokenType::Plus:
-    case tok::TokenType::Minus:
-    case tok::TokenType::Slash:
-    case tok::TokenType::Asterisk:
-    case tok::TokenType::Div:
-    case tok::TokenType::Mod:
-    case tok::TokenType::ShiftLeft:
-    case tok::TokenType::Shl:
-    case tok::TokenType::ShiftRight:
-    case tok::TokenType::Shr: {
+    case TokenType::Plus:
+    case TokenType::Minus:
+    case TokenType::Slash:
+    case TokenType::Asterisk:
+    case TokenType::Div:
+    case TokenType::Mod:
+    case TokenType::ShiftLeft:
+    case TokenType::Shl:
+    case TokenType::ShiftRight:
+    case TokenType::Shr: {
       visit_arithmetic(b);
       return;
     }
-    case tok::TokenType::Equals:
-    case tok::TokenType::NotEquals:
-    case tok::TokenType::StrictLess:
-    case tok::TokenType::StrictGreater:
-    case tok::TokenType::LessOrEquals:
-    case tok::TokenType::GreaterOrEquals: {
+    case TokenType::Equals:
+    case TokenType::NotEquals:
+    case TokenType::StrictLess:
+    case TokenType::StrictGreater:
+    case TokenType::LessOrEquals:
+    case TokenType::GreaterOrEquals: {
       visit_cmp(b);
       return;
     }
-    case tok::TokenType::And:
-    case tok::TokenType::Or:
-    case tok::TokenType::Xor: {
+    case TokenType::And:
+    case TokenType::Or:
+    case TokenType::Xor: {
       visit_logical(b);
     }
     default:
@@ -477,7 +477,7 @@ void AsmGenerator::visit(BinaryOperation& b) {
 
 void AsmGenerator::visit(UnaryOperation& u) {
   switch (u.getOpr()->getTokenType()) {
-    case tok::TokenType::Minus: {
+    case TokenType::Minus: {
       u.expr->accept(*this);
       asm_file << Comment("unary minus");
       if (u.type->isInt()) {
@@ -496,7 +496,7 @@ void AsmGenerator::visit(UnaryOperation& u) {
       }
       return;
     }
-    case tok::TokenType::Not: {
+    case TokenType::Not: {
       u.expr->accept(*this);
       if (u.type->isBool()) {
         asm_file
@@ -513,12 +513,12 @@ void AsmGenerator::visit(UnaryOperation& u) {
       }
       return;
     }
-    case tok::TokenType::At: {
+    case TokenType::At: {
       asm_file << Comment("@");
       visit_lvalue(*u.expr);
       return;
     }
-    case tok::TokenType::Caret: {
+    case TokenType::Caret: {
       asm_file << Comment("^");
       if (need_lvalue) {
         need_lvalue = false;
@@ -701,12 +701,12 @@ void AsmGenerator::visit(AssignmentStmt& a) {
   if (a.left->type->isTrivial()) {
     auto t = a.getOpr()->getTokenType();
     switch (t) {
-      case tok::TokenType::AssignmentWithPlus:
-      case tok::TokenType::AssignmentWithMinus:
-      case tok::TokenType::AssignmentWithAsterisk:
-      case tok::TokenType::AssignmentWithSlash: {
+      case TokenType::AssignmentWithPlus:
+      case TokenType::AssignmentWithMinus:
+      case TokenType::AssignmentWithAsterisk:
+      case TokenType::AssignmentWithSlash: {
         asm_file
-          << Comment(tok::toString(t))
+          << Comment(toString(t))
           << cmd(POP, {RAX}) // left - address
           << cmd(POP, {R8}) // right
           << cmd(MOV, {R9}, {adr(RAX)}); // *left
@@ -819,10 +819,10 @@ void AsmGenerator::visit(Low&) {
 void AsmGenerator::visit(Exit& e) {
   if (!e.returnType->isVoid()) {
     AssignmentStmt c( // result := expr;
-      std::make_unique<tok::TokenBase>(-1, -1, tok::TokenType::Assignment,
-        tok::toString(tok::TokenType::Assignment)),
+      std::make_unique<TokenBase>(-1, -1, TokenType::Assignment,
+        toString(TokenType::Assignment)),
       std::make_unique<Variable>(
-        std::make_unique<tok::StringConstant>(-1, -1, tok::TokenType::String,
+        std::make_unique<StringConstant>(-1, -1, TokenType::String,
           e.assignmentVar->name, e.assignmentVar->name),
         e.returnType),
       std::move(syscall_params.front())

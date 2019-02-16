@@ -73,40 +73,40 @@ class AsmGenerator : public Visitor {
   bool need_lvalue;
   void visit_lvalue(Expression&);
 
-   const std::unordered_map<tok::TokenType, Instruction> arith_i = {
-    {tok::TokenType::Plus, ADD},
-    {tok::TokenType::AssignmentWithPlus, ADD},
-    {tok::TokenType::Minus, SUB},
-    {tok::TokenType::AssignmentWithMinus, SUB},
-    {tok::TokenType::Asterisk, IMUL},
-    {tok::TokenType::AssignmentWithAsterisk, IMUL},
-    {tok::TokenType::Div, IDIV},
+   const std::unordered_map<TokenType, Instruction> arith_i = {
+    {TokenType::Plus, ADD},
+    {TokenType::AssignmentWithPlus, ADD},
+    {TokenType::Minus, SUB},
+    {TokenType::AssignmentWithMinus, SUB},
+    {TokenType::Asterisk, IMUL},
+    {TokenType::AssignmentWithAsterisk, IMUL},
+    {TokenType::Div, IDIV},
   };
-  const std::unordered_map<tok::TokenType, Instruction> arith_d = {
-    {tok::TokenType::Plus, ADDSD},
-    {tok::TokenType::AssignmentWithPlus, ADDSD},
-    {tok::TokenType::Minus, SUBSD},
-    {tok::TokenType::AssignmentWithMinus, SUBSD},
-    {tok::TokenType::Asterisk, MULSD},
-    {tok::TokenType::AssignmentWithAsterisk, MULSD},
-    {tok::TokenType::Slash, DIVSD},
-    {tok::TokenType::AssignmentWithSlash, DIVSD}
+  const std::unordered_map<TokenType, Instruction> arith_d = {
+    {TokenType::Plus, ADDSD},
+    {TokenType::AssignmentWithPlus, ADDSD},
+    {TokenType::Minus, SUBSD},
+    {TokenType::AssignmentWithMinus, SUBSD},
+    {TokenType::Asterisk, MULSD},
+    {TokenType::AssignmentWithAsterisk, MULSD},
+    {TokenType::Slash, DIVSD},
+    {TokenType::AssignmentWithSlash, DIVSD}
   };
-  const std::unordered_map<tok::TokenType, Instruction> cmp_i = {
-    {tok::TokenType::Equals, SETE},
-    {tok::TokenType::NotEquals, SETNE},
-    {tok::TokenType::StrictGreater, SETG},
-    {tok::TokenType::GreaterOrEquals, SETGE},
-    {tok::TokenType::StrictLess, SETL},
-    {tok::TokenType::LessOrEquals, SETLE},
+  const std::unordered_map<TokenType, Instruction> cmp_i = {
+    {TokenType::Equals, SETE},
+    {TokenType::NotEquals, SETNE},
+    {TokenType::StrictGreater, SETG},
+    {TokenType::GreaterOrEquals, SETGE},
+    {TokenType::StrictLess, SETL},
+    {TokenType::LessOrEquals, SETLE},
   };
-  const std::unordered_map<tok::TokenType, Instruction> cmp_d = {
-    {tok::TokenType::Equals, SETE},
-    {tok::TokenType::NotEquals, SETNE},
-    {tok::TokenType::StrictGreater, SETA},
-    {tok::TokenType::GreaterOrEquals, SETAE},
-    {tok::TokenType::StrictLess, SETB},
-    {tok::TokenType::LessOrEquals, SETBE},
+  const std::unordered_map<TokenType, Instruction> cmp_d = {
+    {TokenType::Equals, SETE},
+    {TokenType::NotEquals, SETNE},
+    {TokenType::StrictGreater, SETA},
+    {TokenType::GreaterOrEquals, SETAE},
+    {TokenType::StrictLess, SETB},
+    {TokenType::LessOrEquals, SETBE},
   };
 
   // for break

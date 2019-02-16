@@ -18,7 +18,7 @@ void lexerTest(const std::string& inputFileName,const std::string& outputFileNam
   out.open(outputFileName, std::ifstream::out);
   lx::Lexer lex(inputFileName);
   try {
-    for (auto token = lex.next(); token->getTokenType() != tok::TokenType::EndOfFile; token = lex.next()) {
+    for (auto token = lex.next(); token->getTokenType() != TokenType::EndOfFile; token = lex.next()) {
       out << token->toString() << std::endl;
     }
   } catch(LexerException& e) {

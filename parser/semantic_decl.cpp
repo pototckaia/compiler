@@ -27,7 +27,7 @@ SemanticDecl::SemanticDecl() : stackTable(Tables()) {
   t.tableFunction.insert(std::make_shared<Low>());
 }
 
-ptr_Expr SemanticDecl::parseFunctionCall(const tok::ptr_Token& d, ptr_Expr e, ListExpr l) {
+ptr_Expr SemanticDecl::parseFunctionCall(const ptr_Token& d, ptr_Expr e, ListExpr l) {
   if (dynamic_cast<Variable*>(e.get())) {
     auto name = dynamic_cast<Variable*>(e.get())->getName()->getValueString();
     if (stackTable.isType(name)) {
@@ -79,8 +79,8 @@ ptr_Type SemanticDecl::parseArrayType(ptr_Token t, StaticArray::BoundsType b, pt
 }
 
 ptr_Type
-SemanticDecl::parseRecordType(tok::ptr_Token declPoint,
-                              std::list<std::pair<std::unique_ptr<tok::ListToken>, ptr_Type>> listVar) {
+SemanticDecl::parseRecordType(ptr_Token declPoint,
+                              std::list<std::pair<std::unique_ptr<ListToken>, ptr_Type>> listVar) {
   auto record = std::make_shared<Record>(declPoint->getLine(), declPoint->getColumn());
   for (auto& e : listVar) {
     for (auto& id : *(e.first)) {
@@ -93,7 +93,7 @@ SemanticDecl::parseRecordType(tok::ptr_Token declPoint,
   return record;
 }
 
-ptr_Type SemanticDecl::parsePointer(tok::ptr_Token declPoint, tok::ptr_Token token, bool isCanForwardType) {
+ptr_Type SemanticDecl::parsePointer(ptr_Token declPoint, ptr_Token token, bool isCanForwardType) {
   auto p = std::make_shared<Pointer>(declPoint->getLine(), declPoint->getColumn());
   if (stackTable.isType(token->getValueString())) {
     p->typeBase = stackTable.findType(token->getValueString());
@@ -108,7 +108,7 @@ ptr_Type SemanticDecl::parsePointer(tok::ptr_Token declPoint, tok::ptr_Token tok
   }
 }
 
-ptr_Type SemanticDecl::parseOpenArray(tok::ptr_Token declPoint, ptr_Type type) {
+ptr_Type SemanticDecl::parseOpenArray(ptr_Token declPoint, ptr_Type type) {
   return std::make_shared<OpenArray>(declPoint, std::move(type));
 }
 
@@ -121,7 +121,7 @@ std::shared_ptr<FunctionSignature> SemanticDecl::parseFunctionSignature(int line
 }
 
 ListParam SemanticDecl::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable,
-                                                ParamSpec paramSpec, tok::ListToken listId, ptr_Type type) {
+                                                ParamSpec paramSpec, ListToken listId, ptr_Type type) {
   ListParam paramList;
   for (auto& e : listId) {
     if (paramTable.checkContain(e->getValueString())) {
@@ -149,7 +149,7 @@ std::shared_ptr<MainFunction> SemanticDecl::parseMainBlock(ptr_Stmt body) {
   return main;
 }
 
-void SemanticDecl::parseFunctionForward(const tok::ptr_Token& decl, std::shared_ptr<FunctionSignature> si) {
+void SemanticDecl::parseFunctionForward(const ptr_Token& decl, std::shared_ptr<FunctionSignature> si) {
   if (stackTable.top().checkContain(decl->getValueString())) {
     throw AlreadyDefinedException(decl);
   }
@@ -165,7 +165,7 @@ void SemanticDecl::parseFunctionDeclBegin(std::shared_ptr<FunctionSignature> s) 
   stackTable.pushEmpty(); // for decl
 }
 
-void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
+void SemanticDecl::parseFunctionDeclEnd(const ptr_Token& decl,
                                         std::shared_ptr<FunctionSignature> s, ptr_Stmt b) {
   if (!s->isProcedure()) {
     auto nameResult = decl->getValueString();
@@ -197,7 +197,7 @@ void SemanticDecl::parseFunctionDeclEnd(const tok::ptr_Token& decl,
   }
 }
 
-void SemanticDecl::parseConstDecl(const tok::ptr_Token& decl, ptr_Expr expr) {
+void SemanticDecl::parseConstDecl(const ptr_Token& decl, ptr_Expr expr) {
   if (stackTable.top().checkContain(decl->getValueString())) {
     throw AlreadyDefinedException(decl);
   }
@@ -206,7 +206,7 @@ void SemanticDecl::parseConstDecl(const tok::ptr_Token& decl, ptr_Expr expr) {
   //cons->value = expr;
 }
 
-void SemanticDecl::parseVariableDecl(tok::ListToken listId, ptr_Type type, bool isGlobal) {
+void SemanticDecl::parseVariableDecl(ListToken listId, ptr_Type type, bool isGlobal) {
   for (auto& e : listId) {
     if (stackTable.top().checkContain(e->getValueString())) {
       throw AlreadyDefinedException(e);
@@ -221,7 +221,7 @@ void SemanticDecl::parseVariableDecl(tok::ListToken listId, ptr_Type type, bool 
   }
 }
 
-void SemanticDecl::parseVariableDecl(tok::ListToken id, ptr_Type type, ptr_Expr def, bool isGlobal) {
+void SemanticDecl::parseVariableDecl(ListToken id, ptr_Type type, ptr_Expr def, bool isGlobal) {
   auto name = id.back()->getValueString();
   parseVariableDecl(std::move(id), type, isGlobal);
   // TODO

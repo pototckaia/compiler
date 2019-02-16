@@ -101,7 +101,7 @@ class TPointer : public SymType {
 class Alias : public SymType {
  public:
   using SymType::SymType;
-  Alias(const tok::ptr_Token& t, ptr_Type p)
+  Alias(const ptr_Token& t, ptr_Type p)
     : SymType(t), type(std::move(p)) {}
 
   void accept(Visitor& v) override;
@@ -128,7 +128,7 @@ class Alias : public SymType {
 
 class ForwardType : public Alias {
  public:
-  ForwardType(const tok::ptr_Token& t) : Alias(t) {}
+  ForwardType(const ptr_Token& t) : Alias(t) {}
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
@@ -140,7 +140,7 @@ class Pointer : public SymType {
  public:
   using SymType::SymType;
   Pointer(ptr_Type p) : SymType(), typeBase(std::move(p)) {}
-  Pointer(const tok::ptr_Token& t, ptr_Type p)
+  Pointer(const ptr_Token& t, ptr_Type p)
     : SymType(t), typeBase(std::move(p)) {}
 
   void accept(Visitor& v) override;
@@ -168,7 +168,7 @@ class StaticArray : public SymType {
 
 class OpenArray : public SymType{
  public:
-  OpenArray(const tok::ptr_Token& decl, ptr_Type type)
+  OpenArray(const ptr_Token& decl, ptr_Type type)
     : SymType(decl->getLine(), decl->getColumn()), typeElem(std::move(type)) {}
 
   ptr_Type typeElem;

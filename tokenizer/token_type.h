@@ -81,7 +81,6 @@
   X(With,      "with") \
   X(Xor,       "xor") \
 
-namespace tok {
 
 #define MAKE_ENUM(E, S) E,
 enum class TokenType {
@@ -97,5 +96,3 @@ std::string toString(TokenType);
 TokenType getKeywordType(const std::string&);
 
 bool isKeyword(const std::string&);
-
-} // namespace tok

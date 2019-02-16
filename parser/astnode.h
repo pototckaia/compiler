@@ -12,7 +12,7 @@ class Tables;
 
 using ptr_Node = std::shared_ptr<ASTNode>;
 
-using ptr_Token = std::unique_ptr<tok::TokenBase>;
+using ptr_Token = std::unique_ptr<TokenBase>;
 using ptr_Expr = std::unique_ptr<Expression>;
 using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 
@@ -30,7 +30,7 @@ class ASTNode {
   ASTNode(int line, int column) : line(line), column(column) {}
   ASTNode(const ptr_Token& t) : line(t->getLine()), column(t->getColumn()) {}
 
-  void setDeclPoint(const tok::ptr_Token& t) {
+  void setDeclPoint(const ptr_Token& t) {
     line = t->getLine();
     column = t->getColumn();
   }
@@ -52,7 +52,7 @@ class Symbol : public ASTNode {
   Symbol() : ASTNode(-1, -1) {}
   Symbol(int line, int column) : ASTNode(line, column) {}
   Symbol(const std::string& n) : ASTNode(-1, -1), name(n) {}
-  Symbol(const tok::ptr_Token& t)
+  Symbol(const ptr_Token& t)
     :  ASTNode(t), name(t->getValueString()){}
 
   virtual bool isForward() const { return false; }
@@ -62,7 +62,7 @@ class Symbol : public ASTNode {
 class SymFun : public Symbol {
  public:
   using Symbol::Symbol;
-  SymFun(const tok::ptr_Token& t, std::shared_ptr<FunctionSignature> f)
+  SymFun(const ptr_Token& t, std::shared_ptr<FunctionSignature> f)
     : Symbol(t), signature(std::move(f)) {}
 
   using ptr_Sign = std::shared_ptr<FunctionSignature>;
@@ -82,7 +82,7 @@ class SymVar : public Symbol {
  public:
   using Symbol::Symbol;
   SymVar(std::string name, ptr_Type t) : Symbol(std::move(name)), type(std::move(t)) {}
-  SymVar(const tok::ptr_Token& n, ptr_Type t)
+  SymVar(const ptr_Token& n, ptr_Type t)
     : Symbol(n), type(std::move(t)) {}
 
   virtual uint64_t size() const;

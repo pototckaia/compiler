@@ -19,10 +19,10 @@ class Parser {
  private:
   lx::LexerBuffer lexer;
   // increasing priority for operator
-  std::array<std::list<tok::TokenType>, 5> priority;
+  std::array<std::list<TokenType>, 5> priority;
   int priorityLeftUnary;
   int priorityAccess;
-  std::list<tok::TokenType> assigment;
+  std::list<TokenType> assigment;
 
   SemanticDecl semanticDecl;
 
@@ -31,7 +31,7 @@ class Parser {
   ListExpr parseListExpression();
   ListExpr parseActualParameter();
   ListParam parseFormalParameterList();
-  tok::ListToken parseListId();
+  ListToken parseListId();
 
   ptr_Expr parseFactor();
   ptr_Expr parseAccess(int p);
@@ -66,9 +66,9 @@ class Parser {
   void parseFunctionDecl(bool isProcedure = false);
 
 
-  void require(tok::TokenType);
-  void require(const std::list<tok::TokenType>& listType, const std::string&);
-  bool match(tok::TokenType);
-  bool match(const std::list<tok::TokenType>& listType);
-  void requireAndSkip(tok::TokenType);
+  void require(TokenType);
+  void require(const std::list<TokenType>& listType, const std::string&);
+  bool match(TokenType);
+  bool match(const std::list<TokenType>& listType);
+  void requireAndSkip(TokenType);
 };

@@ -17,7 +17,7 @@ class Lexer {
 
   ~Lexer() = default;
 
-  std::unique_ptr<tok::TokenBase> next();
+  std::unique_ptr<TokenBase> next();
 
  private:
   inline void errorHandler(int state);
@@ -56,7 +56,7 @@ class Lexer {
   const std::unordered_set<std::pair<int, int>, pairHash> skipSymbol = SKIP_SYMBOL;
   const std::unordered_set<std::pair<int, int>, pairHash> charConstantAdd = CHAR_CONSTANT;
   const std::unordered_set<std::pair<int, int>, pairHash> charConstantEnd = CHAR_CONSTANT_END;
-  const std::unordered_map<int, tok::TokenType> toTokenType = FROM_FINAL_STATE_TO_TOKEN;
+  const std::unordered_map<int, TokenType> toTokenType = FROM_FINAL_STATE_TO_TOKEN;
   const std::unordered_map<std::pair<int, int>, int, pairHash> changeBaseInt = CHANGE_BASE;
 };
 
