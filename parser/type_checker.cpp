@@ -27,7 +27,7 @@ void LvalueChecker::visit(Cast& f) {
 }
 
 void LvalueChecker::visit(UnaryOperation& u) {
-  lvalue = u.getOpr().getTokenType() == TokenType::Caret;
+  lvalue = u.getOp().getTokenType() == TokenType::Caret;
 }
 
 void BaseTypeChecker::visit(Int&) { throw SemanticException(errorMes); }
@@ -478,23 +478,23 @@ void TypeChecker::visit(BinaryOperation& b) {
 
 void TypeChecker::visit(UnaryOperation& u) {
   if (isMustFunctionCall) {
-    throw SemanticException(u.getDeclPoint(), "Expect function call but find " + u.getOpr().getString());
+    throw SemanticException(u.getDeclPoint(), "Expect function call but find " + u.getOp().getString());
   }
   wasFunctionCall = false;
 
-  u.getExpr()->accept(*this);
-  auto& childType = u.getExpr()->getNodeType();
+  u.getSubNode()->accept(*this);
+  auto& childType = u.getSubNode()->getNodeType();
   if (childType == nullptr) {
     throw SemanticException(u.getDeclPoint(),
-                            "Cannot " + u.getOpr().getString() + " embedded function");
+                            "Cannot " + u.getOp().getString() + " embedded function");
   }
 
   bool isPass = false;
-  std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOpr().getTokenType());
-  std::string mes = "Operation " + u.getOpr().getString() +
+  std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOp().getTokenType());
+  std::string mes = "Operation " + u.getOp().getString() +
                     " to types \"" + childType->getSymbolName() + "\" not valid";
 
-  switch (u.getOpr().getTokenType()) {
+  switch (u.getOp().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus: {
       isPass = childType->isInt() || childType->isDouble();
@@ -516,7 +516,7 @@ void TypeChecker::visit(UnaryOperation& u) {
       break;
     }
     case TokenType::At: {
-      if (!LvalueChecker::is(u.expr)) {
+      if (!LvalueChecker::is(u.getSubNode())) {
         throw SemanticException(u.getDeclPoint(), mesLvalue);
       }
       isPass = true;
@@ -528,7 +528,7 @@ void TypeChecker::visit(UnaryOperation& u) {
     }
     default:
       throw std::logic_error("Not valid UnaryOperation tokenType " +
-                             toString(u.getOpr().getTokenType()));
+                             toString(u.getOp().getTokenType()));
   }
 
   if (!isPass) {

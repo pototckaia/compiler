@@ -39,10 +39,10 @@ void PrintVisitor::visit(BinaryOperation& b) {
 }
 
 void PrintVisitor::visit(UnaryOperation& u) {
-  print(u.getOpr().getString());
+  print(u.getOp().getString());
   ++depth;
   print(u.getNodeType());
-  u.getExpr()->accept(*this);
+	u.getSubNode()->accept(*this);
   --depth;
 }
 

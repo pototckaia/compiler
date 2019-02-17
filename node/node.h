@@ -76,14 +76,15 @@ class BinaryOperation : public Expression {
 
 class UnaryOperation : public Expression {
  public:
-  UnaryOperation(Token, ptr_Expr);
+  UnaryOperation(const Token&, ptr_Expr);
 
-  auto& getOpr() { return opr; }
-  auto& getExpr() { return expr; }
+  auto& getOp() { return op; }
+  auto& getSubNode() { return expr; }
 
   void accept(Visitor&) override;
-// todo private
-  Token opr;
+
+ private:
+  Token op;
   ptr_Expr expr;
 };
 

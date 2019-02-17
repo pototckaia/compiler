@@ -36,8 +36,9 @@ BinaryOperation::BinaryOperation(const Token& op, ptr_Expr left, ptr_Expr right)
   : ASTNode(op),
     op(op), left(std::move(left)), right(std::move(right)) {}
 
-UnaryOperation::UnaryOperation(Token opr, ptr_Expr expr)
-  : ASTNode(opr.getLine(), opr.getColumn()), opr(std::move(opr)), expr(std::move(expr)) {}
+UnaryOperation::UnaryOperation(const Token& opr, ptr_Expr expr)
+  : ASTNode(opr),
+    op(opr), expr(std::move(expr)) {}
 
 ArrayAccess::ArrayAccess(const Token& d, ptr_Expr name, ListExpr i)
   : ASTNode(d), nameArray(std::move(name)), listIndex(std::move(i)) {}

@@ -476,9 +476,9 @@ void AsmGenerator::visit(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit(UnaryOperation& u) {
-  switch (u.getOpr().getTokenType()) {
+  switch (u.getOp().getTokenType()) {
     case TokenType::Minus: {
-      u.expr->accept(*this);
+      u.getSubNode()->accept(*this);
       asm_file << Comment("unary minus");
       if (u.getNodeType()->isInt()) {
         asm_file
@@ -497,7 +497,7 @@ void AsmGenerator::visit(UnaryOperation& u) {
       return;
     }
     case TokenType::Not: {
-      u.expr->accept(*this);
+      u.getSubNode()->accept(*this);
       if (u.getNodeType()->isBool()) {
         asm_file
           << Comment("boolean not")
@@ -515,16 +515,16 @@ void AsmGenerator::visit(UnaryOperation& u) {
     }
     case TokenType::At: {
       asm_file << Comment("@");
-      visit_lvalue(*u.expr);
+      visit_lvalue(*u.getSubNode());
       return;
     }
     case TokenType::Caret: {
       asm_file << Comment("^");
       if (need_lvalue) {
         need_lvalue = false;
-        u.expr->accept(*this);
+        u.getSubNode()->accept(*this);
       } else {
-        u.expr->accept(*this);
+        u.getSubNode()->accept(*this);
         asm_file
           << cmd(POP, {RAX})
           << cmd(PUSH, {adr(RAX)});
