@@ -7,20 +7,21 @@
 
 class Function : public SymFun {
  public:
-  using SymFun::SymFun;
-  // todo move to cpp
-  Function(const Token& t, std::shared_ptr<FunctionSignature> f,
-           ptr_Stmt p, Tables l)
-    : SymFun(t, std::move(f)), localVar(std::move(l)), body(std::move(p)) {}
-
+  //using SymFun::SymFun;
+  Function(const Token&, ptr_Sign);
+  Function(const Token&, ptr_Sign, ptr_Stmt, Tables);
   ~Function() override;
-// todo private
-  Tables localVar;
-  ptr_Stmt body;
-  void accept(Visitor& v) override;
+
+  // todo remove
   bool isEmbedded() const override { return false; }
-  ptr_Stmt& getBody() override;
-  Tables& getTable() override;
+  // todo remove virtual
+  ptr_Stmt& getBody() override { return body; }
+  Tables& getTable() override  { return localVar; }
+	void accept(Visitor& v) override;
+
+ private:
+	Tables localVar;
+	ptr_Stmt body;
 };
 
 class ForwardFunction : public Function {

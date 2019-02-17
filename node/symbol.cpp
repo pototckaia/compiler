@@ -26,6 +26,13 @@ SymVar::SymVar(std::string name, ptr_Type t)
 SymVar::SymVar(const Token& n, ptr_Type t)
   : Symbol(n), type(std::move(t)) {}
 
+Function::Function(const Token &t, ptr_Sign f)
+    : SymFun(t, std::move(f)) {}
+
+Function::Function(const Token& t, ptr_Sign f, ptr_Stmt p, Tables l)
+    : SymFun(t, std::move(f)),
+      localVar(std::move(l)), body(std::move(p)) {}
+
 
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
@@ -441,8 +448,6 @@ bool SymType::isTrivial() const {
 }
 
 
-ptr_Stmt& Function::getBody() { return body; }
-Tables& Function::getTable() { return localVar; }
 ptr_Sign& ForwardFunction::getSignature() { return function->getSignature(); }
 ptr_Stmt& ForwardFunction::getBody() { return function->getBody(); }
 Tables& ForwardFunction::getTable() { return function->getTable(); }

@@ -128,7 +128,7 @@ void PrintVisitor::visit(WhileStmt& w) {
   print("While");
   ++depth;
   w.getCondition()->accept(*this);
-  w.getBlock()->accept(*this);
+  w.getSubNode()->accept(*this);
   --depth;
 }
 
@@ -142,7 +142,7 @@ void PrintVisitor::visit(ForStmt& f) {
   else
     print("DownTo");
   f.getHigh()->accept(*this);
-  f.getBlock()->accept(*this);
+  f.getSubNote()->accept(*this);
   --depth;
 }
 
@@ -306,8 +306,8 @@ void PrintVisitor::visit(Function& f) {
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
   f.getSignature()->accept(*this);
-  visit(f.localVar);
-  f.body->accept(*this);
+  visit(f.getTable());
+  f.getBody()->accept(*this);
   --depth;
 }
 

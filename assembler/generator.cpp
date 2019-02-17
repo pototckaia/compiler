@@ -963,12 +963,12 @@ void AsmGenerator::visit(WhileStmt& w) {
   loop.push(std::make_pair(_body, _end));
   asm_file
     << cmd(Label(_body));
-  w.condition->accept(*this);
+  w.getCondition()->accept(*this);
   asm_file
     << cmd(POP, {RAX})
     << cmd(TEST, {RAX}, {RAX})
     << cmd(JZ, {Label(_end)});
-  w.block->accept(*this);
+  w.getSubNode()->accept(*this);
   asm_file
     << cmd(JMP, {Label(_body)})
     << cmd(Label(_end));
@@ -985,9 +985,9 @@ void AsmGenerator::visit(ForStmt& f) {
     << Comment("for ")
     << Comment("_body: " + _body + " _continue: " + _continue + " _break: " + _break + " _endfor: " + _end);
   loop.push(std::make_pair(_continue, _break));
-  f.low->accept(*this);
-  visit_lvalue(*f.var);
-  f.high->accept(*this);
+  f.getLow()->accept(*this);
+  visit_lvalue(*f.getVar());
+  f.getHigh()->accept(*this);
   asm_file
     // init
     << cmd(POP, {R13}) // high
@@ -1002,14 +1002,14 @@ void AsmGenerator::visit(ForStmt& f) {
     << cmd(CMP, {R13}, {RAX})
     // to - high < *add_var
     // downto - high > *add_var
-    << cmd(f.direct ? JL : JG, {Label(_end)})
+    << cmd(f.getDirect() ? JL : JG, {Label(_end)})
     << cmd(PUSH, {R13})  // high
     << cmd(PUSH, {R14}); // add_var
-  f.block->accept(*this);
+  f.getSubNote()->accept(*this);
   asm_file
     << cmd(Label(_continue))
     << cmd(POP, {R14}) // add_var
-    << cmd(f.direct ? INC : DEC, {adr(R14)})
+    << cmd(f.getDirect() ? INC : DEC, {adr(R14)})
     << cmd(PUSH, {R14})
     << cmd(JMP, {Label(_body)})
     << cmd(Label(_break))

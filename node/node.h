@@ -193,10 +193,11 @@ class WhileStmt : public LoopStmt {
   WhileStmt(ptr_Expr, ptr_Stmt);
 
   auto& getCondition() { return condition; }
-  auto& getBlock() { return block; }
-
+	void setCondition(ptr_Expr c) { condition = std::move(c); }
+  auto& getSubNode() { return block; }
   void accept(Visitor&) override;
-// todo private
+
+ private:
   ptr_Expr condition;
   ptr_Stmt block;
 };
@@ -211,11 +212,11 @@ class ForStmt : public LoopStmt {
   auto& getLow() { return low; }
   auto& getHigh() { return high; }
   bool getDirect() { return direct; }
-  auto& getBlock() { return block; }
-
+  auto& getSubNote() { return block; }
   void accept(Visitor&) override;
-// todo private
-  std::unique_ptr<Variable> var;
+
+ private:
+	std::unique_ptr<Variable> var;
   ptr_Stmt block;
   ptr_Expr low;
   ptr_Expr high;

@@ -699,9 +699,9 @@ void TypeChecker::visit(IfStmt& i) {
 
 void TypeChecker::visit(WhileStmt& w) {
   w.getCondition()->accept(*this);
-  w.getBlock()->accept(*this);
+  w.getSubNode()->accept(*this);
   if (w.getCondition()->getNodeType()->isInt()) {
-    w.condition = std::make_unique<Cast>(std::make_shared<Boolean>(), std::move(w.condition));
+    w.setCondition(std::make_unique<Cast>(std::make_shared<Boolean>(), std::move(w.getCondition())));
     return;
   }
   if (!w.getCondition()->getNodeType()->isBool()) {
@@ -714,7 +714,7 @@ void TypeChecker::visit(ForStmt& f) {
   f.getVar()->accept(*this);
   f.getLow()->accept(*this);
   f.getHigh()->accept(*this);
-  f.getBlock()->accept(*this);
+  f.getSubNote()->accept(*this);
   if (!(f.getVar()->getNodeType()->isInt() && f.getLow()->getNodeType()->isInt() &&
         f.getHigh()->getNodeType()->isInt())) {
     throw SemanticException(f.getVar()->getDeclPoint(), "Loop variable must be type int");
