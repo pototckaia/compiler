@@ -55,8 +55,6 @@ T& TableSymbol<T>::find(const std::string& n) {
 class Tables {
  public:
   bool checkContain(const std::string&);
-  void insertCheck(const std::shared_ptr<Symbol>&);
-
   void insert(const std::shared_ptr<ForwardType>&);
   void insert(const std::shared_ptr<ForwardFunction>&);
   uint64_t sizeVar();
@@ -69,6 +67,7 @@ class Tables {
   TableSymbol<std::shared_ptr<SymFun>> tableFunction;
  
  private:
+  void insertCheck(const std::shared_ptr<Symbol>&);
   std::list<std::shared_ptr<ForwardType>> forwardType;
   std::list<std::shared_ptr<ForwardFunction>> forwardFunction;
 };
