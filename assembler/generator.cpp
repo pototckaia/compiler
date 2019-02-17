@@ -542,7 +542,7 @@ void AsmGenerator::visit(Pointer& p) {
   asm_file
     << Comment("compute pointer offset")
     << cmd(POP, {RAX}) // index
-    << cmd(MOV, {RCX}, {p.typeBase->size()}) // sizeof 
+    << cmd(MOV, {RCX}, {p.getPointerBase()->size()}) // sizeof
     << cmd(IMUL, {RAX}, {RCX}); // index*sizeof
   if (bounds.size() == 1) {
     asm_file
@@ -559,7 +559,7 @@ void AsmGenerator::visit(Pointer& p) {
     << cmd(MOV, {RCX}, {adr(RCX, RAX, 1), none})
     << cmd(PUSH, {RCX}); // new base = *(base + index*sizeof)
   bounds.pop_front();
-  p.typeBase->accept(*this);
+  p.getPointerBase()->accept(*this);
 }
 
 void AsmGenerator::visit(StaticArray& s) {
@@ -654,7 +654,7 @@ void AsmGenerator::visit(ArrayAccess& a) {
   }
 }
 
-void AsmGenerator::visit(Alias& a) { a.type->accept(*this); }
+void AsmGenerator::visit(Alias& a) { a.getRefType()->accept(*this); }
 
 void AsmGenerator::visit(RecordAccess& r) {
   bool lvalue = need_lvalue;
@@ -1056,7 +1056,7 @@ void AsmGlobalDecl::visit(TPointer&) { a << RESQ << " 1\n"; }
 
 void AsmGlobalDecl::visit(FunctionSignature&) { a << RESQ << " 1\n"; }
 
-void AsmGlobalDecl::visit(Alias& a) { a.type->accept(*this); }
+void AsmGlobalDecl::visit(Alias& a) { a.getRefType()->accept(*this); }
 
 void AsmGlobalDecl::visit(StaticArray& s) { a << RESB << " " << s.size() << "\n"; }
 

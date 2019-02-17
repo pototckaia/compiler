@@ -52,9 +52,9 @@ void BaseTypeChecker::visit(StaticArray&) { throw SemanticException(errorMes); }
 
 void BaseTypeChecker::visit(OpenArray&) { throw SemanticException(errorMes); }
 
-void BaseTypeChecker::visit(Alias& a) { a.type->accept(*this); }
+void BaseTypeChecker::visit(Alias& a) { a.getRefType()->accept(*this); }
 
-void BaseTypeChecker::visit(ForwardType& a) { a.type->accept(*this); }
+void BaseTypeChecker::visit(ForwardType& a) { a.getRefType()->accept(*this); }
 
 void ArrayAccessChecker::make(ArrayAccess& a, ptr_Type& t) {
   ArrayAccessChecker c(a);
@@ -63,11 +63,11 @@ void ArrayAccessChecker::make(ArrayAccess& a, ptr_Type& t) {
 
 void ArrayAccessChecker::visit(Pointer& a) {
   if (sizeBounds == 1) {
-    arrayAccess.setNodeType(a.typeBase);
+    arrayAccess.setNodeType(a.getPointerBase());
     return;
   } else if (sizeBounds > 1) {
     --sizeBounds;
-    a.typeBase->accept(*this);
+    a.getPointerBase()->accept(*this);
   } else if (sizeBounds < 1) {
     throw std::logic_error("Check Array Access size bounds < 1");
   }

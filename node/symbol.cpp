@@ -130,6 +130,34 @@ Exit::Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var)
     returnType(std::move(returnType)), assignmentVar(std::move(var)) {}
 
 
+Void::Void() : SymType("void") {}
+
+Int::Int() : SymType("integer") {}
+
+Double::Double() : SymType("double") {}
+
+Char::Char() : SymType("char") {}
+
+String::String() : SymType("string") {}
+
+Boolean::Boolean() : SymType("boolean") {}
+
+TPointer::TPointer() : SymType("pointer") {}
+
+Alias::Alias(const Token& t)
+  : SymType(t) {}
+
+Alias::Alias(const Token& t, ptr_Type p)
+  : SymType(t), type(std::move(p)) {}
+
+ForwardType::ForwardType(const Token& t) : Alias(t) {}
+
+Pointer::Pointer(ptr_Type p)
+  : SymType(), typeBase(std::move(p)) {}
+
+Pointer::Pointer(const Token& t, ptr_Type p)
+  : SymType(t), typeBase(std::move(p)) {}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);
@@ -160,7 +188,7 @@ void Tables::resolveForwardType() {
     if (tableType.find(e->getSymbolName())->isForward()) {
       throw SemanticException(e->getDeclPoint(), "Type \"" + e->getSymbolName() + "\" not resolve");
     }
-    e->type = tableType.find(e->getSymbolName());
+    e->setRefType(tableType.find(e->getSymbolName()));
   }
   forwardType.clear();
 }
@@ -304,9 +332,9 @@ std::string toString(ParamSpec p) {
 
 bool SymType::checkAlias(SymType* s) const {
   if (dynamic_cast<Alias*>(s)) {
-    return equals(dynamic_cast<Alias*>(s)->type.get());
+    return equals(dynamic_cast<Alias*>(s)->getRefType().get());
   } else if (dynamic_cast<ForwardType*>(s)) {
-    return equals(dynamic_cast<ForwardType*>(s)->type.get());
+    return equals(dynamic_cast<ForwardType*>(s)->getRefType().get());
   }
   return false;
 }
@@ -366,7 +394,7 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
     }
   } if (dynamic_cast<Alias*>(s)) {
     auto p = dynamic_cast<Alias*>(s);
-    return equalsForCheckArgument(p->type.get());
+    return equalsForCheckArgument(p->getRefType().get());
   }
   return false;
 }

@@ -13,8 +13,10 @@ class SymType : public Symbol {
   using Symbol::Symbol;
   // todo normal double dispatch
   virtual bool equals(SymType* s) const = 0;
+  // todo move to cpp
   virtual bool equalsForCheckArgument(SymType* s) const { return equals(s); } // вызывет paramenter передается argument
 
+  // todo how remove this
   virtual bool isVoid() const { return false; }
   virtual bool isString() const { return false; }
   virtual bool isInt() const { return false; }
@@ -35,6 +37,7 @@ class SymType : public Symbol {
   virtual FunctionSignature* getSignature() { return nullptr; }
   virtual StaticArray* getStaticArray() { return nullptr; }
 
+  // todo remove
   virtual uint64_t size() const;
 
  protected:
@@ -43,16 +46,17 @@ class SymType : public Symbol {
 
 class Void : public SymType {
  public:
-  Void() : SymType("void") {}
+  Void();
   bool isVoid() const override { return true; }
   void accept(Visitor& v) override;
+  // todo move to cpp
   bool equals(SymType* s) const override { return false; }
   uint64_t size() const override;
 };
 
 class Int : public SymType {
  public:
-  Int() : SymType("integer") {}
+  Int();
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isInt() const override { return true; }
@@ -60,7 +64,7 @@ class Int : public SymType {
 
 class Double : public SymType {
  public:
-  Double() : SymType("double") {}
+  Double();
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isDouble() const override { return true; }
@@ -68,7 +72,7 @@ class Double : public SymType {
 
 class Char : public SymType {
  public:
-  Char() : SymType("char") {}
+  Char();
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isChar() const override { return true; }
@@ -76,8 +80,9 @@ class Char : public SymType {
 
 class String : public SymType {
  public:
-  String() : SymType("string") {}
+  String();
   void accept(Visitor& v) override;
+  // todo move to cpp
   bool equals(SymType* s) const override { return s->isString(); }
   bool isString() const override { return true; }
   uint64_t size() const override;
@@ -85,7 +90,7 @@ class String : public SymType {
 
 class Boolean : public SymType {
  public:
-  Boolean() : SymType("boolean") {}
+  Boolean();
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isBool() const override { return true; }
@@ -93,7 +98,7 @@ class Boolean : public SymType {
 
 class TPointer : public SymType {
  public:
-  TPointer() : SymType("pointer") {}
+  TPointer();
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isPurePointer() const override { return true; }
@@ -101,9 +106,8 @@ class TPointer : public SymType {
 
 class Alias : public SymType {
  public:
-  using SymType::SymType;
-  Alias(const Token& t, ptr_Type p)
-    : SymType(t), type(std::move(p)) {}
+  Alias(const Token&);
+  Alias(const Token&, ptr_Type);
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
@@ -118,39 +122,46 @@ class Alias : public SymType {
   bool isStaticArray() const override { return type->isStaticArray(); }
   bool isOpenArray() const override { return type->isOpenArray(); }
 
+  // todo remove this
   ptr_Type getPointerBase() override { return type->getPointerBase(); }
   Record* getRecord() override { return type->getRecord(); }
   FunctionSignature* getSignature() override { return type->getSignature(); }
   StaticArray* getStaticArray() override { return type->getStaticArray(); }
 
+  // todo remove virtual
   uint64_t size() const override;
-  // todo protected
+  auto& getRefType() { return type; }
+
+ protected:
   ptr_Type type;
 };
 
 class ForwardType : public Alias {
  public:
-  ForwardType(const Token& t) : Alias(t) {}
+  ForwardType(const Token& t);
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
+  // todo remove virtual
   bool isForward() const override { return true; }
-  // setter to type
+  void setRefType(ptr_Type t) { type = std::move(t); }
 };
 
 
 class Pointer : public SymType {
  public:
   using SymType::SymType;
-  Pointer(ptr_Type p) : SymType(), typeBase(std::move(p)) {}
-  Pointer(const Token& t, ptr_Type p)
-    : SymType(t), typeBase(std::move(p)) {}
+  Pointer(ptr_Type p);
+  Pointer(const Token& t, ptr_Type p);
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isTypePointer() const override { return true; }
+  // todo remove virtual
   ptr_Type getPointerBase() override { return typeBase; }
-// todo private
+  void setPointerBase(ptr_Type t) { typeBase = t; }
+
+ private:
   ptr_Type typeBase;
 };
 
@@ -160,13 +171,16 @@ class StaticArray : public SymType {
   using SymType::SymType;
   using BoundsType = std::list<std::pair<uint64_t, uint64_t>>;
 
-  BoundsType bounds;
-  ptr_Type typeElem;
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool isStaticArray() const override { return true; }
   StaticArray* getStaticArray() { return this; }
   uint64_t size() const override;
+
+// private:
+  BoundsType bounds;
+  ptr_Type typeElem;
+
 };
 
 class OpenArray : public SymType {

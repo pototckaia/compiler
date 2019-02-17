@@ -187,7 +187,7 @@ void PrintVisitor::visit(Alias& a) {
   print("Type alias: " + a.getSymbolName());
   print("Decl point: " + getPoint(a.getDeclPoint()));
   ++depth;
-  a.type->accept(*this);
+  a.getRefType()->accept(*this);
   --depth;
 }
 
@@ -195,7 +195,7 @@ void PrintVisitor::visit(Pointer& p) {
   print("Pointer");
   print("Decl point: " + getPoint(p.getDeclPoint()));
   ++depth;
-  print(p.typeBase->getSymbolName());
+  print(p.getPointerBase()->getSymbolName());
   --depth;
 }
 
@@ -255,7 +255,7 @@ void PrintVisitor::visit(ForwardType& f) {
   print("Forward type " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
-  f.type->accept(*this);
+  f.getRefType()->accept(*this);
   --depth;
 }
 
