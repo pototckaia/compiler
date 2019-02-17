@@ -269,9 +269,9 @@ void AsmGenerator::visit(Literal& l) {
 }
 
 void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
-  b.left->accept(*this);
-  b.right->accept(*this);
-  auto t = b.getOpr().getTokenType();
+  b.getSubLeft()->accept(*this);
+  b.getSubRight()->accept(*this);
+  auto t = b.getOp().getTokenType();
   asm_file
     << Comment("arithmetic operation")
     << cmd(POP, {RCX}) // right
@@ -285,7 +285,7 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
       << cmd(MOVQ, {RAX}, {XMM0, none})
       << cmd(PUSH, {RAX});
   } else {
-    switch (b.getOpr().getTokenType()) {
+    switch (b.getOp().getTokenType()) {
       case TokenType::Plus:
       case TokenType::Minus:
       case TokenType::Asterisk: {
@@ -327,11 +327,11 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit_cmp(BinaryOperation& b) {
-  b.left->accept(*this);
-  b.right->accept(*this);
-  auto t = b.getOpr().getTokenType();
+  b.getSubLeft()->accept(*this);
+  b.getSubRight()->accept(*this);
+  auto t = b.getOp().getTokenType();
   asm_file << Comment("cmp operation");
-  if (b.right->getNodeType()->isDouble()) {
+  if (b.getSubRight()->getNodeType()->isDouble()) {
     asm_file
       << cmd(POP, {R11}) // right
       << cmd(POP, {RAX}) // left
@@ -352,10 +352,10 @@ void AsmGenerator::visit_cmp(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit_logical(BinaryOperation& b) {
-  switch (b.getOpr().getTokenType()) {
+  switch (b.getOp().getTokenType()) {
     case TokenType::Xor: {
-      b.left->accept(*this);
-      b.right->accept(*this);
+      b.getSubLeft()->accept(*this);
+      b.getSubRight()->accept(*this);
       asm_file << Comment("xor operation");
       asm_file
         << cmd(POP, {RBX}) // righ
@@ -366,8 +366,8 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
     }
     case TokenType::And: {
       if (b.getNodeType()->isInt()) {
-        b.left->accept(*this);
-        b.right->accept(*this);
+        b.getSubLeft()->accept(*this);
+        b.getSubRight()->accept(*this);
         asm_file << Comment("and operation");
         asm_file
           << cmd(POP, {RBX}) // righ
@@ -379,14 +379,14 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         auto _false = getLabel();
         auto _true = getLabel();
 
-        b.left->accept(*this);
+        b.getSubLeft()->accept(*this);
         asm_file
           << Comment("and boolean operation")
           << cmd(POP, {RAX})
           << cmd(TEST, {RAX}, {RAX})
           << cmd(JZ, {Label(_false)});
 
-        b.right->accept(*this);
+        b.getSubRight()->accept(*this);
 
         asm_file
           << cmd(POP, {RAX})
@@ -402,8 +402,8 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
     }
     case TokenType::Or: {
       if (b.getNodeType()->isInt()) {
-        b.left->accept(*this);
-        b.right->accept(*this);
+        b.getSubLeft()->accept(*this);
+        b.getSubRight()->accept(*this);
         asm_file
           << Comment("or operation")
           << cmd(POP, {RBX}) // righ
@@ -415,14 +415,14 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
         auto _false = getLabel();
         auto _true = getLabel();
 
-        b.left->accept(*this);
+        b.getSubLeft()->accept(*this);
         asm_file
           << Comment("or boolean operation")
           << cmd(POP, {RAX})
           << cmd(TEST, {RAX}, {RAX})
           << cmd(JNZ, {Label(_true)});
 
-        b.right->accept(*this);
+        b.getSubRight()->accept(*this);
 
         asm_file
           << cmd(POP, {RAX})
@@ -442,7 +442,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
 }
 
 void AsmGenerator::visit(BinaryOperation& b) {
-  switch (b.getOpr().getTokenType()) {
+  switch (b.getOp().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus:
     case TokenType::Slash:
@@ -696,10 +696,10 @@ void AsmGenerator::visit(Cast& c) {
 }
 
 void AsmGenerator::visit(AssignmentStmt& a) {
-  a.right->accept(*this);
-  visit_lvalue(*a.left);
-  if (a.left->getNodeType()->isTrivial()) {
-    auto t = a.getOpr().getTokenType();
+  a.getSubRight()->accept(*this);
+  visit_lvalue(*a.getSubLeft());
+  if (a.getSubLeft()->getNodeType()->isTrivial()) {
+    auto t = a.getOp().getTokenType();
     switch (t) {
       case TokenType::AssignmentWithPlus:
       case TokenType::AssignmentWithMinus:
@@ -710,7 +710,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
           << cmd(POP, {RAX}) // left - address
           << cmd(POP, {R8}) // right
           << cmd(MOV, {R9}, {adr(RAX)}); // *left
-        if (a.left->getNodeType()->isDouble()) {
+        if (a.getSubLeft()->getNodeType()->isDouble()) {
           asm_file
             << cmd(MOVQ, {XMM0, none}, {R9})
             << cmd(MOVQ, {XMM1, none}, {R8})
@@ -735,7 +735,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
     return;
   }
   // count 8 byte
-  uint64_t len = a.left->getNodeType()->size() / 8;
+  uint64_t len = a.getSubLeft()->getNodeType()->size() / 8;
   auto _start = getLabel();
   auto _end = getLabel();
   asm_file

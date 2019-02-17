@@ -30,11 +30,11 @@ void PrintVisitor::visit(Variable& v) {
 }
 
 void PrintVisitor::visit(BinaryOperation& b) {
-  print(b.getOpr().getString());
+  print(b.getOp().getString());
   ++depth;
   print(b.getNodeType());
-  b.getRight()->accept(*this);
-  b.getLeft()->accept(*this);
+	b.getSubRight()->accept(*this);
+	b.getSubLeft()->accept(*this);
   --depth;
 }
 
@@ -94,9 +94,9 @@ void PrintVisitor::visit(Cast& t) {
 void PrintVisitor::visit(AssignmentStmt& a) {
   print("Assigment");
   ++depth;
-  print(a.getOpr().getString());
-  a.getLeft()->accept(*this);
-  a.getRight()->accept(*this);
+  print(a.getOp().getString());
+	a.getSubLeft()->accept(*this);
+	a.getSubRight()->accept(*this);
   --depth;
 }
 

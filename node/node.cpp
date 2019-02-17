@@ -32,13 +32,9 @@ Literal::Literal(const Token& v)
 Literal::Literal(const Token& v, ptr_Type t)
 	: ASTNode(v), Expression(std::move(t)), value(v) {};
 
-BinaryOperation::BinaryOperation(const Token& op,
-                                 ptr_Expr left,
-                                 ptr_Expr right)
-  : ASTNode(op.getLine(), op.getColumn()),
-    opr(std::move(op)), left(std::move(left)), right(std::move(right)) {
-
-}
+BinaryOperation::BinaryOperation(const Token& op, ptr_Expr left, ptr_Expr right)
+  : ASTNode(op),
+    op(op), left(std::move(left)), right(std::move(right)) {}
 
 UnaryOperation::UnaryOperation(Token opr, ptr_Expr expr)
   : ASTNode(opr.getLine(), opr.getColumn()), opr(std::move(opr)), expr(std::move(expr)) {}

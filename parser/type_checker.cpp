@@ -313,15 +313,15 @@ void TypeChecker::visit(Variable& v) {
 }
 
 bool TypeChecker::setCast(BinaryOperation& b, bool isAssigment) {
-  auto& leftType = b.getLeft()->getNodeType();
-  auto& rightType = b.getRight()->getNodeType();
+  auto& leftType = b.getSubLeft()->getNodeType();
+  auto& rightType = b.getSubRight()->getNodeType();
 
   if (isImplicitType(leftType, rightType)) {
-    b.right = std::make_unique<Cast>(leftType, std::move(b.right));
+    b.setSubRight(std::make_unique<Cast>(leftType, std::move(b.getSubRight())));
     b.setNodeType(leftType);
     return true;
   } else if (!isAssigment && isImplicitType(rightType, leftType)) {
-    b.left = std::make_unique<Cast>(rightType, std::move(b.left));
+    b.setSubLeft(std::make_unique<Cast>(rightType, std::move(b.getSubLeft())));
     b.setNodeType(rightType);
     return true;
   }
@@ -333,19 +333,19 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
     return !(t->isInt() || t->isDouble() || t->isPurePointer() || t->isTypePointer());
   };
 
-  if (notValidType(b.getLeft()->getNodeType()) || notValidType(b.getRight()->getNodeType())) {
+  if (notValidType(b.getSubLeft()->getNodeType()) || notValidType(b.getSubRight()->getNodeType())) {
     return false;
   }
   setCast(b, isAssigment);
-  auto& leftType = b.getLeft()->getNodeType();
-  auto& rightType = b.getRight()->getNodeType();
+  auto& leftType = b.getSubLeft()->getNodeType();
+  auto& rightType = b.getSubRight()->getNodeType();
 
-  if ((b.getOpr().is(TokenType::Plus) ||
-       b.getOpr().is(TokenType::AssignmentWithPlus)) &&
+  if ((b.getOp().is(TokenType::Plus) ||
+			b.getOp().is(TokenType::AssignmentWithPlus)) &&
       leftType->isPointer() && rightType->isPointer()) {
     return false;
-  } else if ((b.getOpr().is(TokenType::Minus) ||
-              b.getOpr().is(TokenType::AssignmentWithMinus)) &&
+  } else if ((b.getOp().is(TokenType::Minus) ||
+			b.getOp().is(TokenType::AssignmentWithMinus)) &&
              leftType->isPointer() && rightType->isPointer()) {
     b.setNodeType(std::make_shared<Int>());
     return true;
@@ -371,11 +371,11 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
   if (leftType->isTypePointer() && rightType->isInt()) {
     // маштабирование указателя
     b.setNodeType(leftType);
-    b.right = m(b.right, leftType->getPointerBase()->size());
+    b.setSubRight(m(b.getSubRight(), leftType->getPointerBase()->size()));
     return true;
-  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOpr().is(TokenType::Plus)) {
+  } else if (leftType->isInt() && rightType->isTypePointer() && b.getOp().is(TokenType::Plus)) {
     b.setNodeType(rightType);
-    b.left = m(b.left, rightType->getPointerBase()->size());
+    b.setSubLeft(m(b.getSubLeft(), rightType->getPointerBase()->size()));
     return true;
   }
 
@@ -384,17 +384,17 @@ bool TypeChecker::checkTypePlusMinus(BinaryOperation& b, bool isAssigment) {
 
 bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
   setCast(b, isAssigment);
-  auto& leftType = b.getLeft()->getNodeType();
-  auto& rightType = b.getRight()->getNodeType();
+  auto& leftType = b.getSubLeft()->getNodeType();
+  auto& rightType = b.getSubRight()->getNodeType();
 
   bool isPass = (leftType->isDouble() || leftType->isInt()) && leftType->equals(rightType.get());
   b.setNodeType(leftType);
-  if (b.getOpr().is(TokenType::Slash) ||
-      b.getOpr().is(TokenType::AssignmentWithSlash)) {
+  if (b.getOp().is(TokenType::Slash) ||
+			b.getOp().is(TokenType::AssignmentWithSlash)) {
     if (leftType->isInt() && rightType->isInt()) {
       isPass = !isAssigment;
-      b.left = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.left));
-      b.right = std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.right));
+      b.setSubLeft(std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.getSubLeft())));
+      b.setSubRight(std::make_unique<Cast>(std::make_shared<Double>(), std::move(b.getSubRight())));
     }
     b.setNodeType(std::make_shared<Double>());
   }
@@ -403,24 +403,24 @@ bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
 
 void TypeChecker::visit(BinaryOperation& b) {
   if (isMustFunctionCall) {
-    throw SemanticException(b.getDeclPoint(), "Expect function call but find " + b.getOpr().getString());
+    throw SemanticException(b.getDeclPoint(), "Expect function call but find " + b.getOp().getString());
   }
   wasFunctionCall = false;
 
-  b.getLeft()->accept(*this);
-  b.getRight()->accept(*this);
+	b.getSubLeft()->accept(*this);
+	b.getSubRight()->accept(*this);
 
-  auto& leftType = b.getLeft()->getNodeType();
-  auto& rightType = b.getRight()->getNodeType();
+  auto& leftType = b.getSubLeft()->getNodeType();
+  auto& rightType = b.getSubRight()->getNodeType();
   if (leftType == nullptr || rightType == nullptr) {
-    throw SemanticException(b.getDeclPoint(), "Cannot " + b.getOpr().getString() + " function");
+    throw SemanticException(b.getDeclPoint(), "Cannot " + b.getOp().getString() + " function");
   }
 
-  std::string mes = "Operation " + b.getOpr().getString() +
+  std::string mes = "Operation " + b.getOp().getString() +
                     " to types \"" + leftType->getSymbolName() + "\" and \"" + rightType->getSymbolName() + "\" not valid";
   bool isPass;
 
-  switch (b.getOpr().getTokenType()) {
+  switch (b.getOp().getTokenType()) {
     case TokenType::Plus:
     case TokenType::Minus: { // + -
       isPass = checkTypePlusMinus(b);
@@ -467,7 +467,7 @@ void TypeChecker::visit(BinaryOperation& b) {
       break;
     }
     default: {
-      throw std::logic_error("Not valid BinaryOperation tokenType " + toString(b.getOpr().getTokenType()));
+      throw std::logic_error("Not valid BinaryOperation tokenType " + toString(b.getOp().getTokenType()));
     }
   }
 
@@ -626,17 +626,17 @@ void TypeChecker::visit(AssignmentStmt& a) {
   if (isMustFunctionCall) {
     throw SemanticException(a.getDeclPoint(), "Expect function call but find assigment");
   }
-  a.getLeft()->accept(*this);
-  a.getRight()->accept(*this);
-  if (!LvalueChecker::is(a.left)) {
-    throw SemanticException(a.left->getDeclPoint(), "Expect lvalue in assigment");
+	a.getSubLeft()->accept(*this);
+	a.getSubRight()->accept(*this);
+  if (!LvalueChecker::is(a.getSubLeft())) {
+    throw SemanticException(a.getSubLeft()->getDeclPoint(), "Expect lvalue in assigment");
   }
-  std::string mes = "Operation " + a.getOpr().getString() +
-                    " to types \"" + a.getLeft()->getNodeType()->getSymbolName() + "\" and \"" +
-                    a.getRight()->getNodeType()->getSymbolName() + "\" not valid";
-  auto typeRight = a.getRight()->getNodeType();
-  auto typeLeft = a.getLeft()->getNodeType();
-  switch (a.getOpr().getTokenType()) {
+  std::string mes = "Operation " + a.getOp().getString() +
+                    " to types \"" + a.getSubLeft()->getNodeType()->getSymbolName() + "\" and \"" +
+			a.getSubRight()->getNodeType()->getSymbolName() + "\" not valid";
+  auto typeRight = a.getSubRight()->getNodeType();
+  auto typeLeft = a.getSubLeft()->getNodeType();
+  switch (a.getOp().getTokenType()) {
     case TokenType::AssignmentWithMinus:
     case TokenType::AssignmentWithPlus: {
       if (!checkTypePlusMinus(a, true)) {
@@ -661,7 +661,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
     }
   }
   if (isImplicitType(typeLeft, typeRight)) {
-    a.right = std::make_unique<Cast>(typeLeft, std::move(a.right));
+    a.setSubRight(std::make_unique<Cast>(typeLeft, std::move(a.getSubRight())));
     return;
   }
   if (!typeRight->equals(typeLeft.get())) {

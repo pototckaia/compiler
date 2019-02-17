@@ -59,13 +59,17 @@ class BinaryOperation : public Expression {
  public:
   BinaryOperation(const Token&, ptr_Expr, ptr_Expr);
 
-  const auto& getLeft() const { return left; }
-  const auto& getRight() const { return right; }
-  const auto& getOpr() const { return opr; }
+  auto& getSubLeft() { return left; }
+  auto& getSubRight() { return right; }
+  auto& getOp() { return op; }
+
+  void setSubRight(ptr_Expr r) { right = std::move(r); }
+  void setSubLeft(ptr_Expr l) { left = std::move(l); }
 
   void accept(Visitor&) override ;
-// todo private
-  Token opr;
+
+ private:
+  Token op;
   ptr_Expr left;
   ptr_Expr right;
 };
