@@ -188,15 +188,18 @@ class StaticArray : public SymType {
 
 class OpenArray : public SymType {
  public:
-  OpenArray(const Token& decl, ptr_Type type)
-    : SymType(decl), typeElem(std::move(type)) {}
+  OpenArray(const Token& decl, ptr_Type type);
 
-  ptr_Type typeElem;
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   bool equalsForCheckArgument(SymType* s) const override;
   bool isOpenArray() const override { return true; }
   uint64_t size() const override;
+
+  auto& getRefType() { return typeElem; }
+
+ private:
+  ptr_Type typeElem;
 };
 
 class Record : public SymType {

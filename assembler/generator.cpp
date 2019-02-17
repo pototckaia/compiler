@@ -153,7 +153,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
   for (auto& e : s->paramsList) {
     if (e->getVarType()->isOpenArray() && e->spec == ParamSpec::NotSpec) {
       auto array = std::dynamic_pointer_cast<OpenArray>(e->getVarType());
-      uint64_t sizeElem = array->typeElem->size();
+      uint64_t sizeElem = array->getRefType()->size();
       auto _start = getLabel();
       auto _end = getLabel();
       asm_file
@@ -616,7 +616,7 @@ void AsmGenerator::visit(OpenArray& o) {
   asm_file
     << Comment("compute open array offset")
     << cmd(POP, {RAX}) // index
-    << cmd(MOV, {RCX}, {o.typeElem->size()})
+    << cmd(MOV, {RCX}, {o.getRefType()->size()})
     << cmd(IMUL, {RAX}, {RCX}); // new index = index*sizeof
   if (bounds.size() == 1) {
     asm_file

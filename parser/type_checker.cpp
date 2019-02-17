@@ -97,11 +97,11 @@ void ArrayAccessChecker::visit(StaticArray& s) {
 
 void ArrayAccessChecker::visit(OpenArray& o) {
   if (sizeBounds == 1) {
-    arrayAccess.setNodeType(o.typeElem);
+    arrayAccess.setNodeType(o.getRefType());
     return;
   } else if (sizeBounds > 1) {
     --sizeBounds;
-    o.typeElem->accept(*this);
+    o.getRefType()->accept(*this);
   } else if (sizeBounds < 1) {
     throw std::logic_error("Check Array Access size bounds < 1");
   }

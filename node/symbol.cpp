@@ -163,6 +163,11 @@ StaticArray::StaticArray(const Token& d, ptr_Type t,
   : SymType(d),
     bounds(b), typeElem(std::move(t)) {}
 
+OpenArray::OpenArray(const Token& decl, ptr_Type type)
+  : SymType(decl),
+    typeElem(std::move(type)) {}
+
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);

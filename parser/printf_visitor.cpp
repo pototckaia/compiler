@@ -219,7 +219,7 @@ void PrintVisitor::visit(OpenArray& o) {
   print("Open array");
   print("Decl point: " + getPoint(o.getDeclPoint()));
   ++depth;
-  o.typeElem->accept(*this);
+  o.getRefType()->accept(*this);
   --depth;
 }
 
