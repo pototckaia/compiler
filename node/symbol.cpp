@@ -247,7 +247,7 @@ void Tables::resolveForwardFunction() {
 uint64_t Tables::sizeVar() {
   uint64_t s = 0;
   for (auto& v : tableVariable) {
-    s += v.second->getVarType()->size();
+    s += v->getVarType()->size();
   }
   return s;
 }

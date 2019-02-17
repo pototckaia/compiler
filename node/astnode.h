@@ -14,6 +14,11 @@ class SymType;
 class SymFun;
 class FunctionSignature;
 
+class ParamVar;
+class ForwardType;
+class ForwardFunction;
+class Const;
+
 class Tables;
 
 using ptr_Node = std::shared_ptr<ASTNode>;
@@ -28,6 +33,7 @@ using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 
 using ListExpr = std::list<ptr_Expr>;
 using ListStmt = std::list<ptr_Stmt>;
+using ListParam = std::list<std::shared_ptr<ParamVar>>;
 
 class Visitor;
 

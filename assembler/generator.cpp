@@ -61,13 +61,13 @@ void AsmGenerator::visit(MainFunction& m) {
   a.visit(label_fmt_char, "%c");
   a.visit(label_fmt_new_line, 10);
   for (auto& var : m.getTable().tableVariable) {
-    var.second->accept(a);
+    var->accept(a);
   }
 
   // set label for function
   for (auto& var : m.getTable().tableFunction) {
-    auto label = getLabelName(var.second->getSymbolName());
-    var.second->setLabel(label);
+    auto label = getLabelName(var->getSymbolName());
+    var->setLabel(label);
   }
 
   stackTable.push(m.getTable());
@@ -87,10 +87,10 @@ void AsmGenerator::visit(MainFunction& m) {
 
   // function decl
   for (auto& fun : m.getTable().tableFunction) {
-    if (fun.second->isEmbedded()) {
+    if (fun->isEmbedded()) {
       continue;
     }
-    visit_function(*fun.second);
+    visit_function(*fun);
   }
   clear_buf_string();
 }
@@ -125,19 +125,19 @@ void AsmGenerator::visit_function(SymFun& fun) {
 
   // set offset local var
   for (auto& e : tableLocal.tableVariable) {
-    uint64_t sizeVar = e.second->size();
-    if (!s->isProcedure() && e.first == fun.getSymbolName()) { // result var
+    uint64_t sizeVar = e->size();
+    if (!s->isProcedure() && e->getSymbolName() == fun.getSymbolName()) { // result var
       sizeLocal -= sizeVar; // not local
-      e.second->setOffset(offsetParam);
+      e->setOffset(offsetParam);
       asm_file
-        << Comment("result " + e.first +
+        << Comment("result " + e->getSymbolName() +
                    " - A_n .. A_0 <- end: [RBP+" +
                    std::to_string(offsetParam) + "]");
     } else {
       offsetLocal += sizeVar;
-      e.second->setOffset(offsetLocal);
+      e->setOffset(offsetLocal);
       asm_file
-        << Comment(e.first +
+        << Comment(e->getSymbolName() +
                    ": [RBP-" +
                    std::to_string(offsetLocal) + "]");
     }

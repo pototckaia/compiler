@@ -11,12 +11,6 @@
 #include "exception"
 
 
-class ParamVar;
-class ForwardType;
-class ForwardFunction;
-class Const;
-using ListParam = std::list<std::shared_ptr<ParamVar>>;
-
 template <typename T>
 class TableSymbol {
  public:
@@ -26,13 +20,37 @@ class TableSymbol {
   bool checkContain(const std::string&);
   T& find(const std::string&);
   void replace(T);
-
-  auto begin() { return table.begin(); };
-  auto end() { return table.end(); }
+  auto begin() { return order.begin(); };
+  auto end() { return order.end(); }
 
  private:
   std::map<std::string, T> table;
+  std::vector<T> order;
 };
+
+template<class T>
+void TableSymbol<T>::replace(T t) {
+  table[t->getSymbolName()] = std::forward<T>(t);
+}
+
+template<class T>
+void TableSymbol<T>::insert(T t) {
+  if (checkContain(t->getSymbolName())) {
+    throw std::logic_error("Already defined " + t->getSymbolName());
+  }
+  table[t->getSymbolName()] = std::forward<T>(t);
+  order.push_back(t);
+}
+
+template<class T>
+bool TableSymbol<T>::checkContain(const std::string& n) {
+  return table.count(n) > 0;
+}
+
+template<class T>
+T& TableSymbol<T>::find(const std::string& n) {
+  return table.at(n);
+}
 
 class Tables {
  public:
@@ -81,26 +99,3 @@ class StackTable {
   std::list<Tables> stack;
 };
 
-
-template<class T>
-void TableSymbol<T>::replace(T t) {
-  table[t->getSymbolName()] = std::forward<T>(t);
-}
-
-template<class T>
-void TableSymbol<T>::insert(T t) {
-  if (checkContain(t->getSymbolName())) {
-    throw std::logic_error("Already defined " + t->getSymbolName());
-  }
-  table[t->getSymbolName()] = std::forward<T>(t);
-}
-
-template<class T>
-bool TableSymbol<T>::checkContain(const std::string& n) {
-  return table.count(n) > 0;
-}
-
-template<class T>
-T& TableSymbol<T>::find(const std::string& n) {
-  return table.at(n);
-}

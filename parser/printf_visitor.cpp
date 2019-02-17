@@ -320,9 +320,9 @@ void PrintVisitor::visit(TableSymbol<ptr_Type>& t) {
   print("Table Symbol Type");
   ++depth;
   for (auto& e : t) {
-    print(e.first);
+    print(e->getSymbolName());
     ++depth;
-    e.second->accept(*this);
+    e->accept(*this);
     --depth;
   }
   --depth;
@@ -332,9 +332,9 @@ void PrintVisitor::visit(TableSymbol<ptr_Var>& t) {
   print("Table Symbol Variable");
   ++depth;
   for (auto& e : t) {
-    print(e.first);
+    print(e->getSymbolName());
     ++depth;
-    e.second->accept(*this);
+    e->accept(*this);
     --depth;
   }
   --depth;
@@ -344,9 +344,9 @@ void PrintVisitor::visit(TableSymbol<std::shared_ptr<Const>>& t) {
   print("Table Symbol Const");
   ++depth;
   for (auto& e : t) {
-    print(e.first);
+    print(e->getSymbolName());
     ++depth;
-    e.second->accept(*this);
+    e->accept(*this);
     --depth;
   }
   --depth;
@@ -356,9 +356,9 @@ void PrintVisitor::visit(TableSymbol<std::shared_ptr<SymFun>>& t) {
   print("Table Symbol Function");
   ++depth;
   for (auto& e : t) {
-    print(e.first);
+    print(e->getSymbolName());
     ++depth;
-    e.second->accept(*this);
+    e->accept(*this);
     --depth;
   }
   --depth;
