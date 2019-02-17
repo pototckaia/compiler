@@ -21,10 +21,10 @@ Expression::Expression(ptr_Type t)
   : type(std::move(t)) {}
 
 Variable::Variable(const Token& n)
-  : ASTNode(n.getLine(), n.getColumn()), name(std::move(n)) {}
+  : ASTNode(n), name(n) {}
 
 Variable::Variable(const Token& n, ptr_Type t)
-  : ASTNode(-1, -1), Expression(std::move(t)), name(std::move(n)) {}
+  : ASTNode(n), Expression(std::move(t)), name(n) {}
 
 Literal::Literal(const Token& v)
   : ASTNode(v.getLine(), v.getColumn()), value(std::move(v)) {}

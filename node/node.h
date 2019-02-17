@@ -33,6 +33,7 @@ class Variable : public Expression {
 
   const auto& getName() const { return name; }
   std::string getVarName() override { return name.getString(); }
+
   void accept(Visitor&) override;
 
  private:
