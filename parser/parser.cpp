@@ -277,7 +277,6 @@ ptr_Stmt Parser::parseFor() {
 }
 
 std::shared_ptr<MainFunction> Parser::parseMainBlock() {
-  auto main = std::make_shared<MainFunction>();
   parseDecl(true);
   auto body = parseCompound();
   requireAndSkip(TokenType::Dot);

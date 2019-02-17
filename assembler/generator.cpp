@@ -60,24 +60,24 @@ void AsmGenerator::visit(MainFunction& m) {
   a.visit(label_fmt_double, "%1.16E");
   a.visit(label_fmt_char, "%c");
   a.visit(label_fmt_new_line, 10);
-  for (auto& var : m.decl.tableVariable) {
+  for (auto& var : m.getTable().tableVariable) {
     var.second->accept(a);
   }
 
   // set label for function
-  for (auto& var : m.decl.tableFunction) {
+  for (auto& var : m.getTable().tableFunction) {
     auto label = getLabelName(var.second->getSymbolName());
     var.second->setLabel(label);
   }
 
-  stackTable.push(m.decl);
+  stackTable.push(m.getTable());
   asm_file
     << cmd(code)
     << cmd(Label(label_main))
     << Comment("prolog")
     << cmd(PUSH, {RBP})
     << cmd(MOV, {RBP}, {RSP});
-  m.body->accept(*this);
+  m.getBody()->accept(*this);
   asm_file
     << Comment("epilog")
     << cmd(MOV, {RSP}, {RBP})
@@ -86,7 +86,7 @@ void AsmGenerator::visit(MainFunction& m) {
     << cmd(RET);
 
   // function decl
-  for (auto& fun : m.decl.tableFunction) {
+  for (auto& fun : m.getTable().tableFunction) {
     if (fun.second->isEmbedded()) {
       continue;
     }

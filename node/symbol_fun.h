@@ -48,14 +48,16 @@ class ForwardFunction : public Function {
 
 class MainFunction : public SymFun {
  public:
-  using SymFun::SymFun;
-	// todo move to cpp
-  MainFunction(Tables t, ptr_Stmt b)
-    : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
+  MainFunction(Tables t, ptr_Stmt b);
 
   void accept(Visitor& v) override;
+  // todo remove
   bool isEmbedded() const override { return false; }
-// todo privat
+  // todo remove virtual
+	ptr_Stmt& getBody() override { return body; }
+	Tables& getTable() { return decl; }
+
+ private:
   ptr_Stmt body;
   Tables decl;
 };

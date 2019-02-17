@@ -36,6 +36,9 @@ Function::Function(const Token& t, ptr_Sign f, ptr_Stmt p, Tables l)
 ForwardFunction::ForwardFunction(const Token& t, ptr_Sign f)
   : Function(t, std::move(f)) {}
 
+MainFunction::MainFunction(Tables t, ptr_Stmt b)
+    : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);

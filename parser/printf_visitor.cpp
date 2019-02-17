@@ -312,8 +312,8 @@ void PrintVisitor::visit(Function& f) {
 }
 
 void PrintVisitor::visit(MainFunction& m) {
-  visit(m.decl);
-  m.body->accept(*this);
+  visit(m.getTable());
+  m.getBody()->accept(*this);
 }
 
 void PrintVisitor::visit(TableSymbol<ptr_Type>& t) {
