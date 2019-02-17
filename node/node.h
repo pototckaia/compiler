@@ -90,13 +90,14 @@ class UnaryOperation : public Expression {
 
 class ArrayAccess : public Expression {
  public:
-  ArrayAccess(const Token& d, ptr_Expr name, ListExpr i);
+  ArrayAccess(const Token&, ptr_Expr, ListExpr);
 
-  auto& getName() { return nameArray; }
+  auto& getSubNode() { return nameArray; }
   auto& getListIndex() { return listIndex; };
 
   void accept(Visitor&) override;
-  // todo private
+
+ private:
   ptr_Expr nameArray;
   ListExpr listIndex;
 };

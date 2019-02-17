@@ -52,7 +52,7 @@ class ArrayAccessChecker : public BaseTypeChecker {
 
   ArrayAccessChecker(ArrayAccess& a)
   : BaseTypeChecker(getPoint(a.getDeclLine(), a.getDeclColumn()) +
-                    "Array access to type \"" + a.getName()->getNodeType()->getSymbolName() + "\" not valid"),
+                    "Array access to type \"" + a.getSubNode()->getNodeType()->getSymbolName() + "\" not valid"),
     arrayAccess(a),
     sizeBounds(a.getListIndex().size()) {}
 

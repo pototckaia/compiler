@@ -635,14 +635,14 @@ void AsmGenerator::visit(OpenArray& o) {
 
 void AsmGenerator::visit(ArrayAccess& a) {
   bool lvalue = need_lvalue;
-  if (a.nameArray->getNodeType()->isPointer()) {
+  if (a.getSubNode()->getNodeType()->isPointer()) {
     need_lvalue = false;
-    a.nameArray->accept(*this);
+    a.getSubNode()->accept(*this);
   } else {
-    visit_lvalue(*a.nameArray);
+    visit_lvalue(*a.getSubNode());
   }
-  bounds = std::move(a.listIndex);
-  a.nameArray->getNodeType()->accept(*this);
+  bounds = std::move(a.getListIndex());
+  a.getSubNode()->getNodeType()->accept(*this);
   asm_file
     << Comment("push address base[index]")
     << cmd(POP, {RCX}) // index

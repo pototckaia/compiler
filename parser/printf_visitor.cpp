@@ -49,7 +49,7 @@ void PrintVisitor::visit(UnaryOperation& u) {
 void PrintVisitor::visit(ArrayAccess& a) {
   print("Array Access");
   ++depth;
-  a.getName()->accept(*this);
+	a.getSubNode()->accept(*this);
   print(a.getNodeType());;
   for (auto& e: a.getListIndex()) {
     e->accept(*this);

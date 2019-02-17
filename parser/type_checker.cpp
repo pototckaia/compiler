@@ -16,7 +16,7 @@ void LvalueChecker::visit(FunctionCall& f) { lvalue = false; }
 
 void LvalueChecker::visit(BinaryOperation& f) { lvalue = false; }
 
-void LvalueChecker::visit(ArrayAccess& a) { a.getName()->accept(*this); }
+void LvalueChecker::visit(ArrayAccess& a) { a.getSubNode()->accept(*this); }
 
 void LvalueChecker::visit(RecordAccess& r) { r.getRecord()->accept(*this); }
 
@@ -542,12 +542,12 @@ void TypeChecker::visit(ArrayAccess& a) {
   }
   wasFunctionCall = false;
 
-  if (!LvalueChecker::is(a.nameArray)) {
-    throw SemanticException(a.nameArray->getDeclPoint(), "Expect lvalue in []");
+  if (!LvalueChecker::is(a.getSubNode())) {
+    throw SemanticException(a.getSubNode()->getDeclPoint(), "Expect lvalue in []");
   }
-  a.getName()->accept(*this);
-  if (a.getName()->getNodeType() == nullptr) {
-    throw SemanticException(a.getName()->getDeclPoint(), "Cannot [] on function");
+  a.getSubNode()->accept(*this);
+  if (a.getSubNode()->getNodeType() == nullptr) {
+    throw SemanticException(a.getSubNode()->getDeclPoint(), "Cannot [] on function");
   }
 
   for (auto& e : a.getListIndex()) {
@@ -559,7 +559,7 @@ void TypeChecker::visit(ArrayAccess& a) {
       throw SemanticException(e->getDeclPoint(), "Expect \"Integer\", but find " + e->getNodeType()->getSymbolName());
     }
   }
-  auto& childType = a.getName()->getNodeType();
+  auto& childType = a.getSubNode()->getNodeType();
   ArrayAccessChecker::make(a, childType);
 }
 

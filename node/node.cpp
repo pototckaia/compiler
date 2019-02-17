@@ -41,7 +41,8 @@ UnaryOperation::UnaryOperation(const Token& opr, ptr_Expr expr)
     op(opr), expr(std::move(expr)) {}
 
 ArrayAccess::ArrayAccess(const Token& d, ptr_Expr name, ListExpr i)
-  : ASTNode(d), nameArray(std::move(name)), listIndex(std::move(i)) {}
+  : ASTNode(d),
+    nameArray(std::move(name)), listIndex(std::move(i)) {}
 
 FunctionCall::FunctionCall(const Token& d, ptr_Expr nameFunction, ListExpr listParam)
   : ASTNode(d), nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
