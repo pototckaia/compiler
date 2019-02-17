@@ -60,13 +60,13 @@ void PrintVisitor::visit(ArrayAccess& a) {
 void PrintVisitor::visit(FunctionCall& f) {
   print("Function Call");
   ++depth;
-  f.getName()->accept(*this);
+  f.getSubNode()->accept(*this);
   if (f.getNodeType() == nullptr) {
     f.getEmbeddedFunction()->accept(*this);
   } else {
     print(f.getNodeType());
   }
-  for (auto& e: f.getParam()) {
+  for (auto& e: f.getListParam()) {
     e->accept(*this);
   }
   --depth;

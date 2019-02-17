@@ -126,18 +126,18 @@ void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
 
 
 void FunctionCallChecker::visit(FunctionSignature& s) {
-  if (s.paramsList.size() != f.getParam().size()) {
+  if (s.paramsList.size() != f.getListParam().size()) {
     throw SemanticException(f.getDeclPoint(),
                             "Expect number of arguments " + std::to_string(s.paramsList.size()) +
-                            " but find " + std::to_string(f.getParam().size()));
+                            " but find " + std::to_string(f.getListParam().size()));
   }
   f.setNodeType(s.returnType);
   auto iterParameter = s.paramsList.begin();
   ListExpr newParam;
   for (; iterParameter != s.paramsList.end(); ++iterParameter) {
     auto parameter = *iterParameter;
-    auto argument = std::move(f.listParam.front());
-    f.listParam.pop_front();
+    auto argument = std::move(f.getListParam().front());
+    f.getListParam().pop_front();
     if (parameter->spec == ParamSpec::Var ||
         parameter->spec == ParamSpec::Out) {
       if (!LvalueChecker::is(argument)) {
@@ -158,12 +158,12 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
                             "Expect argument's type \"" + parameter->getVarType()->getSymbolName() +
                             "\" but find \"" + argument->getNodeType()->getSymbolName() + "\"");
   }
-  f.listParam = std::move(newParam);
+  f.setListParam(std::move(newParam));
 }
 
 void FunctionCallChecker::visit(Read&) {
   f.setNodeType(std::make_shared<Void>());
-  for (auto& e : f.listParam) {
+  for (auto& e : f.getListParam()) {
     auto& type = e->getNodeType();
     if (!LvalueChecker::is(e)) {
       throw SemanticException(e->getDeclPoint(), "Expect lvalue in argument");
@@ -177,7 +177,7 @@ void FunctionCallChecker::visit(Read&) {
 
 void FunctionCallChecker::visit(Write&) {
   f.setNodeType(std::make_shared<Void>());
-  for (auto& e : f.getParam()) {
+  for (auto& e : f.getListParam()) {
     auto& type = e->getNodeType();
     if (type->isInt() || type->isDouble() || type->isChar() || type->isString() || type->isPointer()) {
       continue;
@@ -201,28 +201,28 @@ void FunctionCallChecker::visit(Round& c) { c.getSignature()->accept(*this); }
 void FunctionCallChecker::visit(Exit& c) {
   f.setNodeType(std::make_shared<Void>());
   if (c.returnType->isVoid()) {
-    if (!f.getParam().empty()) {
+    if (!f.getListParam().empty()) {
       throw SemanticException(f.getDeclPoint(),
-                              "Expect 0 argument but find " + std::to_string(f.getParam().size()));
+                              "Expect 0 argument but find " + std::to_string(f.getListParam().size()));
     }
     return;
   }
-  if (f.getParam().size() > 1) {
+  if (f.getListParam().size() > 1) {
     throw SemanticException(f.getDeclPoint(),
-                            "Expect 1 argument but find " + std::to_string(f.getParam().size()));
+                            "Expect 1 argument but find " + std::to_string(f.getListParam().size()));
   }
-  if (!f.getParam().back()->getNodeType()->equalsForCheckArgument(c.returnType.get())) {
+  if (!f.getListParam().back()->getNodeType()->equalsForCheckArgument(c.returnType.get())) {
     throw SemanticException(f.getDeclPoint(),
                             "Expect type " + c.returnType->getSymbolName() + "but find" +
-                            f.getParam().back()->getNodeType()->getSymbolName());
+                                f.getListParam().back()->getNodeType()->getSymbolName());
   }
 }
 
 void FunctionCallChecker::visit(High&) {
-  if (f.getParam().empty() || f.getParam().size() > 1) {
-    throw SemanticException(f.getDeclPoint(), "Expect argument but find " + std::to_string(f.getParam().size()));
+  if (f.getListParam().empty() || f.getListParam().size() > 1) {
+    throw SemanticException(f.getDeclPoint(), "Expect argument but find " + std::to_string(f.getListParam().size()));
   }
-  auto& type = f.getParam().back()->getNodeType();
+  auto& type = f.getListParam().back()->getNodeType();
   if (type->isOpenArray() || type->isStaticArray()) {
     f.setNodeType(std::make_shared<Int>());
     return;
@@ -583,19 +583,19 @@ void TypeChecker::visit(FunctionCall& f) {
   if (isMustFunctionCall) {
     isMustFunctionCall = false;
   }
-  if (!LvalueChecker::is(f.nameFunction)) {
-    throw SemanticException(f.nameFunction->getDeclPoint(), "Expect lvalue in ()");
+  if (!LvalueChecker::is(f.getSubNode())) {
+    throw SemanticException(f.getSubNode()->getDeclPoint(), "Expect lvalue in ()");
   }
   wasFunctionCall = true;
-  f.getName()->accept(*this);
+  f.getSubNode()->accept(*this);
   wasFunctionCall = false;
-  for (auto& e: f.getParam()) {
+  for (auto& e: f.getListParam()) {
     e->accept(*this);
   }
-  if (f.getName()->getEmbeddedFunction() != nullptr) {
-    FunctionCallChecker::make(f, f.nameFunction->getEmbeddedFunction());
+  if (f.getSubNode()->getEmbeddedFunction() != nullptr) {
+    FunctionCallChecker::make(f, f.getSubNode()->getEmbeddedFunction());
   } else {
-    FunctionCallChecker::make(f, f.nameFunction->getNodeType());
+    FunctionCallChecker::make(f, f.getSubNode()->getNodeType());
   }
 }
 

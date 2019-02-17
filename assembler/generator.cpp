@@ -888,12 +888,12 @@ void AsmGenerator::visit(FunctionCall& f) {
   bool skip = isSkipResult;
   isSkipResult = false;
   asm_file << Comment("function call");
-  if (f.getName()->getEmbeddedFunction() != nullptr) {
-    syscall_params = std::move(f.listParam);
-    f.nameFunction->getEmbeddedFunction()->accept(*this);
+  if (f.getSubNode()->getEmbeddedFunction() != nullptr) {
+    syscall_params = std::move(f.getListParam());
+    f.getSubNode()->getEmbeddedFunction()->accept(*this);
     return;
   } else {
-    auto s = f.nameFunction->getNodeType()->getSignature();
+    auto s = f.getSubNode()->getNodeType()->getSignature();
     uint64_t sizeReturn = 0;
     if (!s->isProcedure()) {
       sizeReturn = s->returnType->size();
@@ -903,8 +903,8 @@ void AsmGenerator::visit(FunctionCall& f) {
     }
     // arguments push
     auto iterParams = s->paramsList.begin();
-    for (auto iterArgs = f.listParam.begin();
-         iterArgs != f.listParam.end(); ++iterArgs, ++iterParams) {
+    for (auto iterArgs = f.getListParam().begin();
+         iterArgs != f.getListParam().end(); ++iterArgs, ++iterParams) {
       if ((*iterParams)->getVarType()->isOpenArray()) {
         auto array = (*iterArgs)->getNodeType()->getStaticArray();
         asm_file
@@ -920,10 +920,10 @@ void AsmGenerator::visit(FunctionCall& f) {
         visit_lvalue(**iterArgs);
       }
     }
-    if (stackTable.isFunction(f.nameFunction->getNodeType()->getSymbolName())) {
-      visit_lvalue(*f.nameFunction);
+    if (stackTable.isFunction(f.getSubNode()->getNodeType()->getSymbolName())) {
+      visit_lvalue(*f.getSubNode());
     } else {
-      f.nameFunction->accept(*this);
+      f.getSubNode()->accept(*this);
     }
     asm_file
       << Comment("call function")

@@ -45,7 +45,8 @@ ArrayAccess::ArrayAccess(const Token& d, ptr_Expr name, ListExpr i)
     nameArray(std::move(name)), listIndex(std::move(i)) {}
 
 FunctionCall::FunctionCall(const Token& d, ptr_Expr nameFunction, ListExpr listParam)
-  : ASTNode(d), nameFunction(std::move(nameFunction)),  listParam(std::move(listParam)) {}
+  : ASTNode(d),
+    nameFunction(std::move(nameFunction)), listParam(std::move(listParam)) {}
 
 FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 
@@ -53,7 +54,7 @@ Cast::Cast(ptr_Type to, ptr_Expr expr)
  : Expression(std::move(to)), expr(std::move(expr)) {}
 Cast::Cast(FunctionCall f)
   : ASTNode(f.getDeclPoint()), Expression(std::move(f.getNodeType())),
-    expr(std::move(f.listParam.back())) {}
+    expr(std::move(f.getListParam().back())) {}
 
 RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
   : ASTNode(d), record(std::move(record)), field(std::move(field)) {}

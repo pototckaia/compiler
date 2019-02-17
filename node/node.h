@@ -105,13 +105,16 @@ class ArrayAccess : public Expression {
 class FunctionCall : public Expression {
  public:
   FunctionCall() = default;
-  FunctionCall(const Token& d, ptr_Expr, ListExpr);
+  FunctionCall(const Token&, ptr_Expr, ListExpr);
 
-  auto& getName() { return nameFunction; }
-  auto& getParam() { return listParam; };
+  auto& getSubNode() { return nameFunction; }
+  auto& getListParam() { return listParam; };
+  // todo why this?
+  void setListParam(ListExpr e) { listParam = std::move(e); }
 
   void accept(Visitor&) override;
-// todo private
+
+ private:
   ptr_Expr nameFunction;
   ListExpr listParam;
 };
