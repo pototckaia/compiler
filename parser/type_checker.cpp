@@ -127,7 +127,7 @@ void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
 
 void FunctionCallChecker::visit(FunctionSignature& s) {
   if (s.paramsList.size() != f.getParam().size()) {
-    throw SemanticException(f.line, f.column,
+    throw SemanticException(f.getDeclPoint(),
                             "Expect number of arguments " + std::to_string(s.paramsList.size()) +
                             " but find " + std::to_string(f.getParam().size()));
   }
@@ -141,7 +141,7 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
     if (parameter->spec == ParamSpec::Var ||
         parameter->spec == ParamSpec::Out) {
       if (!LvalueChecker::is(argument)) {
-        throw SemanticException(argument->line, argument->column, "Expect lvalue in argument");
+        throw SemanticException(argument->getDeclPoint(), "Expect lvalue in argument");
       }
     }
     if (parameter->type->equalsForCheckArgument(argument->type.get())) {
@@ -154,7 +154,7 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
       newParam.push_back(std::move(newArgument));
       continue;
     }
-    throw SemanticException(argument->line, argument->column,
+    throw SemanticException(argument->getDeclPoint(),
                             "Expect argument's type \"" + parameter->type->name +
                             "\" but find \"" + argument->type->name + "\"");
   }
@@ -166,12 +166,12 @@ void FunctionCallChecker::visit(Read&) {
   for (auto& e : f.listParam) {
     auto& type = e->type;
     if (!LvalueChecker::is(e)) {
-      throw SemanticException(e->line, e->column, "Expect lvalue in argument");
+      throw SemanticException(e->getDeclPoint(), "Expect lvalue in argument");
     }
     if (type->isInt() || type->isDouble() || type->isChar()) {
       continue;
     }
-    throw SemanticException(e->line, e->column, "Expect readable type but find " + type->name);
+    throw SemanticException(e->getDeclPoint(), "Expect readable type but find " + type->name);
   }
 }
 
@@ -182,7 +182,7 @@ void FunctionCallChecker::visit(Write&) {
     if (type->isInt() || type->isDouble() || type->isChar() || type->isString() || type->isPointer()) {
       continue;
     }
-    throw SemanticException(e->line, e->column, "Expect writeable type but find " + type->name);
+    throw SemanticException(e->getDeclPoint(), "Expect writeable type but find " + type->name);
   }
 }
 
@@ -202,17 +202,17 @@ void FunctionCallChecker::visit(Exit& c) {
   f.type = std::make_shared<Void>();
   if (c.returnType->isVoid()) {
     if (!f.getParam().empty()) {
-      throw SemanticException(f.line, f.column,
+      throw SemanticException(f.getDeclPoint(),
                               "Expect 0 argument but find " + std::to_string(f.getParam().size()));
     }
     return;
   }
   if (f.getParam().size() > 1) {
-    throw SemanticException(f.line, f.column,
+    throw SemanticException(f.getDeclPoint(),
                             "Expect 1 argument but find " + std::to_string(f.getParam().size()));
   }
   if (!f.getParam().back()->type->equalsForCheckArgument(c.returnType.get())) {
-    throw SemanticException(f.line, f.column,
+    throw SemanticException(f.getDeclPoint(),
                             "Expect type " + c.returnType->name + "but find" +
                             f.getParam().back()->type->name);
   }
@@ -220,14 +220,14 @@ void FunctionCallChecker::visit(Exit& c) {
 
 void FunctionCallChecker::visit(High&) {
   if (f.getParam().empty() || f.getParam().size() > 1) {
-    throw SemanticException(f.line, f.column, "Expect argument but find " + std::to_string(f.getParam().size()));
+    throw SemanticException(f.getDeclPoint(), "Expect argument but find " + std::to_string(f.getParam().size()));
   }
   auto& type = f.getParam().back()->type;
   if (type->isOpenArray() || type->isStaticArray()) {
     f.type = std::make_shared<Int>();
     return;
   }
-  throw SemanticException(f.line, f.column, "Expect array type but find " + type->name);
+  throw SemanticException(f.getDeclPoint(), "Expect array type but find " + type->name);
 }
 
 void FunctionCallChecker::visit(Low&) {
@@ -245,7 +245,7 @@ bool TypeChecker::isImplicitType(ptr_Type& typeLeft, ptr_Type& typeRight) {
 
 void TypeChecker::visit(Literal& l) {
   if (isMustFunctionCall) {
-    throw SemanticException(l.line, l.column, "Expect function call ");
+    throw SemanticException(l.getDeclPoint(), "Expect function call ");
   }
   switch (l.getValue().getTokenType()) {
     case TokenType::Int: {
@@ -280,7 +280,7 @@ void TypeChecker::visit(Literal& l) {
 
 void TypeChecker::visit(Variable& v) {
   if (isMustFunctionCall) {
-    throw SemanticException(v.line, v.column, "Expect function call");
+    throw SemanticException(v.getDeclPoint(), "Expect function call");
   }
 
   if (stackTable.isFunction(v.getName().getString())) {
@@ -403,7 +403,7 @@ bool TypeChecker::checkTypeSlashAsterisk(BinaryOperation& b, bool isAssigment) {
 
 void TypeChecker::visit(BinaryOperation& b) {
   if (isMustFunctionCall) {
-    throw SemanticException(b.line, b.column, "Expect function call but find " + b.getOpr().getString());
+    throw SemanticException(b.getDeclPoint(), "Expect function call but find " + b.getOpr().getString());
   }
   wasFunctionCall = false;
 
@@ -413,7 +413,7 @@ void TypeChecker::visit(BinaryOperation& b) {
   auto& leftType = b.getLeft()->type;
   auto& rightType = b.getRight()->type;
   if (leftType == nullptr || rightType == nullptr) {
-    throw SemanticException(b.line, b.column, "Cannot " + b.getOpr().getString() + " function");
+    throw SemanticException(b.getDeclPoint(), "Cannot " + b.getOpr().getString() + " function");
   }
 
   std::string mes = "Operation " + b.getOpr().getString() +
@@ -472,20 +472,20 @@ void TypeChecker::visit(BinaryOperation& b) {
   }
 
   if (!isPass) {
-    throw SemanticException(b.line, b.column, mes);
+    throw SemanticException(b.getDeclPoint(), mes);
   }
 }
 
 void TypeChecker::visit(UnaryOperation& u) {
   if (isMustFunctionCall) {
-    throw SemanticException(u.line, u.column, "Expect function call but find " + u.getOpr().getString());
+    throw SemanticException(u.getDeclPoint(), "Expect function call but find " + u.getOpr().getString());
   }
   wasFunctionCall = false;
 
   u.getExpr()->accept(*this);
   auto& childType = u.getExpr()->type;
   if (childType == nullptr) {
-    throw SemanticException(u.line, u.column,
+    throw SemanticException(u.getDeclPoint(),
                             "Cannot " + u.getOpr().getString() + " embedded function");
   }
 
@@ -517,7 +517,7 @@ void TypeChecker::visit(UnaryOperation& u) {
     }
     case TokenType::At: {
       if (!LvalueChecker::is(u.expr)) {
-        throw SemanticException(u.line, u.column, mesLvalue);
+        throw SemanticException(u.getDeclPoint(), mesLvalue);
       }
       isPass = true;
       u.type = std::make_shared<Pointer>(childType);
@@ -532,31 +532,31 @@ void TypeChecker::visit(UnaryOperation& u) {
   }
 
   if (!isPass) {
-    throw SemanticException(u.line, u.column, mes);
+    throw SemanticException(u.getDeclPoint(), mes);
   }
 }
 
 void TypeChecker::visit(ArrayAccess& a) {
   if (isMustFunctionCall) {
-    throw SemanticException(a.line, a.column, "Expect function call but find []");
+    throw SemanticException(a.getDeclPoint(), "Expect function call but find []");
   }
   wasFunctionCall = false;
 
   if (!LvalueChecker::is(a.nameArray)) {
-    throw SemanticException(a.nameArray->line, a.nameArray->column, "Expect lvalue in []");
+    throw SemanticException(a.nameArray->getDeclPoint(), "Expect lvalue in []");
   }
   a.getName()->accept(*this);
   if (a.getName()->type == nullptr) {
-    throw SemanticException(a.getName()->line, a.getName()->column, "Cannot [] on function");
+    throw SemanticException(a.getName()->getDeclPoint(), "Cannot [] on function");
   }
 
   for (auto& e : a.getListIndex()) {
     e->accept(*this);
     if (e->type == nullptr) {
-      throw SemanticException(e->line, e->column, "Function not valid index");
+      throw SemanticException(e->getDeclPoint(), "Function not valid index");
     }
     if (!e->type->isInt()) {
-      throw SemanticException(e->line, e->column, "Expect \"Integer\", but find " + e->type->name);
+      throw SemanticException(e->getDeclPoint(), "Expect \"Integer\", but find " + e->type->name);
     }
   }
   auto& childType = a.getName()->type;
@@ -565,16 +565,16 @@ void TypeChecker::visit(ArrayAccess& a) {
 
 void TypeChecker::visit(RecordAccess& r) {
   if (isMustFunctionCall) {
-    throw SemanticException(r.line, r.column, "Expect function call but find .");
+    throw SemanticException(r.getDeclPoint(), "Expect function call but find .");
   }
   wasFunctionCall = false;
 
   if (!LvalueChecker::is(r.record)) {
-    throw SemanticException(r.record->line, r.record->column, "Expect lvalue in .");
+    throw SemanticException(r.record->getDeclPoint(), "Expect lvalue in .");
   }
   r.getRecord()->accept(*this);
   if (r.getRecord()->type == nullptr) {
-    throw SemanticException(r.getRecord()->line, r.getRecord()->column, "Cannot . on function");
+    throw SemanticException(r.getRecord()->getDeclPoint(), "Cannot . on function");
   }
   RecordAccessChecker::make(r, r.getRecord()->type);
 }
@@ -584,7 +584,7 @@ void TypeChecker::visit(FunctionCall& f) {
     isMustFunctionCall = false;
   }
   if (!LvalueChecker::is(f.nameFunction)) {
-    throw SemanticException(f.nameFunction->line, f.nameFunction->column, "Expect lvalue in ()");
+    throw SemanticException(f.nameFunction->getDeclPoint(), "Expect lvalue in ()");
   }
   wasFunctionCall = true;
   f.getName()->accept(*this);
@@ -624,12 +624,12 @@ void TypeChecker::visit(Cast& s) {
 
 void TypeChecker::visit(AssignmentStmt& a) {
   if (isMustFunctionCall) {
-    throw SemanticException(a.line, a.column, "Expect function call but find assigment");
+    throw SemanticException(a.getDeclPoint(), "Expect function call but find assigment");
   }
   a.getLeft()->accept(*this);
   a.getRight()->accept(*this);
   if (!LvalueChecker::is(a.left)) {
-    throw SemanticException(a.left->line, a.left->column, "Expect lvalue in assigment");
+    throw SemanticException(a.left->getDeclPoint(), "Expect lvalue in assigment");
   }
   std::string mes = "Operation " + a.getOpr().getString() +
                     " to types \"" + a.getLeft()->type->name + "\" and \"" +
@@ -640,7 +640,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
     case TokenType::AssignmentWithMinus:
     case TokenType::AssignmentWithPlus: {
       if (!checkTypePlusMinus(a, true)) {
-        throw SemanticException(a.line, a.column, mes);
+        throw SemanticException(a.getDeclPoint(), mes);
       }
       typeRight = a.type;
       break;
@@ -648,7 +648,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
     case TokenType::AssignmentWithSlash:
     case TokenType::AssignmentWithAsterisk: {
       if (!checkTypeSlashAsterisk(a, true)) {
-        throw SemanticException(a.line, a.column, mes);
+        throw SemanticException(a.getDeclPoint(), mes);
       }
       typeRight = a.type;
       break;
@@ -665,7 +665,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
     return;
   }
   if (!typeRight->equals(typeLeft.get())) {
-    throw SemanticException(a.line, a.column, mes);
+    throw SemanticException(a.getDeclPoint(), mes);
   }
 }
 
@@ -692,7 +692,7 @@ void TypeChecker::visit(IfStmt& i) {
     return;
   }
   if (!i.getCondition()->type->isBool()) {
-    throw SemanticException(i.getCondition()->line, i.getCondition()->column,
+    throw SemanticException(i.getCondition()->getDeclPoint(),
                             "Expect type bool, but find " + i.getCondition()->type->name);
   }
 }
@@ -705,7 +705,7 @@ void TypeChecker::visit(WhileStmt& w) {
     return;
   }
   if (!w.getCondition()->type->isBool()) {
-    throw SemanticException(w.getCondition()->line, w.getCondition()->column,
+    throw SemanticException(w.getCondition()->getDeclPoint(),
                             "Expect type bool, but find " + w.getCondition()->type->name);
   }
 }
@@ -717,6 +717,6 @@ void TypeChecker::visit(ForStmt& f) {
   f.getBlock()->accept(*this);
   if (!(f.getVar()->type->isInt() && f.getLow()->type->isInt() &&
         f.getHigh()->type->isInt())) {
-    throw SemanticException(f.getVar()->line, f.getVar()->column, "Loop variable must be type int");
+    throw SemanticException(f.getVar()->getDeclPoint(), "Loop variable must be type int");
   }
 }

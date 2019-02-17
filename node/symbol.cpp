@@ -16,7 +16,7 @@ void Tables::insertCheck(const std::shared_ptr<Symbol>& t) {
   if (checkContain(t->name) &&
     (!tableVariable.find(t->name)->isForward() ||
      !tableFunction.find(t->name)->isForward())) {
-    throw AlreadyDefinedException(t->line, t->column, t->name);
+    throw AlreadyDefinedException(t->getDeclPoint(), t->name);
   }
 }
 
@@ -35,7 +35,7 @@ void Tables::insert(const std::shared_ptr<ForwardFunction>& f) {
 void Tables::resolveForwardType() {
   for (auto& e : forwardType) {
     if (tableType.find(e->name)->isForward()) {
-      throw SemanticException(e->line, e->column, "Type \"" + e->name + "\" not resolve");
+      throw SemanticException(e->getDeclPoint(), "Type \"" + e->name + "\" not resolve");
     }
     e->type = tableType.find(e->name);
   }
@@ -46,13 +46,13 @@ void Tables::resolveForwardFunction() {
   for (auto& e : forwardFunction) {
     auto& function = tableFunction.find(e->name);
     if (function->isForward()) {
-      throw SemanticException(e->line, e->column, "Function \"" + e->name + "\" not resolve");
+      throw SemanticException(e->getDeclPoint(), "Function \"" + e->name + "\" not resolve");
     }
     if (function->signature == nullptr) {
       throw std::logic_error("Signature nullptr");
     }
     if (!function->signature->equals(e->signature.get())) {
-      throw SemanticException(e->line, e->column,
+      throw SemanticException(e->getDeclPoint(),
         "Signature resolve function not equals with forward function " + e->name);
     }
     e->function = function;

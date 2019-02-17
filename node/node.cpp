@@ -1,6 +1,21 @@
 #include "node.h"
 #include "visitor.h"
 
+ASTNode::ASTNode()
+	: declPoint(-1, -1, TokenType::Non) {}
+
+ASTNode::ASTNode(int line, int column)
+	: declPoint(line, column, TokenType::Non) {}
+
+ASTNode::ASTNode(const Token& t)
+	: declPoint(t) {}
+
+void ASTNode::setDeclPoint(const Token& t) {
+	declPoint = t;
+}
+
+int ASTNode::getDeclLine() { return declPoint.getLine(); }
+int ASTNode::getDeclColumn() { return declPoint.getColumn(); }
 
 Variable::Variable(const Token& n)
   : ASTNode(n.getLine(), n.getColumn()), name(std::move(n)) {}
@@ -32,7 +47,7 @@ FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 Cast::Cast(ptr_Type to, ptr_Expr expr)
  : Expression(std::move(to)), expr(std::move(expr)) {}
 Cast::Cast(FunctionCall f)
-  : ASTNode(f.line, f.column), Expression(std::move(f.type)),
+  : ASTNode(f.getDeclPoint()), Expression(std::move(f.type)),
     expr(std::move(f.listParam.back())) {}
 
 RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)

@@ -38,7 +38,8 @@
   X(CloseParenthesis,       ")") \
   X(OpenSquareBracket,      "[") \
   X(CloseSquareBracket,     "]") \
-  X(EndOfFile,              "EOF")
+  X(EndOfFile,              "EOF") \
+  X(Non,                    "_non_")
 
 
 #define KEYWORD_TYPE(X) \

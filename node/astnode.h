@@ -8,10 +8,17 @@
 class ASTNode;
 class Expression;
 class ASTNodeStmt;
+class Symbol;
+class SymVar;
+class SymType;
+class FunctionSignature;
+
 class Tables;
 
 using ptr_Node = std::shared_ptr<ASTNode>;
-
+using ptr_Symbol = std::shared_ptr<Symbol>;
+using ptr_Var = std::shared_ptr<SymVar>;
+using ptr_Type = std::shared_ptr<SymType>;
 using ptr_Expr = std::unique_ptr<Expression>;
 using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 
@@ -22,31 +29,21 @@ class Visitor;
 
 class ASTNode {
  public:
+  ASTNode();
+  ASTNode(int line, int column);
+  ASTNode(const Token& t);
   virtual ~ASTNode() = default;
+
   virtual void accept(Visitor&) = 0;
 
-  ASTNode() = default;
-  // TODO move to cpp
-  ASTNode(int line, int column) : line(line), column(column) {}
-  ASTNode(const Token& t) : line(t.getLine()), column(t.getColumn()) {}
+  void setDeclPoint(const Token& t);
+  int getDeclLine();
+  int getDeclColumn();
+  auto& getDeclPoint() { return declPoint; }
 
-  void setDeclPoint(const Token& t) {
-    line = t.getLine();
-    column = t.getColumn();
-  }
-
-  // TODO make private and setter or token
-  int line, column;
+ private:
+  Token declPoint;
 };
-
-
-class Symbol;
-class SymVar;
-class SymType;
-class FunctionSignature;
-using ptr_Symbol = std::shared_ptr<Symbol>;
-using ptr_Var = std::shared_ptr<SymVar>;
-using ptr_Type = std::shared_ptr<SymType>;
 
 class Symbol : public ASTNode {
  public:

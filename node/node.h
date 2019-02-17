@@ -38,7 +38,7 @@ class Literal : public Expression {
  public:
   Literal(const Token&);
   // todo move to cpp
-  Literal(const Token& v, ptr_Type t) : Expression(std::move(t)), value(std::move(v)) {};
+  Literal(const Token& v, ptr_Type t) : Expression(std::move(t)), value(v) {};
 
   const auto& getValue() const { return value; }
   void accept(Visitor&) override;

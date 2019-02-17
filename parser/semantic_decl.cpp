@@ -171,7 +171,7 @@ void SemanticDecl::parseFunctionDeclEnd(const Token& decl,
     auto nameResult = decl.getString();
     if (s->paramsTable.checkContain(nameResult)) {
       auto& v = s->paramsTable.find(nameResult);
-      throw AlreadyDefinedException(v->line, v->column, v->name);
+      throw AlreadyDefinedException(v->getDeclPoint(), v->name);
     }
     auto result = std::make_shared<ParamVar>(nameResult, s->returnType);
     stackTable.top().tableVariable.insert(result);

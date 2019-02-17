@@ -48,14 +48,18 @@ class AlreadyDefinedException : public CompilerException {
  public:
   explicit AlreadyDefinedException(int line, int column, std::string n)
     : CompilerException(line, column, "Already defined \"" + std::move(n) + "\"") {}
+	explicit AlreadyDefinedException(const Token& t, std::string n)
+			: AlreadyDefinedException(t.getLine(), t.getColumn(), std::move(n)) {}
   explicit AlreadyDefinedException(const Token& t)
-    : CompilerException(getPoint(t) + "Already defined \"" + t.getString() + "\"") {}
+    : AlreadyDefinedException(t.getLine(), t.getColumn(), t.getString()) {}
 };
 
 class NotDefinedException: public CompilerException {
  public:
   explicit NotDefinedException(std::string ss)
    : CompilerException("Not defined \"" + std::move(ss) + "\"") {};
+  explicit NotDefinedException(const Token& t, std::string n)
+   : CompilerException(getPoint(t) + "Not defined \"" + std::move(n) + "\"") {};
   explicit NotDefinedException(const Token& t)
-   : CompilerException(getPoint(t) + "Not defined \"" + t.getString() + "\"") {};
+   : NotDefinedException(t, t.getString()) {}
 };
