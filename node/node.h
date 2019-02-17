@@ -10,14 +10,20 @@
 class Expression : public virtual ASTNode {
  public:
   Expression() = default;
-  // todo move to cpp
-  Expression(ptr_Type t) : type(std::move(t)) {}
+  Expression(ptr_Type t);
 
-  // todo protected setter
-  ptr_Type type;
-  std::shared_ptr<SymFun> embeddedFunction;
   // todo remove
   virtual std::string getVarName() { return ""; }
+
+  auto& getNodeType() { return type; }
+  auto& getEmbeddedFunction() { return embeddedFunction; }
+  void setNodeType(ptr_Type t) { type = std::move(t); }
+  void setEmbeddedFunction(ptr_Fun e) { embeddedFunction = std::move(e); }
+
+ protected:
+  ptr_Type type;
+  // todo remove this
+  ptr_Fun embeddedFunction;
 };
 
 class Variable : public Expression {

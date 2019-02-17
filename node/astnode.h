@@ -11,6 +11,7 @@ class ASTNodeStmt;
 class Symbol;
 class SymVar;
 class SymType;
+class SymFun;
 class FunctionSignature;
 
 class Tables;
@@ -19,6 +20,7 @@ using ptr_Node = std::shared_ptr<ASTNode>;
 using ptr_Symbol = std::shared_ptr<Symbol>;
 using ptr_Var = std::shared_ptr<SymVar>;
 using ptr_Type = std::shared_ptr<SymType>;
+using ptr_Fun = std::shared_ptr<SymFun>;
 using ptr_Sign = std::shared_ptr<FunctionSignature>;
 
 using ptr_Expr = std::unique_ptr<Expression>;
@@ -73,12 +75,13 @@ class SymFun : public Symbol {
   // todo remove
   virtual bool isEmbedded() const { return true; }
 
-	// todo remove
+	// todo remove virtual
 	virtual void setLabel(const std::string& s) { label = s; }
 	virtual std::string getLabel() { return label; }
 
-	// todo remove
+	// todo remove virtual
 	virtual ptr_Sign& getSignature() { return signature; }
+	// todo remove
 	virtual ptr_Stmt& getBody() { throw std::logic_error("get Body"); };
 	virtual Tables& getTable() {throw std::logic_error("get Table"); };
 

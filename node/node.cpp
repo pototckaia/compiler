@@ -17,8 +17,12 @@ void ASTNode::setDeclPoint(const Token& t) {
 int ASTNode::getDeclLine() { return declPoint.getLine(); }
 int ASTNode::getDeclColumn() { return declPoint.getColumn(); }
 
+Expression::Expression(ptr_Type t)
+  : type(std::move(t)) {}
+
 Variable::Variable(const Token& n)
   : ASTNode(n.getLine(), n.getColumn()), name(std::move(n)) {}
+
 Variable::Variable(const Token& n, ptr_Type t)
   : ASTNode(-1, -1), Expression(std::move(t)), name(std::move(n)) {}
 
@@ -47,7 +51,7 @@ FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 Cast::Cast(ptr_Type to, ptr_Expr expr)
  : Expression(std::move(to)), expr(std::move(expr)) {}
 Cast::Cast(FunctionCall f)
-  : ASTNode(f.getDeclPoint()), Expression(std::move(f.type)),
+  : ASTNode(f.getDeclPoint()), Expression(std::move(f.getNodeType())),
     expr(std::move(f.listParam.back())) {}
 
 RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)

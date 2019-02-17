@@ -18,21 +18,21 @@ void PrintVisitor::print(const ptr_Type& e) {
 
 void PrintVisitor::visit(Literal& l) {
   print(l.getValue().getString());
-  print(l.type);
+  print(l.getNodeType());
 }
 
 void PrintVisitor::visit(Variable& v) {
   print(v.getName().getString());
-  if (v.type != nullptr)
-    print(v.type);
+  if (v.getNodeType() != nullptr)
+    print(v.getNodeType());
   else
-    v.embeddedFunction->accept(*this);
+    v.getEmbeddedFunction()->accept(*this);
 }
 
 void PrintVisitor::visit(BinaryOperation& b) {
   print(b.getOpr().getString());
   ++depth;
-  print(b.type);
+  print(b.getNodeType());
   b.getRight()->accept(*this);
   b.getLeft()->accept(*this);
   --depth;
@@ -41,7 +41,7 @@ void PrintVisitor::visit(BinaryOperation& b) {
 void PrintVisitor::visit(UnaryOperation& u) {
   print(u.getOpr().getString());
   ++depth;
-  print(u.type);
+  print(u.getNodeType());
   u.getExpr()->accept(*this);
   --depth;
 }
@@ -50,7 +50,7 @@ void PrintVisitor::visit(ArrayAccess& a) {
   print("Array Access");
   ++depth;
   a.getName()->accept(*this);
-  print(a.type);;
+  print(a.getNodeType());;
   for (auto& e: a.getListIndex()) {
     e->accept(*this);
   }
@@ -61,10 +61,10 @@ void PrintVisitor::visit(FunctionCall& f) {
   print("Function Call");
   ++depth;
   f.getName()->accept(*this);
-  if (f.type == nullptr) {
-    f.embeddedFunction->accept(*this);
+  if (f.getNodeType() == nullptr) {
+    f.getEmbeddedFunction()->accept(*this);
   } else {
-    print(f.type);
+    print(f.getNodeType());
   }
   for (auto& e: f.getParam()) {
     e->accept(*this);
@@ -77,13 +77,13 @@ void PrintVisitor::visit(RecordAccess& r) {
   ++depth;
   r.getRecord()->accept(*this);
   print(r.getField().getString());
-  print(r.type);
+  print(r.getNodeType());
   --depth;
 }
 
 void PrintVisitor::visit(Cast& t) {
   print("Cast");
-  t.type->accept(*this);
+  t.getNodeType()->accept(*this);
   ++depth;
   t.expr->accept(*this);
   --depth;

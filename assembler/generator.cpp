@@ -222,7 +222,7 @@ void AsmGenerator::visit(ForwardFunction& f) {
 }
 
 void AsmGenerator::visit(Variable& v) {
-  if (v.type->isProcedureType() && 
+  if (v.getNodeType()->isProcedureType() &&
       stackTable.isFunction(v.getName().getString())) {
     stackTable.findFunction(v.getName().getString())->accept(*this);
   } else {
@@ -233,25 +233,25 @@ void AsmGenerator::visit(Variable& v) {
     << cmd(LEA, {RAX}, buf_var_name)
     << cmd(PUSH, {RAX});
   if (!need_lvalue) {
-    pushRvalue(v.type);
+    pushRvalue(v.getNodeType());
   }
 }
 
 void AsmGenerator::visit(Literal& l) {
-  if (l.type->isInt()) {
+  if (l.getNodeType()->isInt()) {
     asm_file
       << Comment("int literal")
       << cmd(PUSH, {l.getValue().getInt()});
-  } else if (l.type->isDouble()) {
+  } else if (l.getNodeType()->isDouble()) {
     asm_file
       << Comment("double literal")
       << cmd(MOV, {RAX}, {l.getValue().getDouble(), double64})
       << cmd(PUSH, {RAX});
-  } else if (l.type->isChar()) {
+  } else if (l.getNodeType()->isChar()) {
     asm_file
       << Comment("char literal")
       << cmd(PUSH, {l.getValue().getString()});
-  } else if (l.type->isString()) {
+  } else if (l.getNodeType()->isString()) {
     auto label_name = add_string(l.getValue().getString());
     asm_file
       << Comment("string literal")
@@ -277,7 +277,7 @@ void AsmGenerator::visit_arithmetic(BinaryOperation& b) {
     << cmd(POP, {RCX}) // right
     << cmd(POP, {RAX}); // left
 
-  if (b.type->isDouble()) {
+  if (b.getNodeType()->isDouble()) {
     asm_file
       << cmd(MOVQ, {XMM0, none}, {RAX})
       << cmd(MOVQ, {XMM1, none}, {RCX})
@@ -331,7 +331,7 @@ void AsmGenerator::visit_cmp(BinaryOperation& b) {
   b.right->accept(*this);
   auto t = b.getOpr().getTokenType();
   asm_file << Comment("cmp operation");
-  if (b.right->type->isDouble()) {
+  if (b.right->getNodeType()->isDouble()) {
     asm_file
       << cmd(POP, {R11}) // right
       << cmd(POP, {RAX}) // left
@@ -365,7 +365,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
       return;
     }
     case TokenType::And: {
-      if (b.type->isInt()) {
+      if (b.getNodeType()->isInt()) {
         b.left->accept(*this);
         b.right->accept(*this);
         asm_file << Comment("and operation");
@@ -401,7 +401,7 @@ void AsmGenerator::visit_logical(BinaryOperation& b) {
       }
     }
     case TokenType::Or: {
-      if (b.type->isInt()) {
+      if (b.getNodeType()->isInt()) {
         b.left->accept(*this);
         b.right->accept(*this);
         asm_file
@@ -480,7 +480,7 @@ void AsmGenerator::visit(UnaryOperation& u) {
     case TokenType::Minus: {
       u.expr->accept(*this);
       asm_file << Comment("unary minus");
-      if (u.type->isInt()) {
+      if (u.getNodeType()->isInt()) {
         asm_file
           << cmd(POP, {RAX})
           << cmd(NEG, {RAX})
@@ -498,7 +498,7 @@ void AsmGenerator::visit(UnaryOperation& u) {
     }
     case TokenType::Not: {
       u.expr->accept(*this);
-      if (u.type->isBool()) {
+      if (u.getNodeType()->isBool()) {
         asm_file
           << Comment("boolean not")
           << cmd(POP, {RAX})
@@ -630,19 +630,19 @@ void AsmGenerator::visit(OpenArray& o) {
     << cmd(LEA, {RCX}, {adr(RCX, RAX, 1), none})
     << cmd(PUSH, {RCX}); // new base = base + index*sizeof
   bounds.pop_front();
-  bounds.front()->type->accept(*this);
+  bounds.front()->getNodeType()->accept(*this);
 }
 
 void AsmGenerator::visit(ArrayAccess& a) {
   bool lvalue = need_lvalue;
-  if (a.nameArray->type->isPointer()) {
+  if (a.nameArray->getNodeType()->isPointer()) {
     need_lvalue = false;
     a.nameArray->accept(*this);
   } else {
     visit_lvalue(*a.nameArray);
   }
   bounds = std::move(a.listIndex);
-  a.nameArray->type->accept(*this);
+  a.nameArray->getNodeType()->accept(*this);
   asm_file
     << Comment("push address base[index]")
     << cmd(POP, {RCX}) // index
@@ -650,7 +650,7 @@ void AsmGenerator::visit(ArrayAccess& a) {
     << cmd(LEA, {RAX}, {adr(RAX, RCX, 1), none})
     << cmd(PUSH, {RAX}); // base[index]
   if (!lvalue) {
-    pushRvalue(a.type);
+    pushRvalue(a.getNodeType());
   }
 }
 
@@ -659,7 +659,7 @@ void AsmGenerator::visit(Alias& a) { a.type->accept(*this); }
 void AsmGenerator::visit(RecordAccess& r) {
   bool lvalue = need_lvalue;
   visit_lvalue(*r.record);
-  auto record = r.record->type->getRecord();
+  auto record = r.record->getNodeType()->getRecord();
   auto offset = record->offset(r.field.getString());
   asm_file
     << Comment("record access")
@@ -667,7 +667,7 @@ void AsmGenerator::visit(RecordAccess& r) {
     << cmd(LEA, {R8}, {adr(R8, offset), none})
     << cmd(PUSH, {R8});
   if (!lvalue) {
-    pushRvalue(r.type);
+    pushRvalue(r.getNodeType());
   }
 }
 
@@ -678,14 +678,14 @@ void AsmGenerator::visit(Cast& c) {
     c.expr->accept(*this);
   }
 
-  if (c.expr->type->isDouble() && c.type->isInt()) {
+  if (c.expr->getNodeType()->isDouble() && c.getNodeType()->isInt()) {
     asm_file
       << Comment("double to int")
       << cmd(POP, {RAX})
       << cmd(MOVQ, {XMM0, none}, {RAX})
       << cmd(CVTSD2SI, {RAX}, {XMM0, none})
       << cmd(PUSH, {RAX});
-  } else if (c.expr->type->isInt() && c.type->isDouble()) {
+  } else if (c.expr->getNodeType()->isInt() && c.getNodeType()->isDouble()) {
     asm_file
       << Comment("int to double")
       << cmd(POP, {RAX})
@@ -698,7 +698,7 @@ void AsmGenerator::visit(Cast& c) {
 void AsmGenerator::visit(AssignmentStmt& a) {
   a.right->accept(*this);
   visit_lvalue(*a.left);
-  if (a.left->type->isTrivial()) {
+  if (a.left->getNodeType()->isTrivial()) {
     auto t = a.getOpr().getTokenType();
     switch (t) {
       case TokenType::AssignmentWithPlus:
@@ -710,7 +710,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
           << cmd(POP, {RAX}) // left - address
           << cmd(POP, {R8}) // right
           << cmd(MOV, {R9}, {adr(RAX)}); // *left
-        if (a.left->type->isDouble()) {
+        if (a.left->getNodeType()->isDouble()) {
           asm_file
             << cmd(MOVQ, {XMM0, none}, {R9})
             << cmd(MOVQ, {XMM1, none}, {R8})
@@ -735,7 +735,7 @@ void AsmGenerator::visit(AssignmentStmt& a) {
     return;
   }
   // count 8 byte
-  uint64_t len = a.left->type->size() / 8;
+  uint64_t len = a.left->getNodeType()->size() / 8;
   auto _start = getLabel();
   auto _end = getLabel();
   asm_file
@@ -795,23 +795,23 @@ void AsmGenerator::visit(Ord&) {
 
 void AsmGenerator::visit(High&) {
   auto& param = syscall_params.front();
-  if (param->type->isOpenArray()) {
+  if (param->getNodeType()->isOpenArray()) {
     uint64_t offset = stackTable.findVar(param->getVarName())->getOffset();
     asm_file
       << Comment("High open array")
       << cmd(PUSH, {adr(RBP, offset + 8)});
   } else {
-    auto array = param->type->getStaticArray();
+    auto array = param->getNodeType()->getStaticArray();
     asm_file << cmd(PUSH, {array->bounds.front().second});
   }
 }
 
 void AsmGenerator::visit(Low&) {
   auto& param = syscall_params.front();
-  if (param->type->isOpenArray()) {
+  if (param->getNodeType()->isOpenArray()) {
     asm_file << cmd(PUSH, {(uint64_t)0});
   } else {
-    auto array = param->type->getStaticArray();
+    auto array = param->getNodeType()->getStaticArray();
     asm_file << cmd(PUSH, {array->bounds.front().first});
   }
 }
@@ -838,21 +838,21 @@ void AsmGenerator::visit(Write& w) {
   auto params = std::move(syscall_params);
   for (auto& e : params) {
     e->accept(*this);
-    if (e->type->isString()) {
+    if (e->getNodeType()->isString()) {
       asm_file
         << Comment("printf string")
         << cmd(POP, {RAX})
         << cmd(MOV, {RDI}, {RAX})
         << cmd(XOR, {RAX}, {RAX})
         << cmd(CALL, {Printf});
-    } else if (e->type->isInt() || e->type->isPointer()) {
+    } else if (e->getNodeType()->isInt() || e->getNodeType()->isPointer()) {
       asm_file
         << Comment("printf int")
         << cmd(MOV, {RDI}, {Label(label_fmt_int)})
         << cmd(POP, {RSI})
         << cmd(XOR, {RAX}, {RAX})
         << cmd(CALL, {Printf});
-    } else if (e->type->isDouble()) {
+    } else if (e->getNodeType()->isDouble()) {
       asm_file
         << Comment("printf double")
         << cmd(MOV, {RDI}, {Label(label_fmt_double)})
@@ -860,7 +860,7 @@ void AsmGenerator::visit(Write& w) {
         << cmd(MOVQ, {XMM0, none}, {RAX})
         << cmd(MOV, {RAX}, {(uint64_t) 1})
         << cmd(CALL, {Printf});
-    } else if (e->type->isChar()) {
+    } else if (e->getNodeType()->isChar()) {
       asm_file
         << Comment("printf char")
         << cmd(MOV, {RDI}, {Label(label_fmt_char)})
@@ -888,12 +888,12 @@ void AsmGenerator::visit(FunctionCall& f) {
   bool skip = isSkipResult;
   isSkipResult = false;
   asm_file << Comment("function call");
-  if (f.getName()->embeddedFunction != nullptr) {
+  if (f.getName()->getEmbeddedFunction() != nullptr) {
     syscall_params = std::move(f.listParam);
-    f.nameFunction->embeddedFunction->accept(*this);
+    f.nameFunction->getEmbeddedFunction()->accept(*this);
     return;
   } else {
-    auto s = f.nameFunction->type->getSignature();
+    auto s = f.nameFunction->getNodeType()->getSignature();
     uint64_t sizeReturn = 0;
     if (!s->isProcedure()) {
       sizeReturn = s->returnType->size();
@@ -906,7 +906,7 @@ void AsmGenerator::visit(FunctionCall& f) {
     for (auto iterArgs = f.listParam.begin();
          iterArgs != f.listParam.end(); ++iterArgs, ++iterParams) {
       if ((*iterParams)->getVarType()->isOpenArray()) {
-        auto array = (*iterArgs)->type->getStaticArray();
+        auto array = (*iterArgs)->getNodeType()->getStaticArray();
         asm_file
           << Comment("open array argument")
           << cmd(PUSH, {array->bounds.front().second}); // high
@@ -920,7 +920,7 @@ void AsmGenerator::visit(FunctionCall& f) {
         visit_lvalue(**iterArgs);
       }
     }
-    if (stackTable.isFunction(f.nameFunction->type->getSymbolName())) {
+    if (stackTable.isFunction(f.nameFunction->getNodeType()->getSymbolName())) {
       visit_lvalue(*f.nameFunction);
     } else {
       f.nameFunction->accept(*this);

@@ -52,7 +52,7 @@ class ArrayAccessChecker : public BaseTypeChecker {
 
   ArrayAccessChecker(ArrayAccess& a)
   : BaseTypeChecker(getPoint(a.getDeclLine(), a.getDeclColumn()) +
-                    "Array access to type \"" + a.getName()->type->getSymbolName() + "\" not valid"),
+                    "Array access to type \"" + a.getName()->getNodeType()->getSymbolName() + "\" not valid"),
     arrayAccess(a),
     sizeBounds(a.getListIndex().size()) {}
 
@@ -71,7 +71,7 @@ class RecordAccessChecker : public BaseTypeChecker {
 
   RecordAccessChecker(RecordAccess& a)
     : BaseTypeChecker(getPoint(a.getDeclPoint()) +
-                      "Record access to type \"" + a.getRecord()->type->getSymbolName() + "\" not valid"),
+                      "Record access to type \"" + a.getRecord()->getNodeType()->getSymbolName() + "\" not valid"),
       recordAccess(a) {}
 
   void visit(Record&) override;
