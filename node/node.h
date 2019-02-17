@@ -135,13 +135,14 @@ class Cast : public Expression {
 
 class RecordAccess : public Expression {
  public:
-  RecordAccess(const Token& d, ptr_Expr, Token);
+  RecordAccess(const Token&, ptr_Expr, Token);
 
-  auto& getRecord() { return record; }
+  auto& getSubNode() { return record; }
   auto& getField() { return field; };
 
   void accept(Visitor&) override;
-// todo private
+
+ private:
   ptr_Expr record;
   Token field;
 };

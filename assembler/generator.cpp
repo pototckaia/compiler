@@ -658,9 +658,9 @@ void AsmGenerator::visit(Alias& a) { a.type->accept(*this); }
 
 void AsmGenerator::visit(RecordAccess& r) {
   bool lvalue = need_lvalue;
-  visit_lvalue(*r.record);
-  auto record = r.record->getNodeType()->getRecord();
-  auto offset = record->offset(r.field.getString());
+  visit_lvalue(*r.getSubNode());
+  auto record = r.getSubNode()->getNodeType()->getRecord();
+  auto offset = record->offset(r.getField().getString());
   asm_file
     << Comment("record access")
     << cmd(POP, {R8}) // add_record

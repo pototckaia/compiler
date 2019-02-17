@@ -18,7 +18,7 @@ void LvalueChecker::visit(BinaryOperation& f) { lvalue = false; }
 
 void LvalueChecker::visit(ArrayAccess& a) { a.getSubNode()->accept(*this); }
 
-void LvalueChecker::visit(RecordAccess& r) { r.getRecord()->accept(*this); }
+void LvalueChecker::visit(RecordAccess& r) { r.getSubNode()->accept(*this); }
 
 void LvalueChecker::visit(Cast& f) {
   f.getSubNode()->accept(*this);
@@ -569,14 +569,14 @@ void TypeChecker::visit(RecordAccess& r) {
   }
   wasFunctionCall = false;
 
-  if (!LvalueChecker::is(r.record)) {
-    throw SemanticException(r.record->getDeclPoint(), "Expect lvalue in .");
+  if (!LvalueChecker::is(r.getSubNode())) {
+    throw SemanticException(r.getSubNode()->getDeclPoint(), "Expect lvalue in .");
   }
-  r.getRecord()->accept(*this);
-  if (r.getRecord()->getNodeType() == nullptr) {
-    throw SemanticException(r.getRecord()->getDeclPoint(), "Cannot . on function");
+  r.getSubNode()->accept(*this);
+  if (r.getSubNode()->getNodeType() == nullptr) {
+    throw SemanticException(r.getSubNode()->getDeclPoint(), "Cannot . on function");
   }
-  RecordAccessChecker::make(r, r.getRecord()->getNodeType());
+  RecordAccessChecker::make(r, r.getSubNode()->getNodeType());
 }
 
 void TypeChecker::visit(FunctionCall& f) {

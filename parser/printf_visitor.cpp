@@ -75,7 +75,7 @@ void PrintVisitor::visit(FunctionCall& f) {
 void PrintVisitor::visit(RecordAccess& r) {
   print("Record Access");
   ++depth;
-  r.getRecord()->accept(*this);
+  r.getSubNode()->accept(*this);
   print(r.getField().getString());
   print(r.getNodeType());
   --depth;

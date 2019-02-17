@@ -60,7 +60,8 @@ Cast::Cast(ptr_Type to, ptr_Expr expr)
     expr(std::move(f.getListParam().back())) {}
 
 RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
-  : ASTNode(d), record(std::move(record)), field(std::move(field)) {}
+  : ASTNode(d),
+    record(std::move(record)), field(std::move(field)) {}
 
 BlockStmt::BlockStmt(ListStmt block) : stmts(std::move(block)) {}
 

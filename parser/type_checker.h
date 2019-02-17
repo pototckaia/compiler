@@ -71,7 +71,7 @@ class RecordAccessChecker : public BaseTypeChecker {
 
   RecordAccessChecker(RecordAccess& a)
     : BaseTypeChecker(getPoint(a.getDeclPoint()) +
-                      "Record access to type \"" + a.getRecord()->getNodeType()->getSymbolName() + "\" not valid"),
+                      "Record access to type \"" + a.getSubNode()->getNodeType()->getSymbolName() + "\" not valid"),
       recordAccess(a) {}
 
   void visit(Record&) override;
