@@ -34,7 +34,6 @@ class Variable : public Expression {
   auto& getSubToken() { return name; }
   // todo remove virtual
   std::string getVarName() override { return name.getString(); }
-
   void accept(Visitor&) override;
 
  private:
@@ -47,7 +46,6 @@ class Literal : public Expression {
   Literal(const Token& v, ptr_Type t);
 
   auto& getSubToken() { return value; }
-
   void accept(Visitor&) override;
 
  private:
@@ -62,10 +60,8 @@ class BinaryOperation : public Expression {
   auto& getSubLeft() { return left; }
   auto& getSubRight() { return right; }
   auto& getOp() { return op; }
-
   void setSubRight(ptr_Expr r) { right = std::move(r); }
   void setSubLeft(ptr_Expr l) { left = std::move(l); }
-
   void accept(Visitor&) override ;
 
  private:
@@ -80,7 +76,6 @@ class UnaryOperation : public Expression {
 
   auto& getOp() { return op; }
   auto& getSubNode() { return expr; }
-
   void accept(Visitor&) override;
 
  private:
@@ -94,7 +89,6 @@ class ArrayAccess : public Expression {
 
   auto& getSubNode() { return nameArray; }
   auto& getListIndex() { return listIndex; };
-
   void accept(Visitor&) override;
 
  private:
@@ -111,7 +105,6 @@ class FunctionCall : public Expression {
   auto& getListParam() { return listParam; };
   // todo why this?
   void setListParam(ListExpr e) { listParam = std::move(e); }
-
   void accept(Visitor&) override;
 
  private:
@@ -125,9 +118,8 @@ class Cast : public Expression {
   // todo why this?
   Cast(FunctionCall);
 
-  void accept(Visitor& v) override;
-
   auto& getSubNode() { return expr; }
+  void accept(Visitor& v) override;
 
  private:
   ptr_Expr expr;
@@ -139,7 +131,6 @@ class RecordAccess : public Expression {
 
   auto& getSubNode() { return record; }
   auto& getField() { return field; };
-
   void accept(Visitor&) override;
 
  private:
@@ -159,8 +150,7 @@ class FunctionCallStmt : public ASTNodeStmt {
  public:
   FunctionCallStmt(ptr_Expr);
 
-  auto& getFunctionCall() { return functionCall; }
-
+  auto& getSubNode() { return functionCall; }
   void accept(Visitor&) override;
 
  private:
@@ -172,7 +162,6 @@ class BlockStmt : public ASTNodeStmt {
   BlockStmt(ListStmt);
 
   auto& getBlock() { return stmts; }
-
   void accept(Visitor&) override;
 
  private:
@@ -235,13 +224,11 @@ class ForStmt : public LoopStmt {
 class BreakStmt : public ASTNodeStmt {
  public:
   BreakStmt() = default;
-
   void accept(Visitor&) override;
 };
 
 class ContinueStmt : public ASTNodeStmt {
  public:
   ContinueStmt() = default;
-
   void accept(Visitor&) override;
 };

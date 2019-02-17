@@ -101,7 +101,7 @@ void PrintVisitor::visit(AssignmentStmt& a) {
 }
 
 void PrintVisitor::visit(FunctionCallStmt& f) {
-  f.getFunctionCall()->accept(*this);
+  f.getSubNode()->accept(*this);
 }
 
 void PrintVisitor::visit(BlockStmt& b) {

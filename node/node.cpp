@@ -48,7 +48,6 @@ FunctionCall::FunctionCall(const Token& d, ptr_Expr nameFunction, ListExpr listP
   : ASTNode(d),
     nameFunction(std::move(nameFunction)), listParam(std::move(listParam)) {}
 
-FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 
 Cast::Cast(ptr_Type to, ptr_Expr expr)
   : Expression(std::move(to)),
@@ -63,7 +62,11 @@ RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
   : ASTNode(d),
     record(std::move(record)), field(std::move(field)) {}
 
-BlockStmt::BlockStmt(ListStmt block) : stmts(std::move(block)) {}
+FunctionCallStmt::FunctionCallStmt(ptr_Expr e)
+  : functionCall(std::move(e)) {}
+
+BlockStmt::BlockStmt(ListStmt block)
+  : stmts(std::move(block)) {}
 
 IfStmt::IfStmt(ptr_Expr cond, ptr_Stmt then_)
   : condition(std::move(cond)), then_stmt(std::move(then_)) {}

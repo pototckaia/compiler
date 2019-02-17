@@ -671,7 +671,7 @@ void TypeChecker::visit(AssignmentStmt& a) {
 
 void TypeChecker::visit(FunctionCallStmt& f) {
   isMustFunctionCall = true;
-  f.getFunctionCall()->accept(*this);
+  f.getSubNode()->accept(*this);
   isMustFunctionCall = false;
 }
 

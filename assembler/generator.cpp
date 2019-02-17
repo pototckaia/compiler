@@ -880,7 +880,7 @@ void AsmGenerator::visit(Write& w) {
 
 void AsmGenerator::visit(FunctionCallStmt& f) {
   isSkipResult = true;
-  f.getFunctionCall()->accept(*this);
+  f.getSubNode()->accept(*this);
   isSkipResult = false;
 }
 
