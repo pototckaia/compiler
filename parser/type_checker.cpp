@@ -21,9 +21,9 @@ void LvalueChecker::visit(ArrayAccess& a) { a.getSubNode()->accept(*this); }
 void LvalueChecker::visit(RecordAccess& r) { r.getRecord()->accept(*this); }
 
 void LvalueChecker::visit(Cast& f) {
-  f.expr->accept(*this);
+  f.getSubNode()->accept(*this);
   lvalue = f.getNodeType()->isPointer() ||
-           (lvalue && f.getNodeType()->equals(f.expr->getNodeType().get()));
+           (lvalue && f.getNodeType()->equals(f.getSubNode()->getNodeType().get()));
 }
 
 void LvalueChecker::visit(UnaryOperation& u) {
@@ -604,9 +604,9 @@ void TypeChecker::visit(Cast& s) {
     throw SemanticException("Expect function call but find cast");
   }
   wasFunctionCall = false;
-  s.expr->accept(*this);
+  s.getSubNode()->accept(*this);
   auto& to = s.getNodeType();
-  auto& from = s.expr->getNodeType();
+  auto& from = s.getSubNode()->getNodeType();
   auto isPass = [](ptr_Type& to, ptr_Type& from) {
     return (to->isInt() && (from->isInt() || from->isDouble() || from->isBool())) ||
            (to->isDouble() && (from->isInt() || from->isDouble())) ||

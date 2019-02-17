@@ -85,7 +85,7 @@ void PrintVisitor::visit(Cast& t) {
   print("Cast");
   t.getNodeType()->accept(*this);
   ++depth;
-  t.expr->accept(*this);
+  t.getSubNode()->accept(*this);
   --depth;
 }
 

@@ -124,8 +124,12 @@ class Cast : public Expression {
   Cast(ptr_Type to, ptr_Expr expr);
   // todo why this?
   Cast(FunctionCall);
+
   void accept(Visitor& v) override;
-  // todo private
+
+  auto& getSubNode() { return expr; }
+
+ private:
   ptr_Expr expr;
 };
 

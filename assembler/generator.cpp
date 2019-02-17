@@ -673,19 +673,19 @@ void AsmGenerator::visit(RecordAccess& r) {
 
 void AsmGenerator::visit(Cast& c) {
   if (need_lvalue) {
-    visit_lvalue(*c.expr);
+    visit_lvalue(*c.getSubNode());
   } else {
-    c.expr->accept(*this);
+    c.getSubNode()->accept(*this);
   }
 
-  if (c.expr->getNodeType()->isDouble() && c.getNodeType()->isInt()) {
+  if (c.getSubNode()->getNodeType()->isDouble() && c.getNodeType()->isInt()) {
     asm_file
       << Comment("double to int")
       << cmd(POP, {RAX})
       << cmd(MOVQ, {XMM0, none}, {RAX})
       << cmd(CVTSD2SI, {RAX}, {XMM0, none})
       << cmd(PUSH, {RAX});
-  } else if (c.expr->getNodeType()->isInt() && c.getNodeType()->isDouble()) {
+  } else if (c.getSubNode()->getNodeType()->isInt() && c.getNodeType()->isDouble()) {
     asm_file
       << Comment("int to double")
       << cmd(POP, {RAX})

@@ -51,9 +51,12 @@ FunctionCall::FunctionCall(const Token& d, ptr_Expr nameFunction, ListExpr listP
 FunctionCallStmt::FunctionCallStmt(ptr_Expr e) : functionCall(std::move(e)) {}
 
 Cast::Cast(ptr_Type to, ptr_Expr expr)
- : Expression(std::move(to)), expr(std::move(expr)) {}
-Cast::Cast(FunctionCall f)
-  : ASTNode(f.getDeclPoint()), Expression(std::move(f.getNodeType())),
+  : Expression(std::move(to)),
+    expr(std::move(expr)) {}
+
+ Cast::Cast(FunctionCall f)
+  : ASTNode(f.getDeclPoint()),
+    Expression(std::move(f.getNodeType())),
     expr(std::move(f.getListParam().back())) {}
 
 RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
