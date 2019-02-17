@@ -44,10 +44,10 @@ class Variable : public Expression {
 class Literal : public Expression {
  public:
   Literal(const Token&);
-  // todo move to cpp
-  Literal(const Token& v, ptr_Type t) : Expression(std::move(t)), value(v) {};
+  Literal(const Token& v, ptr_Type t);
 
-  const auto& getValue() const { return value; }
+  const auto& getSubToken() const { return value; }
+
   void accept(Visitor&) override;
 
  private:

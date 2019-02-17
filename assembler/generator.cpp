@@ -241,27 +241,27 @@ void AsmGenerator::visit(Literal& l) {
   if (l.getNodeType()->isInt()) {
     asm_file
       << Comment("int literal")
-      << cmd(PUSH, {l.getValue().getInt()});
+      << cmd(PUSH, {l.getSubToken().getInt()});
   } else if (l.getNodeType()->isDouble()) {
     asm_file
       << Comment("double literal")
-      << cmd(MOV, {RAX}, {l.getValue().getDouble(), double64})
+      << cmd(MOV, {RAX}, {l.getSubToken().getDouble(), double64})
       << cmd(PUSH, {RAX});
   } else if (l.getNodeType()->isChar()) {
     asm_file
       << Comment("char literal")
-      << cmd(PUSH, {l.getValue().getString()});
+      << cmd(PUSH, {l.getSubToken().getString()});
   } else if (l.getNodeType()->isString()) {
-    auto label_name = add_string(l.getValue().getString());
+    auto label_name = add_string(l.getSubToken().getString());
     asm_file
       << Comment("string literal")
       << cmd(PUSH, {Label(label_name)});
-  } else if (l.getValue().is(TokenType::Nil) ||
-             l.getValue().is(TokenType::False)) {
+  } else if (l.getSubToken().is(TokenType::Nil) ||
+			l.getSubToken().is(TokenType::False)) {
     asm_file
       << Comment("false or nil literal")
       << cmd(PUSH, {(uint64_t) 0});
-  } else if (l.getValue().is(TokenType::True)) {
+  } else if (l.getSubToken().is(TokenType::True)) {
     asm_file
       << Comment("true literal")
       << cmd(PUSH, {(uint64_t) 1});

@@ -17,7 +17,7 @@ void PrintVisitor::print(const ptr_Type& e) {
 // Expression
 
 void PrintVisitor::visit(Literal& l) {
-  print(l.getValue().getString());
+  print(l.getSubToken().getString());
   print(l.getNodeType());
 }
 

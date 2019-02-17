@@ -247,7 +247,7 @@ void TypeChecker::visit(Literal& l) {
   if (isMustFunctionCall) {
     throw SemanticException(l.getDeclPoint(), "Expect function call ");
   }
-  switch (l.getValue().getTokenType()) {
+  switch (l.getSubToken().getTokenType()) {
     case TokenType::Int: {
       l.setNodeType(std::make_shared<Int>());
       break;
@@ -261,7 +261,7 @@ void TypeChecker::visit(Literal& l) {
       break;
     }
     case TokenType::String: {
-      if (l.getValue().getString().size() > 1) {
+      if (l.getSubToken().getString().size() > 1) {
         l.setNodeType(std::make_shared<String>());
       } else {
         l.setNodeType(std::make_shared<Char>());

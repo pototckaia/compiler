@@ -27,7 +27,10 @@ Variable::Variable(const Token& n, ptr_Type t)
   : ASTNode(n), Expression(std::move(t)), name(n) {}
 
 Literal::Literal(const Token& v)
-  : ASTNode(v.getLine(), v.getColumn()), value(std::move(v)) {}
+  : ASTNode(v), value(v) {}
+
+Literal::Literal(const Token& v, ptr_Type t)
+	: ASTNode(v), Expression(std::move(t)), value(v) {};
 
 BinaryOperation::BinaryOperation(const Token& op,
                                  ptr_Expr left,
