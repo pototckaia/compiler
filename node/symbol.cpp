@@ -255,7 +255,8 @@ uint64_t Tables::sizeVar() {
   return s;
 }
 
-StackTable::StackTable(const Tables& global) : stack(1, global) {}
+StackTable::StackTable(const Tables& global)
+	: stack(1, global) {}
 
 bool StackTable::checkContain(const std::string& n) {
   for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
@@ -265,79 +266,6 @@ bool StackTable::checkContain(const std::string& n) {
   }
   return false;
 }
-
-bool StackTable::isType(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableType.checkContain(n)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-ptr_Type StackTable::findType(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableType.checkContain(n)) {
-      return iter->tableType.find(n);
-    }
-  }
-  throw NotDefinedException(n);
-}
-
-bool StackTable::isFunction(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableFunction.checkContain(n)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-std::shared_ptr<SymFun> StackTable::findFunction(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableFunction.checkContain(n)) {
-      return iter->tableFunction.find(n);
-    }
-  }
-  throw NotDefinedException(n);
-}
-
-bool StackTable::isConst(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableConst.checkContain(n)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-std::shared_ptr<Const> StackTable::findConst(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableConst.checkContain(n)) {
-      return iter->tableConst.find(n);
-    }
-  }
-  throw NotDefinedException(n);
-}
-
-bool StackTable::isVar(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableVariable.checkContain(n)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-ptr_Var StackTable::findVar(const std::string& n) {
-  for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
-    if (iter->tableVariable.checkContain(n)) {
-      return iter->tableVariable.find(n);
-    }
-  }
-  throw NotDefinedException(n);
-}
-
 
 std::string toString(ParamSpec p) {
   switch (p) {
@@ -508,6 +436,82 @@ bool SymType::isTrivial() const {
          this->isChar() || this->isPointer() ||
          this->isProcedureType();
 }
+
+// todo fooooooo
+// who replace ????
+
+bool StackTable::isType(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableType.checkContain(n)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool StackTable::isFunction(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableFunction.checkContain(n)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+ptr_Type StackTable::findType(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableType.checkContain(n)) {
+			return iter->tableType.find(n);
+		}
+	}
+	throw NotDefinedException(n);
+}
+
+std::shared_ptr<SymFun> StackTable::findFunction(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableFunction.checkContain(n)) {
+			return iter->tableFunction.find(n);
+		}
+	}
+	throw NotDefinedException(n);
+}
+
+bool StackTable::isConst(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableConst.checkContain(n)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::shared_ptr<Const> StackTable::findConst(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableConst.checkContain(n)) {
+			return iter->tableConst.find(n);
+		}
+	}
+	throw NotDefinedException(n);
+}
+
+bool StackTable::isVar(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableVariable.checkContain(n)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+ptr_Var StackTable::findVar(const std::string& n) {
+	for (auto iter = stack.rbegin(); iter != stack.rend(); ++iter) {
+		if (iter->tableVariable.checkContain(n)) {
+			return iter->tableVariable.find(n);
+		}
+	}
+	throw NotDefinedException(n);
+}
+
 
 // accept
 

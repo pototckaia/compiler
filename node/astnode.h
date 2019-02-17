@@ -27,6 +27,7 @@ using ptr_Var = std::shared_ptr<SymVar>;
 using ptr_Type = std::shared_ptr<SymType>;
 using ptr_Fun = std::shared_ptr<SymFun>;
 using ptr_Sign = std::shared_ptr<FunctionSignature>;
+using ptr_Const = std::shared_ptr<Const>;
 
 using ptr_Expr = std::unique_ptr<Expression>;
 using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;

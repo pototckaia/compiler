@@ -8,8 +8,6 @@
 
 #include "astnode.h"
 #include "token.h"
-#include "exception"
-
 
 template <typename T>
 class TableSymbol {
@@ -91,10 +89,10 @@ class StackTable {
   bool isVar(const std::string& n);
 
   ptr_Type findType(const std::string&);
-  std::shared_ptr<SymFun> findFunction(const std::string&);
-  std::shared_ptr<Const> findConst(const std::string&);
+  ptr_Fun findFunction(const std::string&);
+  ptr_Const findConst(const std::string&);
   ptr_Var findVar(const std::string&);
 
+ private:
   std::list<Tables> stack;
 };
-
