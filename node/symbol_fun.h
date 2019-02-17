@@ -38,7 +38,7 @@ class ForwardFunction : public Function {
 
 	// todo move to cpp setter to function
   std::shared_ptr<SymFun> function;
-  SymFun::ptr_Sign& getSignature() override;
+  ptr_Sign& getSignature() override;
   ptr_Stmt& getBody() override;
   Tables& getTable() override;
 };

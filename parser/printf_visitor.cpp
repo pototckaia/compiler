@@ -296,7 +296,7 @@ void PrintVisitor::visit(ForwardFunction& f) {
   print("Forward function: " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
-  f.signature->accept(*this);
+  f.getSignature()->accept(*this);
   f.function->accept(*this);
   --depth;
 }
@@ -305,7 +305,7 @@ void PrintVisitor::visit(Function& f) {
   print("Function or Procedure: " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
-  f.signature->accept(*this);
+  f.getSignature()->accept(*this);
   visit(f.localVar);
   f.body->accept(*this);
   --depth;

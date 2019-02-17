@@ -19,6 +19,8 @@ using ptr_Node = std::shared_ptr<ASTNode>;
 using ptr_Symbol = std::shared_ptr<Symbol>;
 using ptr_Var = std::shared_ptr<SymVar>;
 using ptr_Type = std::shared_ptr<SymType>;
+using ptr_Sign = std::shared_ptr<FunctionSignature>;
+
 using ptr_Expr = std::unique_ptr<Expression>;
 using ptr_Stmt = std::unique_ptr<ASTNodeStmt>;
 
@@ -65,27 +67,24 @@ class Symbol : public ASTNode {
 
 class SymFun : public Symbol {
  public:
-	// todo move to cpp
   using Symbol::Symbol;
-  SymFun(const Token& t, std::shared_ptr<FunctionSignature> f)
-    : Symbol(t), signature(std::move(f)) {}
+  SymFun(const Token& t, ptr_Sign f);
 
-  using ptr_Sign = std::shared_ptr<FunctionSignature>;
   // todo remove
   virtual bool isEmbedded() const { return true; }
- // todo protected
+
+	// todo remove
+	virtual void setLabel(const std::string& s) { label = s; }
+	virtual std::string getLabel() { return label; }
+
+	// todo remove
+	virtual ptr_Sign& getSignature() { return signature; }
+	virtual ptr_Stmt& getBody() { throw std::logic_error("get Body"); };
+	virtual Tables& getTable() {throw std::logic_error("get Table"); };
+
+ protected:
   ptr_Sign signature;
-
-  // todo remove
-  virtual void setLabel(const std::string& s) { label = s; }
-  virtual std::string getLabel() { return label; }
-  // todo protected
   std::string label;
-
-  // todo remove
-  virtual ptr_Sign& getSignature();
-  virtual ptr_Stmt& getBody() { throw std::logic_error("get Body"); };
-  virtual Tables& getTable() {throw std::logic_error("get Table"); };
 };
 
 class SymVar : public Symbol {

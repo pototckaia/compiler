@@ -27,6 +27,9 @@ void Tables::insertCheck(const std::shared_ptr<Symbol>& t) {
   }
 }
 
+SymFun::SymFun(const Token &t, ptr_Sign f)
+  : Symbol(t), signature(std::move(f)) {}
+
 void Tables::insert(const std::shared_ptr<ForwardType>& f) {
   forwardType.push_back(f);
   insertCheck(f);
@@ -55,10 +58,10 @@ void Tables::resolveForwardFunction() {
     if (function->isForward()) {
       throw SemanticException(e->getDeclPoint(), "Function \"" + e->getSymbolName() + "\" not resolve");
     }
-    if (function->signature == nullptr) {
+    if (function->getSignature() == nullptr) {
       throw std::logic_error("Signature nullptr");
     }
-    if (!function->signature->equals(e->signature.get())) {
+    if (!function->getSignature()->equals(e->getSignature().get())) {
       throw SemanticException(e->getDeclPoint(),
         "Signature resolve function not equals with forward function " + e->getSymbolName());
     }
@@ -433,10 +436,10 @@ bool SymType::isTrivial() const {
          this->isProcedureType();
 }
 
-SymFun::ptr_Sign& SymFun::getSignature() { return signature; }
+
 ptr_Stmt& Function::getBody() { return body; }
 Tables& Function::getTable() { return localVar; }
-SymFun::ptr_Sign& ForwardFunction::getSignature() { return function->signature; }
+ptr_Sign& ForwardFunction::getSignature() { return function->getSignature(); }
 ptr_Stmt& ForwardFunction::getBody() { return function->getBody(); }
 Tables& ForwardFunction::getTable() { return function->getTable(); }
 

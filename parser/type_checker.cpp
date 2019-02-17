@@ -186,17 +186,17 @@ void FunctionCallChecker::visit(Write&) {
   }
 }
 
-void FunctionCallChecker::visit(Chr& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Chr& c) { c.getSignature()->accept(*this); }
 
-void FunctionCallChecker::visit(Ord& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Ord& c) { c.getSignature()->accept(*this); }
 
-void FunctionCallChecker::visit(Prev& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Prev& c) { c.getSignature()->accept(*this); }
 
-void FunctionCallChecker::visit(Succ& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Succ& c) { c.getSignature()->accept(*this); }
 
-void FunctionCallChecker::visit(Trunc& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Trunc& c) { c.getSignature()->accept(*this); }
 
-void FunctionCallChecker::visit(Round& c) { c.signature->accept(*this); }
+void FunctionCallChecker::visit(Round& c) { c.getSignature()->accept(*this); }
 
 void FunctionCallChecker::visit(Exit& c) {
   f.type = std::make_shared<Void>();
@@ -292,11 +292,11 @@ void TypeChecker::visit(Variable& v) {
     } else if (stackTable.top().tableVariable.checkContain(f->getSymbolName()) &&
                !wasFunctionCall) {
       // for variable result function - foo and foo()
-      v.type = f->signature->returnType;
+      v.type = f->getSignature()->returnType;
       return;
     }
-    f->signature->setSymbolName(f->getSymbolName());
-    v.type = f->signature;
+    f->getSignature()->setSymbolName(f->getSymbolName());
+    v.type = f->getSignature();
     return;
   }
 
