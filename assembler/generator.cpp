@@ -103,8 +103,8 @@ void AsmGenerator::visit_function(SymFun& fun) {
   uint64_t offsetParam = 16; // begin [* + 16]; ret -> +8
 
   // set offset param
-  for (auto iter = s->paramsList.rbegin();
-       iter != s->paramsList.rend(); ++iter) {
+  for (auto iter = s->getParamList().rbegin();
+       iter != s->getParamList().rend(); ++iter) {
     uint64_t sizeElem = (*iter)->size();
     (*iter)->offset = offsetParam; // pointer for end
     offsetParam += sizeElem;
@@ -150,7 +150,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
     << cmd(MOV, {RBP}, {RSP})
     << cmd(SUB, {RSP}, {sizeLocal});
 
-  for (auto& e : s->paramsList) {
+  for (auto& e : s->getParamList()) {
     if (e->getVarType()->isOpenArray() && e->spec == ParamSpec::NotSpec) {
       auto array = std::dynamic_pointer_cast<OpenArray>(e->getVarType());
       uint64_t sizeElem = array->getRefType()->size();
@@ -896,13 +896,13 @@ void AsmGenerator::visit(FunctionCall& f) {
     auto s = f.getSubNode()->getNodeType()->getSignature();
     uint64_t sizeReturn = 0;
     if (!s->isProcedure()) {
-      sizeReturn = s->returnType->size();
+      sizeReturn = s->getReturnType()->size();
       asm_file
         << Comment("allocate return type")
         << cmd(SUB, {RSP}, {sizeReturn}); // allocate return type
     }
     // arguments push
-    auto iterParams = s->paramsList.begin();
+    auto iterParams = s->getParamList().begin();
     for (auto iterArgs = f.getListParam().begin();
          iterArgs != f.getListParam().end(); ++iterArgs, ++iterParams) {
       if ((*iterParams)->getVarType()->isOpenArray()) {

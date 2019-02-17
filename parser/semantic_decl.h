@@ -23,7 +23,7 @@ class SemanticDecl {
   ptr_Type parseOpenArray(Token declPoint, ptr_Type);
 
   std::shared_ptr<FunctionSignature>
-  parseFunctionSignature(int line, int column, ListParam, ptr_Type returnType);
+  parseFunctionSignature(const Token&, ListParam, ptr_Type returnType);
 
   ListParam parseFormalParamSection(TableSymbol<ptr_Var>&, ParamSpec, ListToken, ptr_Type);
 

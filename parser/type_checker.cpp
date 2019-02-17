@@ -126,15 +126,15 @@ void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
 
 
 void FunctionCallChecker::visit(FunctionSignature& s) {
-  if (s.paramsList.size() != f.getListParam().size()) {
+  if (s.getParamList().size() != f.getListParam().size()) {
     throw SemanticException(f.getDeclPoint(),
-                            "Expect number of arguments " + std::to_string(s.paramsList.size()) +
+                            "Expect number of arguments " + std::to_string(s.getParamList().size()) +
                             " but find " + std::to_string(f.getListParam().size()));
   }
-  f.setNodeType(s.returnType);
-  auto iterParameter = s.paramsList.begin();
+  f.setNodeType(s.getReturnType());
+  auto iterParameter = s.getParamList().begin();
   ListExpr newParam;
-  for (; iterParameter != s.paramsList.end(); ++iterParameter) {
+  for (; iterParameter != s.getParamList().end(); ++iterParameter) {
     auto parameter = *iterParameter;
     auto argument = std::move(f.getListParam().front());
     f.getListParam().pop_front();
@@ -292,7 +292,7 @@ void TypeChecker::visit(Variable& v) {
     } else if (stackTable.top().tableVariable.checkContain(f->getSymbolName()) &&
                !wasFunctionCall) {
       // for variable result function - foo and foo()
-      v.setNodeType(f->getSignature()->returnType);
+      v.setNodeType(f->getSignature()->getReturnType());
       return;
     }
     f->getSignature()->setSymbolName(f->getSymbolName());

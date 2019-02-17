@@ -109,12 +109,9 @@ ptr_Type SemanticDecl::parseOpenArray(Token declPoint, ptr_Type type) {
   return std::make_shared<OpenArray>(declPoint, std::move(type));
 }
 
-std::shared_ptr<FunctionSignature> SemanticDecl::parseFunctionSignature(int line, int column, ListParam params,
+std::shared_ptr<FunctionSignature> SemanticDecl::parseFunctionSignature(const Token& t, ListParam params,
                                                                         ptr_Type returnType) {
-  auto signature = std::make_shared<FunctionSignature>(line, column);
-  signature->setParamsList(std::move(params));
-  signature->returnType = std::move(returnType);
-  return signature;
+  return std::make_shared<FunctionSignature>(t, std::move(params), std::move(returnType));
 }
 
 ListParam SemanticDecl::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable,
@@ -156,8 +153,8 @@ void SemanticDecl::parseFunctionForward(const Token& decl, std::shared_ptr<Funct
 
 void SemanticDecl::parseFunctionDeclBegin(std::shared_ptr<FunctionSignature> s) {
   stackTable.pushEmpty(); // for param variable
-  for (auto& e : s->paramsTable) {
-    stackTable.top().tableVariable.insert(e.second);
+  for (auto& e : s->getParamList()) {
+    stackTable.top().tableVariable.insert(e);
   }
   stackTable.pushEmpty(); // for decl
 }
@@ -166,15 +163,15 @@ void SemanticDecl::parseFunctionDeclEnd(const Token& decl,
                                         std::shared_ptr<FunctionSignature> s, ptr_Stmt b) {
   if (!s->isProcedure()) {
     auto nameResult = decl.getString();
-    if (s->paramsTable.checkContain(nameResult)) {
-      auto& v = s->paramsTable.find(nameResult);
+    if (s->getParamTable().checkContain(nameResult)) {
+      auto& v = s->getParamTable().find(nameResult);
       throw AlreadyDefinedException(v->getDeclPoint(), v->getSymbolName());
     }
-    auto result = std::make_shared<ParamVar>(nameResult, s->returnType);
+    auto result = std::make_shared<ParamVar>(nameResult, s->getReturnType());
     stackTable.top().tableVariable.insert(result);
-    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType, result));
+    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->getReturnType(), result));
   } else {
-    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->returnType));
+    stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->getReturnType()));
   }
   TypeChecker checkType(stackTable);
   b->accept(checkType);

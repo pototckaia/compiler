@@ -497,13 +497,12 @@ ptr_Type Parser::parseParameterType() {
 
 std::shared_ptr<FunctionSignature> Parser::parseFunctionSignature(bool isProcedure) {
   ListParam param;
-  int line = lexer.get().getLine();
-  int column = lexer.get().getColumn();
+  Token beginDecl(lexer.get());
   if (isProcedure) {
     if (match(TokenType::OpenParenthesis)) {
       param = parseFormalParameterList();
     }
-    return semanticDecl.parseFunctionSignature(line, column, std::move(param), std::make_shared<Void>());
+    return semanticDecl.parseFunctionSignature(beginDecl, std::move(param), std::make_shared<Void>());
   }
   else {
     if (!match(TokenType::Colon)) {
@@ -511,7 +510,7 @@ std::shared_ptr<FunctionSignature> Parser::parseFunctionSignature(bool isProcedu
     }
     requireAndSkip(TokenType::Colon);
     auto returnType = parseSimpleType();
-    return semanticDecl.parseFunctionSignature(line, column, std::move(param), std::move(returnType));
+    return semanticDecl.parseFunctionSignature(beginDecl, std::move(param), std::move(returnType));
   }
 }
 

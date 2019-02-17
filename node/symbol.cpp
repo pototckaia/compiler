@@ -42,63 +42,45 @@ MainFunction::MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
 Round::Round() : SymFun("round") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Trunc::Trunc() : SymFun("trunc") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 };
 
 Succ::Succ() : SymFun("succ") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Prev::Prev()  : SymFun("prev") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Chr::Chr() : SymFun("chr") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Char>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Char>());
 }
 
 Ord::Ord() : SymFun("ord") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
   auto var = std::make_shared<ParamVar>(std::make_shared<Char>());
   var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
+  ListParam params(1, var);
+  signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Write::Write(bool newLine) {
@@ -173,6 +155,25 @@ Record::Record(const Token& t) : SymType(t) {}
 void Record::addVar(const ptr_Var& v) {
   fieldsList.push_back(v);
   fields.insert(v);
+}
+
+FunctionSignature::FunctionSignature(ListParam t, ptr_Type r)
+  : returnType(std::move(r)) {
+  setParamsList(t);
+}
+
+FunctionSignature::FunctionSignature(const Token & d,
+    ListParam l, ptr_Type r)
+  : SymType(d),
+    returnType(std::move(r)) {
+  setParamsList(l);
+}
+
+void FunctionSignature::setParamsList(ListParam t) {
+  paramsList = t;
+    for (auto& e : t) {
+    paramsTable.insert(e);
+  }
 }
 
 bool Tables::checkContain(const std::string& t) {
@@ -318,14 +319,6 @@ ptr_Var StackTable::findVar(const std::string& n) {
   }
   throw NotDefinedException(n);
 }
-
-void FunctionSignature::setParamsList(ListParam t) {
-  paramsList = t;
-  for (auto& e : t) {
-    paramsTable.insert(e);
-  }
-}
-
 
 
 std::string toString(ParamSpec p) {

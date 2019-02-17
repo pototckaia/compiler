@@ -222,15 +222,21 @@ class Record : public SymType {
 
 class FunctionSignature : public SymType {
  public:
-  using SymType::SymType;
+	FunctionSignature(ListParam, ptr_Type);
+  FunctionSignature(const Token&, ListParam, ptr_Type);
 
+  auto& getParamList() { return paramsList; }
+  auto& getReturnType() { return returnType; }
+  auto& getParamTable() { return paramsTable; }
   void setParamsList(ListParam t);
-  bool isProcedureType() const override { return true; }
   bool isProcedure() const { return returnType->isVoid(); }
+
+  bool isProcedureType() const override { return true; }
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   FunctionSignature* getSignature() override { return this; }
 
+ private:
   TableSymbol<std::shared_ptr<ParamVar>> paramsTable;
   ListParam paramsList;
   ptr_Type returnType;

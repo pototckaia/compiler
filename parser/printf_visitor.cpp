@@ -239,13 +239,13 @@ void PrintVisitor::visit(FunctionSignature& s) {
   }
   print("Decl point: " + getPoint(s.getDeclPoint()));
   ++depth;
-  for (auto& e : s.paramsList) {
+  for (auto& e : s.getParamList()) {
    e->accept(*this);
   }
   if (!s.isProcedure()) {
     print("Return:");
     ++depth;
-    s.returnType->accept(*this);
+    s.getReturnType()->accept(*this);
     --depth;
   }
   --depth;
