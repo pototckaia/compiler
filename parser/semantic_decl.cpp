@@ -72,10 +72,7 @@ ptr_Type SemanticDecl::parseSimpleType(Token t) {
 }
 
 ptr_Type SemanticDecl::parseArrayType(Token t, StaticArray::BoundsType b, ptr_Type el) {
-  auto array = std::make_shared<StaticArray>(t);
-  array->bounds = std::move(b);
-  array->typeElem = std::move(el);
-  return array;
+  return std::make_shared<StaticArray>(t, std::move(el), b);
 }
 
 ptr_Type

@@ -158,6 +158,11 @@ Pointer::Pointer(ptr_Type p)
 Pointer::Pointer(const Token& t, ptr_Type p)
   : SymType(t), typeBase(std::move(p)) {}
 
+StaticArray::StaticArray(const Token& d, ptr_Type t,
+                         const StaticArray::BoundsType& b)
+  : SymType(d),
+    bounds(b), typeElem(std::move(t)) {}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);
@@ -386,9 +391,9 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
   if (dynamic_cast<StaticArray*>(s)) {
     auto p = dynamic_cast<StaticArray*>(s);
     auto copy = std::make_shared<StaticArray>(*p);
-    copy->bounds.pop_front();
-    if (copy->bounds.empty()) {
-      return typeElem->equalsForCheckArgument(copy->typeElem.get());
+    copy->getBounds().pop_front();
+    if (copy->getBounds().empty()) {
+      return typeElem->equalsForCheckArgument(copy->getRefType().get());
     } else {
       return typeElem->equalsForCheckArgument(copy.get());
     }

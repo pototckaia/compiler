@@ -75,14 +75,14 @@ void ArrayAccessChecker::visit(Pointer& a) {
 
 void ArrayAccessChecker::visit(StaticArray& s) {
   uint64_t bounds = sizeBounds;
-  uint64_t boundsType = s.bounds.size();
+  uint64_t boundsType = s.getBounds().size();
   if (bounds == boundsType) {
-    arrayAccess.setNodeType(s.typeElem);
+    arrayAccess.setNodeType(s.getRefType());
     return;
   } else if (boundsType > bounds) {
     auto copy = std::make_shared<StaticArray>(s);
     for (int i = 0; i < bounds; ++i) {
-      copy->bounds.pop_front();
+      copy->getBounds().pop_front();
     }
 //    auto iterEnd = copy->bounds.begin();
 //    std::advance(iterEnd, boundsType - bounds);
@@ -91,7 +91,7 @@ void ArrayAccessChecker::visit(StaticArray& s) {
     return;
   } else if (boundsType < bounds) {
     sizeBounds = bounds - boundsType;
-    s.typeElem->accept(*this);
+    s.getRefType()->accept(*this);
   }
 }
 

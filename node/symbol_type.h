@@ -170,6 +170,7 @@ class StaticArray : public SymType {
  public:
   using SymType::SymType;
   using BoundsType = std::list<std::pair<uint64_t, uint64_t>>;
+  StaticArray(const Token&, ptr_Type, const BoundsType&);
 
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
@@ -177,10 +178,12 @@ class StaticArray : public SymType {
   StaticArray* getStaticArray() { return this; }
   uint64_t size() const override;
 
-// private:
+  auto& getBounds() { return bounds; }
+  auto& getRefType() { return typeElem; }
+
+ private:
   BoundsType bounds;
   ptr_Type typeElem;
-
 };
 
 class OpenArray : public SymType {

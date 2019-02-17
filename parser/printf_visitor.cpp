@@ -206,12 +206,12 @@ void PrintVisitor::visit(StaticArray& a) {
 
   print("Size");
   ++depth;
-  for (auto& e : a.bounds) {
+  for (auto& e : a.getBounds()) {
     print("low: " + std::to_string(e.first) + " high: " + std::to_string(e.second));
   }
   --depth;
 
-  a.typeElem->accept(*this);
+  a.getRefType()->accept(*this);
   --depth;
 }
 

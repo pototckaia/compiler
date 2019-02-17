@@ -564,13 +564,13 @@ void AsmGenerator::visit(Pointer& p) {
 
 void AsmGenerator::visit(StaticArray& s) {
   auto real_size = bounds.size();
-  auto array_size = s.bounds.size();
+  auto array_size = s.getBounds().size();
   auto& real_bounds = bounds;
-  auto& array_bounds = s.bounds;
+  auto& array_bounds = s.getBounds();
 
   std::vector<uint64_t> coeff(array_size, 1);
   long int i_coeff = array_size - 2;
-  for (auto it = s.bounds.rbegin(); i_coeff != -1 && it != s.bounds.rend();
+  for (auto it = s.getBounds().rbegin(); i_coeff != -1 && it != s.getBounds().rend();
        ++it, --i_coeff) {
     uint64_t len = it->second - it->first + 1;
     coeff.at(i_coeff) = coeff.at(i_coeff + 1) * len;
@@ -597,7 +597,7 @@ void AsmGenerator::visit(StaticArray& s) {
   asm_file
     << Comment("save static array offset")
     << cmd(POP, {RAX})
-    << cmd(IMUL, {RAX}, {s.typeElem->size()}) // index*sizeof
+    << cmd(IMUL, {RAX}, {s.getRefType()->size()}) // index*sizeof
     << cmd(PUSH, {RAX});
 
   if (real_size > array_size) {
@@ -607,7 +607,7 @@ void AsmGenerator::visit(StaticArray& s) {
       << cmd(POP, {RCX}) // base
       << cmd(ADD, {RCX}, {RAX}) // base + index
       << cmd(PUSH, {RCX}); // new_base
-    s.typeElem->accept(*this);
+    s.getRefType()->accept(*this);
   }
 }
 
@@ -802,7 +802,7 @@ void AsmGenerator::visit(High&) {
       << cmd(PUSH, {adr(RBP, offset + 8)});
   } else {
     auto array = param->getNodeType()->getStaticArray();
-    asm_file << cmd(PUSH, {array->bounds.front().second});
+    asm_file << cmd(PUSH, {array->getBounds().front().second});
   }
 }
 
@@ -812,7 +812,7 @@ void AsmGenerator::visit(Low&) {
     asm_file << cmd(PUSH, {(uint64_t)0});
   } else {
     auto array = param->getNodeType()->getStaticArray();
-    asm_file << cmd(PUSH, {array->bounds.front().first});
+    asm_file << cmd(PUSH, {array->getBounds().front().first});
   }
 }
 
@@ -909,7 +909,7 @@ void AsmGenerator::visit(FunctionCall& f) {
         auto array = (*iterArgs)->getNodeType()->getStaticArray();
         asm_file
           << Comment("open array argument")
-          << cmd(PUSH, {array->bounds.front().second}); // high
+          << cmd(PUSH, {array->getBounds().front().second}); // high
         visit_lvalue(**iterArgs); // address
         continue;
       }
