@@ -25,7 +25,7 @@ set(NODE_SOURCE
         node/astnode.h
         node/node.cpp node/node.h
         node/table_symbol.h node/symbol_type.h
-        node/symbol_fun.h node/symbol_var.h node/symbol.cpp)
+        node/symbol_fun.h node/symbol_var.h node/symbol.cpp node/forward-node.h)
 
 set(GEN_SOURCES
         assembler/opcode.h assembler/opcode.cpp
