@@ -121,8 +121,7 @@ ListParam SemanticDecl::parseFormalParamSection(TableSymbol<ptr_Var>& paramTable
     if (paramTable.checkContain(e.getString())) {
       throw AlreadyDefinedException(e);
     }
-    auto param = std::make_shared<ParamVar>(e, type);
-    param->spec = paramSpec;
+    auto param = std::make_shared<ParamVar>(e, type, paramSpec);
     paramTable.insert(param);
     paramList.push_back(param);
   }
@@ -167,7 +166,7 @@ void SemanticDecl::parseFunctionDeclEnd(const Token& decl,
       auto& v = s->getParamTable().find(nameResult);
       throw AlreadyDefinedException(v->getDeclPoint(), v->getSymbolName());
     }
-    auto result = std::make_shared<ParamVar>(nameResult, s->getReturnType());
+    auto result = std::make_shared<ParamVar>(nameResult, s->getReturnType(), ParamSpec::NotSpec);
     stackTable.top().tableVariable.insert(result);
     stackTable.top().tableFunction.insert(std::make_shared<Exit>(s->getReturnType(), result));
   } else {

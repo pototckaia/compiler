@@ -5,22 +5,26 @@
 
 class LocalVar : public SymVar {
  public:
-  using SymVar::SymVar;
+	LocalVar(const Token&, ptr_Type);
   void accept(Visitor& v) override;
-
-  uint64_t offset = 0;
   void setOffset(uint64_t s) override { offset = s; }
-  uint64_t getOffset() override { return offset; }
+	uint64_t getOffset() override { return offset; }
+
+ private:
+	uint64_t offset = 0;
 };
 
 class GlobalVar : public SymVar {
  public:
-  using SymVar::SymVar;
+	GlobalVar(const Token&, ptr_Type);
   void accept(Visitor& v) override;
-
-  std::string label;
   void setOffset(uint64_t s) override {}
-  uint64_t getOffset() override { return 0; }
+	uint64_t getOffset() override { return 0; }
+	std::string getLabel() { return label; }
+	void setLabel(std::string s) { label = s; }
+
+ private:
+	std::string label;
 };
 
 enum class ParamSpec {
@@ -34,18 +38,23 @@ std::string toString(ParamSpec);
 
 class ParamVar : public SymVar {
  public:
-  using SymVar::SymVar;
+	ParamVar(ptr_Type, ParamSpec);
+	ParamVar(const Token&, ptr_Type, ParamSpec);
+	ParamVar(std::string, ptr_Type, ParamSpec);
 
+	void accept(Visitor& v) override;
+	bool equals(ParamVar&) const;
+	uint64_t size() const override;
+	void setOffset(uint64_t s) override { offset = s; }
+	uint64_t getOffset() override { return offset; }
+	ParamSpec getSpec() { return spec; }
+
+ private:
   ParamSpec spec = ParamSpec::NotSpec;
-  void accept(Visitor& v) override;
-  bool equals(ParamVar&) const;
-  uint64_t size() const override;
-
   uint64_t offset = 0;
-  void setOffset(uint64_t s) override { offset = s; }
-  uint64_t getOffset() override { return offset; }
 };
 
+// todo do const
 class Const : public SymVar {
  public:
   using SymVar::SymVar;

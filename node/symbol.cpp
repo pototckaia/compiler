@@ -42,43 +42,37 @@ MainFunction::MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
 Round::Round() : SymFun("round") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Trunc::Trunc() : SymFun("trunc") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 };
 
 Succ::Succ() : SymFun("succ") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Prev::Prev()  : SymFun("prev") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
 Chr::Chr() : SymFun("chr") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Char>());
 }
 
 Ord::Ord() : SymFun("ord") {
-  auto var = std::make_shared<ParamVar>(std::make_shared<Char>());
-  var->spec = ParamSpec::NotSpec;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Char>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
@@ -149,7 +143,6 @@ OpenArray::OpenArray(const Token& decl, ptr_Type type)
   : SymType(decl),
     typeElem(std::move(type)) {}
 
-
 Record::Record(const Token& t) : SymType(t) {}
 
 void Record::addVar(const ptr_Var& v) {
@@ -174,6 +167,28 @@ void FunctionSignature::setParamsList(ListParam t) {
     for (auto& e : t) {
     paramsTable.insert(e);
   }
+}
+
+LocalVar::LocalVar(const Token& decl, ptr_Type type)
+  : SymVar(decl, std::move(type)) {}
+
+GlobalVar::GlobalVar(const Token& decl, ptr_Type type)
+  : SymVar(decl, std::move(type)) {}
+
+ParamVar::ParamVar(ptr_Type type, ParamSpec s)
+    : SymVar(type),
+      spec(s) {}
+
+ParamVar::ParamVar(const Token& decl, ptr_Type type, ParamSpec s)
+  : SymVar(decl, type),
+    spec(s) {}
+
+ParamVar::ParamVar(std::string decl, ptr_Type type, ParamSpec s)
+    : SymVar(decl, type),
+      spec(s) {}
+
+bool ParamVar::equals(ParamVar& p) const {
+  return spec == p.spec && type->equals(p.type.get());
 }
 
 bool Tables::checkContain(const std::string& t) {
@@ -441,9 +456,6 @@ bool ForwardType::equals(SymType* s) const {
   return checkAlias(s);
 }
 
-bool ParamVar::equals(ParamVar& p) const {
-  return spec == p.spec && type->equals(p.type.get());
-}
   // in byte
 uint64_t SymVar::size() const { return type->size(); }
 

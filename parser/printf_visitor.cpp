@@ -287,7 +287,7 @@ void PrintVisitor::visit(ParamVar& p) {
   print("Param value: " + p.getSymbolName());
   print("Decl point: " + getPoint(p.getDeclPoint()));
   ++depth;
-  print(toString(p.spec));
+  print(toString(p.getSpec()));
   p.getVarType()->accept(*this);
   --depth;
 }

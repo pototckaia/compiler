@@ -138,8 +138,8 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
     auto parameter = *iterParameter;
     auto argument = std::move(f.getListParam().front());
     f.getListParam().pop_front();
-    if (parameter->spec == ParamSpec::Var ||
-        parameter->spec == ParamSpec::Out) {
+    if (parameter->getSpec() == ParamSpec::Var ||
+        parameter->getSpec() == ParamSpec::Out) {
       if (!LvalueChecker::is(argument)) {
         throw SemanticException(argument->getDeclPoint(), "Expect lvalue in argument");
       }

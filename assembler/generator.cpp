@@ -106,7 +106,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
   for (auto iter = s->getParamList().rbegin();
        iter != s->getParamList().rend(); ++iter) {
     uint64_t sizeElem = (*iter)->size();
-    (*iter)->offset = offsetParam; // pointer for end
+    (*iter)->setOffset(offsetParam); // pointer for end
     offsetParam += sizeElem;
     sizeParam += sizeElem;
     stackTable.top().tableVariable.insert(*iter);
@@ -151,14 +151,14 @@ void AsmGenerator::visit_function(SymFun& fun) {
     << cmd(SUB, {RSP}, {sizeLocal});
 
   for (auto& e : s->getParamList()) {
-    if (e->getVarType()->isOpenArray() && e->spec == ParamSpec::NotSpec) {
+    if (e->getVarType()->isOpenArray() && e->getSpec() == ParamSpec::NotSpec) {
       auto array = std::dynamic_pointer_cast<OpenArray>(e->getVarType());
       uint64_t sizeElem = array->getRefType()->size();
       auto _start = getLabel();
       auto _end = getLabel();
       asm_file
         << Comment("Copy open array ")
-        << cmd(LEA, {RAX}, {adr(RBP, e->offset), none}) //
+        << cmd(LEA, {RAX}, {adr(RBP, e->getOffset()), none}) //
         << cmd(MOV, {RCX}, {adr(RAX, (uint64_t) 8)}) // -8 -> high
         << cmd(INC, {RCX}) // len
         << cmd(MOV, {RDX}, {sizeElem})
@@ -185,15 +185,15 @@ void AsmGenerator::visit(BlockStmt& b) {
 }
 
 void AsmGenerator::visit(LocalVar& l) {
-  buf_var_name = Operand(adr(RBP, l.offset, true), none); // [rbp - offset]
+  buf_var_name = Operand(adr(RBP, l.getOffset(), true), none); // [rbp - offset]
 }
 
 void AsmGenerator::visit(GlobalVar& g) {
-  buf_var_name = Operand(adr(Label(g.label)), none); // [label]
+  buf_var_name = Operand(adr(Label(g.getLabel())), none); // [label]
 }
 
 void AsmGenerator::visit(ParamVar& p) {
-  buf_var_name = Operand(adr(RBP, p.offset), none); // [rbp + offset]
+  buf_var_name = Operand(adr(RBP, p.getOffset()), none); // [rbp + offset]
   if (p.getVarType()->isOpenArray()) {
     asm_file
       << Comment("open array")
@@ -201,7 +201,7 @@ void AsmGenerator::visit(ParamVar& p) {
     buf_var_name = Operand(adr(RAX), none);
     return;
   }
-  if (p.spec == ParamSpec::NotSpec) {
+  if (p.getSpec() == ParamSpec::NotSpec) {
     return;
   }
   // по ссылке
@@ -914,7 +914,7 @@ void AsmGenerator::visit(FunctionCall& f) {
         continue;
       }
       asm_file << Comment("argument");
-      if ((*iterParams)->spec == ParamSpec::NotSpec) {
+      if ((*iterParams)->getSpec() == ParamSpec::NotSpec) {
         (*iterArgs)->accept(*this);
       } else {
         visit_lvalue(**iterArgs);
@@ -1035,10 +1035,10 @@ void AsmGenerator::visit(ContinueStmt&) {
 // Global Decl
 
 void AsmGlobalDecl::visit(GlobalVar& v) {
-  v.label = getLabelName(v.getSymbolName());
+  v.setLabel(getLabelName(v.getSymbolName()));
   a
     << cmd(bss)
-    << Label(v.label) << ": ";
+    << Label(v.getLabel()) << ": ";
   v.getVarType()->accept(*this);
 }
 
