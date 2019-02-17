@@ -175,11 +175,12 @@ class IfStmt : public ASTNodeStmt {
   IfStmt(ptr_Expr, ptr_Stmt, ptr_Stmt);
 
   auto& getCondition() { return condition; }
-  auto& getThen() { return then_stmt; }
-  auto& getElse() { return else_stmt; }
-
+  void setCondition(ptr_Expr c) { condition = std::move(c); }
+  auto& getSubThen() { return then_stmt; }
+  auto& getSubElse() { return else_stmt; }
   void accept(Visitor&) override;
-// todo private
+
+ private:
   ptr_Expr condition;
   ptr_Stmt then_stmt;
   ptr_Stmt else_stmt = nullptr;

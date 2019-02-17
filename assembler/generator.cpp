@@ -941,17 +941,17 @@ void AsmGenerator::visit(IfStmt& i) {
   auto _else = getLabel();
   auto _endif = getLabel();
   asm_file << Comment("if _else: " + _else + " _endif: " + _endif);
-  i.condition->accept(*this);
+  i.getCondition()->accept(*this);
   asm_file
     << cmd(POP, {RAX})
     << cmd(TEST, {RAX}, {RAX})
     << cmd(JZ, {Label(_else)});
-  i.then_stmt->accept(*this);
+	i.getSubThen()->accept(*this);
   asm_file
     << cmd(JMP, {Label(_endif)})
     << cmd(Label(_else));
-  if (i.else_stmt != nullptr) {
-    i.else_stmt->accept(*this);
+  if (i.getSubElse() != nullptr) {
+		i.getSubElse()->accept(*this);
   }
   asm_file << cmd(Label(_endif));
 }

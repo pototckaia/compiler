@@ -683,12 +683,12 @@ void TypeChecker::visit(BlockStmt& b) {
 
 void TypeChecker::visit(IfStmt& i) {
   i.getCondition()->accept(*this);
-  i.getThen()->accept(*this);
-  if (i.getElse() != nullptr) {
-    i.getElse()->accept(*this);
+  i.getSubThen()->accept(*this);
+  if (i.getSubElse() != nullptr) {
+    i.getSubElse()->accept(*this);
   }
   if (i.getCondition()->getNodeType()->isInt()) {
-    i.condition = std::make_unique<Cast>(std::make_shared<Boolean>(), std::move(i.condition));
+    i.setCondition(std::make_unique<Cast>(std::make_shared<Boolean>(), std::move(i.getCondition())));
     return;
   }
   if (!i.getCondition()->getNodeType()->isBool()) {

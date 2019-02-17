@@ -117,9 +117,9 @@ void PrintVisitor::visit(IfStmt& i) {
   print("If");
   ++depth;
   i.getCondition()->accept(*this);
-  i.getThen()->accept(*this);
-  if (i.getElse() != nullptr) {
-    i.getElse()->accept(*this);
+  i.getSubThen()->accept(*this);
+  if (i.getSubElse() != nullptr) {
+    i.getSubElse()->accept(*this);
   }
   --depth;
 }
