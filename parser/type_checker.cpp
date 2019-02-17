@@ -155,8 +155,8 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
       continue;
     }
     throw SemanticException(argument->getDeclPoint(),
-                            "Expect argument's type \"" + parameter->type->name +
-                            "\" but find \"" + argument->type->name + "\"");
+                            "Expect argument's type \"" + parameter->type->getSymbolName() +
+                            "\" but find \"" + argument->type->getSymbolName() + "\"");
   }
   f.listParam = std::move(newParam);
 }
@@ -171,7 +171,7 @@ void FunctionCallChecker::visit(Read&) {
     if (type->isInt() || type->isDouble() || type->isChar()) {
       continue;
     }
-    throw SemanticException(e->getDeclPoint(), "Expect readable type but find " + type->name);
+    throw SemanticException(e->getDeclPoint(), "Expect readable type but find " + type->getSymbolName());
   }
 }
 
@@ -182,7 +182,7 @@ void FunctionCallChecker::visit(Write&) {
     if (type->isInt() || type->isDouble() || type->isChar() || type->isString() || type->isPointer()) {
       continue;
     }
-    throw SemanticException(e->getDeclPoint(), "Expect writeable type but find " + type->name);
+    throw SemanticException(e->getDeclPoint(), "Expect writeable type but find " + type->getSymbolName());
   }
 }
 
@@ -213,8 +213,8 @@ void FunctionCallChecker::visit(Exit& c) {
   }
   if (!f.getParam().back()->type->equalsForCheckArgument(c.returnType.get())) {
     throw SemanticException(f.getDeclPoint(),
-                            "Expect type " + c.returnType->name + "but find" +
-                            f.getParam().back()->type->name);
+                            "Expect type " + c.returnType->getSymbolName() + "but find" +
+                            f.getParam().back()->type->getSymbolName());
   }
 }
 
@@ -227,7 +227,7 @@ void FunctionCallChecker::visit(High&) {
     f.type = std::make_shared<Int>();
     return;
   }
-  throw SemanticException(f.getDeclPoint(), "Expect array type but find " + type->name);
+  throw SemanticException(f.getDeclPoint(), "Expect array type but find " + type->getSymbolName());
 }
 
 void FunctionCallChecker::visit(Low&) {
@@ -289,13 +289,13 @@ void TypeChecker::visit(Variable& v) {
       v.embeddedFunction = stackTable.findFunction(v.getName().getString());
       v.type = nullptr;
       return;
-    } else if (stackTable.top().tableVariable.checkContain(f->name) &&
+    } else if (stackTable.top().tableVariable.checkContain(f->getSymbolName()) &&
                !wasFunctionCall) {
       // for variable result function - foo and foo()
       v.type = f->signature->returnType;
       return;
     }
-    f->signature->name = f->name;
+    f->signature->setSymbolName(f->getSymbolName());
     v.type = f->signature;
     return;
   }
@@ -417,7 +417,7 @@ void TypeChecker::visit(BinaryOperation& b) {
   }
 
   std::string mes = "Operation " + b.getOpr().getString() +
-                    " to types \"" + leftType->name + "\" and \"" + rightType->name + "\" not valid";
+                    " to types \"" + leftType->getSymbolName() + "\" and \"" + rightType->getSymbolName() + "\" not valid";
   bool isPass;
 
   switch (b.getOpr().getTokenType()) {
@@ -492,7 +492,7 @@ void TypeChecker::visit(UnaryOperation& u) {
   bool isPass = false;
   std::string mesLvalue = "Expect lvalue in operator " + toString(u.getOpr().getTokenType());
   std::string mes = "Operation " + u.getOpr().getString() +
-                    " to types \"" + childType->name + "\" not valid";
+                    " to types \"" + childType->getSymbolName() + "\" not valid";
 
   switch (u.getOpr().getTokenType()) {
     case TokenType::Plus:
@@ -521,7 +521,7 @@ void TypeChecker::visit(UnaryOperation& u) {
       }
       isPass = true;
       u.type = std::make_shared<Pointer>(childType);
-      if (childType->isProcedureType() && stackTable.isFunction(childType->name)) {
+      if (childType->isProcedureType() && stackTable.isFunction(childType->getSymbolName())) {
         u.type = childType;
       }
       break;
@@ -556,7 +556,7 @@ void TypeChecker::visit(ArrayAccess& a) {
       throw SemanticException(e->getDeclPoint(), "Function not valid index");
     }
     if (!e->type->isInt()) {
-      throw SemanticException(e->getDeclPoint(), "Expect \"Integer\", but find " + e->type->name);
+      throw SemanticException(e->getDeclPoint(), "Expect \"Integer\", but find " + e->type->getSymbolName());
     }
   }
   auto& childType = a.getName()->type;
@@ -618,8 +618,8 @@ void TypeChecker::visit(Cast& s) {
     return;
   }
 
-  throw SemanticException("Cannot cast to type \"" + to->name +
-                          "\" expression with type \"" + from->name + "\"");
+  throw SemanticException("Cannot cast to type \"" + to->getSymbolName() +
+                          "\" expression with type \"" + from->getSymbolName() + "\"");
 }
 
 void TypeChecker::visit(AssignmentStmt& a) {
@@ -632,8 +632,8 @@ void TypeChecker::visit(AssignmentStmt& a) {
     throw SemanticException(a.left->getDeclPoint(), "Expect lvalue in assigment");
   }
   std::string mes = "Operation " + a.getOpr().getString() +
-                    " to types \"" + a.getLeft()->type->name + "\" and \"" +
-                    a.getRight()->type->name + "\" not valid";
+                    " to types \"" + a.getLeft()->type->getSymbolName() + "\" and \"" +
+                    a.getRight()->type->getSymbolName() + "\" not valid";
   auto typeRight = a.getRight()->type;
   auto typeLeft = a.getLeft()->type;
   switch (a.getOpr().getTokenType()) {
@@ -693,7 +693,7 @@ void TypeChecker::visit(IfStmt& i) {
   }
   if (!i.getCondition()->type->isBool()) {
     throw SemanticException(i.getCondition()->getDeclPoint(),
-                            "Expect type bool, but find " + i.getCondition()->type->name);
+                            "Expect type bool, but find " + i.getCondition()->type->getSymbolName());
   }
 }
 
@@ -706,7 +706,7 @@ void TypeChecker::visit(WhileStmt& w) {
   }
   if (!w.getCondition()->type->isBool()) {
     throw SemanticException(w.getCondition()->getDeclPoint(),
-                            "Expect type bool, but find " + w.getCondition()->type->name);
+                            "Expect type bool, but find " + w.getCondition()->type->getSymbolName());
   }
 }
 

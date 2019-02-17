@@ -14,7 +14,6 @@ class SymType : public Symbol {
   // todo normal double dispatch
   virtual bool equals(SymType* s) const = 0;
   virtual bool equalsForCheckArgument(SymType* s) const { return equals(s); } // вызывет paramenter передается argument
-  bool isAnonymous() const { return name.empty(); }
 
   virtual bool isVoid() const { return false; }
   virtual bool isString() const { return false; }
@@ -170,10 +169,10 @@ class StaticArray : public SymType {
   uint64_t size() const override;
 };
 
-class OpenArray : public SymType{
+class OpenArray : public SymType {
  public:
   OpenArray(const Token& decl, ptr_Type type)
-    : SymType(decl.getLine(), decl.getColumn()), typeElem(std::move(type)) {}
+    : SymType(decl), typeElem(std::move(type)) {}
 
   ptr_Type typeElem;
   void accept(Visitor& v) override;

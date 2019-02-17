@@ -156,35 +156,35 @@ void PrintVisitor::visit(ContinueStmt&) {
 
 
 void PrintVisitor::visit(Int& i) {
-  print(i.name);
+  print(i.getSymbolName());
 }
 
 void PrintVisitor::visit(Double& i) {
-  print(i.name);
+  print(i.getSymbolName());
 }
 
 void PrintVisitor::visit(Char& i) {
-  print(i.name);
+  print(i.getSymbolName());
 }
 
 void PrintVisitor::visit(Boolean& i) {
-  print(i.name);
+  print(i.getSymbolName());
 }
 
 void PrintVisitor::visit(TPointer& i) {
-  print(i.name);
+  print(i.getSymbolName());
 }
 
 void PrintVisitor::visit(String& s) {
-  print(s.name);
+  print(s.getSymbolName());
 }
 
 void PrintVisitor::visit(Void& v) {
-  print(v.name);
+  print(v.getSymbolName());
 }
 
 void PrintVisitor::visit(Alias& a) {
-  print("Type alias: " + a.name);
+  print("Type alias: " + a.getSymbolName());
   print("Decl point: " + getPoint(a.getDeclPoint()));
   ++depth;
   a.type->accept(*this);
@@ -195,7 +195,7 @@ void PrintVisitor::visit(Pointer& p) {
   print("Pointer");
   print("Decl point: " + getPoint(p.getDeclPoint()));
   ++depth;
-  print(p.typeBase->name);
+  print(p.typeBase->getSymbolName());
   --depth;
 }
 
@@ -252,7 +252,7 @@ void PrintVisitor::visit(FunctionSignature& s) {
 }
 
 void PrintVisitor::visit(ForwardType& f) {
-  print("Forward type " + f.name);
+  print("Forward type " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
   f.type->accept(*this);
@@ -260,7 +260,7 @@ void PrintVisitor::visit(ForwardType& f) {
 }
 
 void PrintVisitor::visit(LocalVar& l) {
-  print("Local variable: " + l.name);
+  print("Local variable: " + l.getSymbolName());
   print("Decl point: " + getPoint(l.getDeclPoint()));
   ++depth;
   l.type->accept(*this);
@@ -268,7 +268,7 @@ void PrintVisitor::visit(LocalVar& l) {
 }
 
 void PrintVisitor::visit(GlobalVar& l) {
-  print("Global variable: " + l.name);
+  print("Global variable: " + l.getSymbolName());
   print("Decl point: " + getPoint(l.getDeclPoint()));
   ++depth;
   l.type->accept(*this);
@@ -276,7 +276,7 @@ void PrintVisitor::visit(GlobalVar& l) {
 }
 
 void PrintVisitor::visit(Const& c) {
-  print("Const value: " + c.name);
+  print("Const value: " + c.getSymbolName());
   print("Decl point: " + getPoint(c.getDeclPoint()));
   ++depth;
   c.value->accept(*this);
@@ -284,7 +284,7 @@ void PrintVisitor::visit(Const& c) {
 }
 
 void PrintVisitor::visit(ParamVar& p) {
-  print("Param value: " + p.name);
+  print("Param value: " + p.getSymbolName());
   print("Decl point: " + getPoint(p.getDeclPoint()));
   ++depth;
   print(toString(p.spec));
@@ -293,7 +293,7 @@ void PrintVisitor::visit(ParamVar& p) {
 }
 
 void PrintVisitor::visit(ForwardFunction& f) {
-  print("Forward function: " + f.name);
+  print("Forward function: " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
   f.signature->accept(*this);
@@ -302,7 +302,7 @@ void PrintVisitor::visit(ForwardFunction& f) {
 }
 
 void PrintVisitor::visit(Function& f) {
-  print("Function or Procedure: " + f.name);
+  print("Function or Procedure: " + f.getSymbolName());
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
   f.signature->accept(*this);

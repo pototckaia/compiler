@@ -66,7 +66,7 @@ void AsmGenerator::visit(MainFunction& m) {
 
   // set label for function
   for (auto& var : m.decl.tableFunction) {
-    auto label = getLabelName(var.second->name);
+    auto label = getLabelName(var.second->getSymbolName());
     var.second->setLabel(label);
   }
 
@@ -112,7 +112,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
     stackTable.top().tableVariable.insert(*iter);
     asm_file
       << "\n"
-      << Comment((*iter)->name +
+      << Comment((*iter)->getSymbolName() +
                  " - A_n .. A_0 <- end: [RBP+" +
                  std::to_string(offsetParam) + "]");
   }
@@ -126,7 +126,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
   // set offset local var
   for (auto& e : tableLocal.tableVariable) {
     uint64_t sizeVar = e.second->size();
-    if (!s->isProcedure() && e.first == fun.name) { // result var
+    if (!s->isProcedure() && e.first == fun.getSymbolName()) { // result var
       sizeLocal -= sizeVar; // not local
       e.second->setOffset(offsetParam);
       asm_file
@@ -144,7 +144,7 @@ void AsmGenerator::visit_function(SymFun& fun) {
   }
 
   asm_file
-    << Comment("Function call " + fun.name)
+    << Comment("Function call " + fun.getSymbolName())
     << cmd(Label(fun.getLabel()))
     << cmd(PUSH, {RBP})
     << cmd(MOV, {RBP}, {RSP})
@@ -822,7 +822,7 @@ void AsmGenerator::visit(Exit& e) {
       Token(-1, -1, TokenType::Assignment),
       std::make_unique<Variable>(
         Token(-1, -1, TokenType::String,
-              e.assignmentVar->name, e.assignmentVar->name),
+              e.assignmentVar->getSymbolName(), e.assignmentVar->getSymbolName()),
         e.returnType),
       std::move(syscall_params.front())
     );
@@ -920,7 +920,7 @@ void AsmGenerator::visit(FunctionCall& f) {
         visit_lvalue(**iterArgs);
       }
     }
-    if (stackTable.isFunction(f.nameFunction->type->name)) {
+    if (stackTable.isFunction(f.nameFunction->type->getSymbolName())) {
       visit_lvalue(*f.nameFunction);
     } else {
       f.nameFunction->accept(*this);
@@ -1035,7 +1035,7 @@ void AsmGenerator::visit(ContinueStmt&) {
 // Global Decl
 
 void AsmGlobalDecl::visit(GlobalVar& v) {
-  v.label = getLabelName(v.name);
+  v.label = getLabelName(v.getSymbolName());
   a
     << cmd(bss)
     << Label(v.label) << ": ";

@@ -84,15 +84,15 @@ class StackTable {
 
 template<class T>
 void TableSymbol<T>::replace(T t) {
-  table[t->name] = std::forward<T>(t);
+  table[t->getSymbolName()] = std::forward<T>(t);
 }
 
 template<class T>
 void TableSymbol<T>::insert(T t) {
-  if (checkContain(t->name)) {
-    throw std::logic_error("Already defined " + t->name);
+  if (checkContain(t->getSymbolName())) {
+    throw std::logic_error("Already defined " + t->getSymbolName());
   }
-  table[t->name] = std::forward<T>(t);
+  table[t->getSymbolName()] = std::forward<T>(t);
 }
 
 template<class T>

@@ -7,16 +7,23 @@
 #include "../exception.h"
 #include "visitor.h"
 
+
+Symbol::Symbol(const std::string& n)
+  : name(n) {}
+
+Symbol::Symbol(const Token& t)
+    :  ASTNode(t), name(t.getString()) {}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);
 }
 
 void Tables::insertCheck(const std::shared_ptr<Symbol>& t) {
-  if (checkContain(t->name) &&
-    (!tableVariable.find(t->name)->isForward() ||
-     !tableFunction.find(t->name)->isForward())) {
-    throw AlreadyDefinedException(t->getDeclPoint(), t->name);
+  if (checkContain(t->getSymbolName()) &&
+    (!tableVariable.find(t->getSymbolName())->isForward() ||
+     !tableFunction.find(t->getSymbolName())->isForward())) {
+    throw AlreadyDefinedException(t->getDeclPoint(), t->getSymbolName());
   }
 }
 
@@ -34,26 +41,26 @@ void Tables::insert(const std::shared_ptr<ForwardFunction>& f) {
 
 void Tables::resolveForwardType() {
   for (auto& e : forwardType) {
-    if (tableType.find(e->name)->isForward()) {
-      throw SemanticException(e->getDeclPoint(), "Type \"" + e->name + "\" not resolve");
+    if (tableType.find(e->getSymbolName())->isForward()) {
+      throw SemanticException(e->getDeclPoint(), "Type \"" + e->getSymbolName() + "\" not resolve");
     }
-    e->type = tableType.find(e->name);
+    e->type = tableType.find(e->getSymbolName());
   }
   forwardType.clear();
 }
 
 void Tables::resolveForwardFunction() {
   for (auto& e : forwardFunction) {
-    auto& function = tableFunction.find(e->name);
+    auto& function = tableFunction.find(e->getSymbolName());
     if (function->isForward()) {
-      throw SemanticException(e->getDeclPoint(), "Function \"" + e->name + "\" not resolve");
+      throw SemanticException(e->getDeclPoint(), "Function \"" + e->getSymbolName() + "\" not resolve");
     }
     if (function->signature == nullptr) {
       throw std::logic_error("Signature nullptr");
     }
     if (!function->signature->equals(e->signature.get())) {
       throw SemanticException(e->getDeclPoint(),
-        "Signature resolve function not equals with forward function " + e->name);
+        "Signature resolve function not equals with forward function " + e->getSymbolName());
     }
     e->function = function;
   }
@@ -251,7 +258,7 @@ bool OpenArray::equalsForCheckArgument(SymType* s) const {
 bool Record::equals(SymType* s) const {
   if (dynamic_cast<Record*>(s)) {
     auto record = dynamic_cast<Record*>(s);
-    return (!isAnonymous() && s->name == name) ||
+    return (!isAnonymous() && s->getSymbolName() == this->getSymbolName()) ||
            (isAnonymous() && this == record);
   }
   return checkAlias(s);
@@ -286,16 +293,16 @@ bool ParamVar::equals(ParamVar& p) const {
 
 Write::Write(bool newLine) : isnewLine(!newLine) {
   if (newLine)
-    name =  "write";
+    setSymbolName("write");
   else
-    name = "writeln";
+    setSymbolName("writeln");
 }
 
 Read::Read(bool newLine) {
   if (newLine)
-    name =  "read";
+    setSymbolName("read");
   else
-    name = "readln";
+    setSymbolName("readln");
 }
 
 Round::Round() : SymFun("round") {
@@ -413,7 +420,7 @@ void Record::addVar(const ptr_Var& v) {
 uint64_t Record::offset(const std::string& name) {
   uint64_t offset = 0;
   auto iter = fieldsList.begin();
-  while (iter != fieldsList.end() && (*iter)->name != name) {
+  while (iter != fieldsList.end() && (*iter)->getSymbolName() != name) {
     offset += (*iter)->size();
     ++iter;
   }

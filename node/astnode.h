@@ -47,17 +47,19 @@ class ASTNode {
 
 class Symbol : public ASTNode {
  public:
-	// TODO move to cpp
-  Symbol() : ASTNode(-1, -1) {}
-  Symbol(int line, int column) : ASTNode(line, column) {}
-  Symbol(const std::string& n) : ASTNode(-1, -1), name(n) {}
-  Symbol(const Token& t)
-    :  ASTNode(t), name(t.getString()){}
+  using ASTNode::ASTNode;
+  Symbol(const std::string& n);
+  Symbol(const Token& t);
 
     // TODO remove
   virtual bool isForward() const { return false; }
 
-  // todo protected and setter
+  bool isAnonymous() const { return name.empty(); }
+
+  const std::string& getSymbolName() const { return name; }
+  void setSymbolName(std::string n) { name = std::move(n); }
+
+ private:
   std::string name;
 };
 

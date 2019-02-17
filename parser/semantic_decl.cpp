@@ -45,12 +45,12 @@ ptr_Expr SemanticDecl::parseFunctionCall(const Token& d, ptr_Expr e, ListExpr l)
 
 void SemanticDecl::parseTypeDecl(Token decl, ptr_Type type) {
   auto alias = std::make_shared<Alias>(decl, type);
-  type->name = decl.getString();
+  type->setSymbolName(decl.getString());
 
-  if (!stackTable.top().checkContain(alias->name)) {
+  if (!stackTable.top().checkContain(alias->getSymbolName())) {
     stackTable.top().tableType.insert(alias);
-  } else if (stackTable.top().tableType.checkContain(alias->name) &
-             stackTable.top().tableType.find(alias->name)->isForward()) {
+  } else if (stackTable.top().tableType.checkContain(alias->getSymbolName()) &
+             stackTable.top().tableType.find(alias->getSymbolName())->isForward()) {
     stackTable.top().tableType.replace(alias);
   } else {
     throw AlreadyDefinedException(decl);
@@ -72,7 +72,7 @@ ptr_Type SemanticDecl::parseSimpleType(Token t) {
 }
 
 ptr_Type SemanticDecl::parseArrayType(Token t, StaticArray::BoundsType b, ptr_Type el) {
-  auto array = std::make_shared<StaticArray>(t.getLine(), t.getColumn());
+  auto array = std::make_shared<StaticArray>(t);
   array->bounds = std::move(b);
   array->typeElem = std::move(el);
   return array;
@@ -81,7 +81,7 @@ ptr_Type SemanticDecl::parseArrayType(Token t, StaticArray::BoundsType b, ptr_Ty
 ptr_Type
 SemanticDecl::parseRecordType(Token declPoint,
                               std::list<std::pair<std::unique_ptr<ListToken>, ptr_Type>> listVar) {
-  auto record = std::make_shared<Record>(declPoint.getLine(), declPoint.getColumn());
+  auto record = std::make_shared<Record>(declPoint);
   for (auto& e : listVar) {
     for (auto& id : *(e.first)) {
       if (record->getTable().checkContain(id.getString())) {
@@ -94,7 +94,7 @@ SemanticDecl::parseRecordType(Token declPoint,
 }
 
 ptr_Type SemanticDecl::parsePointer(Token declPoint, Token token, bool isCanForwardType) {
-  auto p = std::make_shared<Pointer>(declPoint.getLine(), declPoint.getColumn());
+  auto p = std::make_shared<Pointer>(declPoint);
   if (stackTable.isType(token.getString())) {
     p->typeBase = stackTable.findType(token.getString());
     return p;
@@ -171,7 +171,7 @@ void SemanticDecl::parseFunctionDeclEnd(const Token& decl,
     auto nameResult = decl.getString();
     if (s->paramsTable.checkContain(nameResult)) {
       auto& v = s->paramsTable.find(nameResult);
-      throw AlreadyDefinedException(v->getDeclPoint(), v->name);
+      throw AlreadyDefinedException(v->getDeclPoint(), v->getSymbolName());
     }
     auto result = std::make_shared<ParamVar>(nameResult, s->returnType);
     stackTable.top().tableVariable.insert(result);
@@ -189,8 +189,8 @@ void SemanticDecl::parseFunctionDeclEnd(const Token& decl,
   if (!stackTable.top().checkContain(decl.getString())) {
     stackTable.top().tableFunction.insert(function);
     return;
-  } else if (stackTable.isFunction(function->name) &&
-             stackTable.findFunction(function->name)->isForward()) {
+  } else if (stackTable.isFunction(function->getSymbolName()) &&
+             stackTable.findFunction(function->getSymbolName())->isForward()) {
     stackTable.top().tableFunction.replace(function);
   } else {
     throw AlreadyDefinedException(decl);
