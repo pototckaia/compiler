@@ -18,21 +18,23 @@ SymFun::SymFun(const Token &t, ptr_Sign f)
   : Symbol(t), signature(std::move(f)) {}
 
 SymVar::SymVar(ptr_Type t)
-  : type(t) {}
+  : type(std::move(t)) {}
 
 SymVar::SymVar(std::string name, ptr_Type t)
-  : Symbol(std::move(name)), type(std::move(t)) {}
+  : Symbol(name), type(std::move(t)) {}
 
 SymVar::SymVar(const Token& n, ptr_Type t)
   : Symbol(n), type(std::move(t)) {}
 
 Function::Function(const Token &t, ptr_Sign f)
-    : SymFun(t, std::move(f)) {}
+  : SymFun(t, std::move(f)) {}
 
 Function::Function(const Token& t, ptr_Sign f, ptr_Stmt p, Tables l)
-    : SymFun(t, std::move(f)),
+  : SymFun(t, std::move(f)),
       localVar(std::move(l)), body(std::move(p)) {}
 
+ForwardFunction::ForwardFunction(const Token& t, ptr_Sign f)
+  : Function(t, std::move(f)) {}
 
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
@@ -82,7 +84,7 @@ void Tables::resolveForwardFunction() {
       throw SemanticException(e->getDeclPoint(),
         "Signature resolve function not equals with forward function " + e->getSymbolName());
     }
-    e->function = function;
+    e->setFunction(function);
   }
   forwardFunction.clear();
 }
@@ -446,11 +448,6 @@ bool SymType::isTrivial() const {
          this->isChar() || this->isPointer() ||
          this->isProcedureType();
 }
-
-
-ptr_Sign& ForwardFunction::getSignature() { return function->getSignature(); }
-ptr_Stmt& ForwardFunction::getBody() { return function->getBody(); }
-Tables& ForwardFunction::getTable() { return function->getTable(); }
 
 // accept
 

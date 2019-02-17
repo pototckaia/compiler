@@ -297,7 +297,7 @@ void PrintVisitor::visit(ForwardFunction& f) {
   print("Decl point: " + getPoint(f.getDeclPoint()));
   ++depth;
   f.getSignature()->accept(*this);
-  f.function->accept(*this);
+  f.getFunction()->accept(*this);
   --depth;
 }
 

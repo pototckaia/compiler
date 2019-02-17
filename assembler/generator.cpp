@@ -218,7 +218,7 @@ void AsmGenerator::visit(Function& f) {
 }
 
 void AsmGenerator::visit(ForwardFunction& f) {
-  f.function->accept(*this);
+  f.getFunction()->accept(*this);
 }
 
 void AsmGenerator::visit(Variable& v) {

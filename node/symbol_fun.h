@@ -26,22 +26,24 @@ class Function : public SymFun {
 
 class ForwardFunction : public Function {
  public:
-	// todo move to cpp
-  ForwardFunction(const Token& t, std::shared_ptr<FunctionSignature> f)
-    : Function(t, std::move(f)) {}
+  ForwardFunction(const Token& t, ptr_Sign f);
 
-  void accept(Visitor& v) override;
+  // todo remove
   bool isEmbedded() const override { return false; }
-  bool isForward() const override { return true; }
-
+	bool isForward() const override { return true; }
+	void accept(Visitor& v) override;
+	// todo remove virtual
   std::string getLabel() override { return function->getLabel(); }
   void setLabel(const std::string& s) override { function->setLabel(s); }
+  ptr_Sign& getSignature() override { return function->getSignature(); }
+	ptr_Stmt& getBody() override { return function->getBody(); }
+	Tables& getTable() override { return function->getTable(); }
 
-	// todo move to cpp setter to function
-  std::shared_ptr<SymFun> function;
-  ptr_Sign& getSignature() override;
-  ptr_Stmt& getBody() override;
-  Tables& getTable() override;
+ void setFunction(ptr_Fun f) { function = std::move(f); }
+ auto& getFunction() { return  function; }
+
+ private:
+	ptr_Fun function;
 };
 
 class MainFunction : public SymFun {
