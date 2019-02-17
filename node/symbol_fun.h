@@ -65,8 +65,8 @@ class MainFunction : public SymFun {
 class Write : public SymFun {
  public:
   Write(bool newLine = false);
-  void accept(Visitor& v) override;
-  bool isnewLine;
+	bool isNewLine();
+	void accept(Visitor& v) override;
 };
 
 class Read: public SymFun {
@@ -128,8 +128,12 @@ class Exit : public SymFun {
   Exit(ptr_Type returnType);
   Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var);
 
-  void accept(Visitor& v) override;
-  // todo private
+	auto& getReturnType() { return returnType; }
+	auto& getVar() { return assignmentVar; }
+	void accept(Visitor& v) override;
+
+
+ private:
   ptr_Type returnType;
   std::shared_ptr<ParamVar> assignmentVar = nullptr;
 };

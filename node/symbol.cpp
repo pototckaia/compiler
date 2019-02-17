@@ -33,11 +33,102 @@ Function::Function(const Token& t, ptr_Sign f, ptr_Stmt p, Tables l)
   : SymFun(t, std::move(f)),
       localVar(std::move(l)), body(std::move(p)) {}
 
+Function::~Function() = default;
+
 ForwardFunction::ForwardFunction(const Token& t, ptr_Sign f)
   : Function(t, std::move(f)) {}
 
 MainFunction::MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
+
+Round::Round() : SymFun("round") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Trunc::Trunc() : SymFun("trunc") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+};
+
+Succ::Succ() : SymFun("succ") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Prev::Prev()  : SymFun("prev") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Chr::Chr() : SymFun("chr") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Char>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Ord::Ord() : SymFun("ord") {
+  SymFun::signature = std::make_shared<FunctionSignature>();
+  SymFun::signature->returnType = std::make_shared<Int>();
+  ListParam p;
+  auto var = std::make_shared<ParamVar>(std::make_shared<Char>());
+  var->spec = ParamSpec::NotSpec;
+  p.push_back(var);
+  SymFun::signature->setParamsList(p);
+}
+
+Write::Write(bool newLine) {
+  if (newLine)
+    setSymbolName("write");
+  else
+    setSymbolName("writeln");
+}
+
+bool Write::isNewLine() { return getSymbolName() == "writeln"; }
+
+Read::Read(bool newLine) {
+  if (newLine)
+    setSymbolName("read");
+  else
+    setSymbolName("readln");
+}
+
+High::High() : SymFun("high") {}
+
+Low::Low() : SymFun("low") {}
+
+Exit::Exit(ptr_Type returnType)
+  : SymFun("exit"),
+    returnType(std::move(returnType)) {};
+
+Exit::Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var)
+  : SymFun("exit"),
+    returnType(std::move(returnType)), assignmentVar(std::move(var)) {}
+
 
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
@@ -190,7 +281,7 @@ void FunctionSignature::setParamsList(ListParam t) {
   }
 }
 
-Function::~Function() = default;
+
 
 std::string toString(ParamSpec p) {
   switch (p) {
@@ -315,89 +406,6 @@ bool ForwardType::equals(SymType* s) const {
 bool ParamVar::equals(ParamVar& p) const {
   return spec == p.spec && type->equals(p.type.get());
 }
-
-Write::Write(bool newLine) : isnewLine(!newLine) {
-  if (newLine)
-    setSymbolName("write");
-  else
-    setSymbolName("writeln");
-}
-
-Read::Read(bool newLine) {
-  if (newLine)
-    setSymbolName("read");
-  else
-    setSymbolName("readln");
-}
-
-Round::Round() : SymFun("round") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-}
-
-Trunc::Trunc() : SymFun("trunc") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-};
-
-Succ::Succ() : SymFun("succ") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-}
-
-Prev::Prev()  : SymFun("prev") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-}
-
-Chr::Chr() : SymFun("chr") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Char>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-}
-
-Ord::Ord() : SymFun("ord") {
-  SymFun::signature = std::make_shared<FunctionSignature>();
-  SymFun::signature->returnType = std::make_shared<Int>();
-  ListParam p;
-  auto var = std::make_shared<ParamVar>(std::make_shared<Char>());
-  var->spec = ParamSpec::NotSpec;
-  p.push_back(var);
-  SymFun::signature->setParamsList(p);
-}
-
-High::High() : SymFun("high") {}
-
-Low::Low() : SymFun("low") {}
-
-Exit::Exit(ptr_Type returnType) : SymFun("exit"), returnType(std::move(returnType)) {};
-Exit::Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var)
-  : SymFun("exit"), returnType(std::move(returnType)), assignmentVar(std::move(var)) {}
-
   // in byte
 uint64_t SymVar::size() const { return type->size(); }
 

@@ -417,6 +417,6 @@ void PrintVisitor::visit(Low&) {
 void PrintVisitor::visit(Exit& e) {
   print("Exit");
   ++depth;
-  e.returnType->accept(*this);
+  e.getReturnType()->accept(*this);
   --depth;
 }

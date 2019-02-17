@@ -200,7 +200,7 @@ void FunctionCallChecker::visit(Round& c) { c.getSignature()->accept(*this); }
 
 void FunctionCallChecker::visit(Exit& c) {
   f.setNodeType(std::make_shared<Void>());
-  if (c.returnType->isVoid()) {
+  if (c.getReturnType()->isVoid()) {
     if (!f.getListParam().empty()) {
       throw SemanticException(f.getDeclPoint(),
                               "Expect 0 argument but find " + std::to_string(f.getListParam().size()));
@@ -211,9 +211,9 @@ void FunctionCallChecker::visit(Exit& c) {
     throw SemanticException(f.getDeclPoint(),
                             "Expect 1 argument but find " + std::to_string(f.getListParam().size()));
   }
-  if (!f.getListParam().back()->getNodeType()->equalsForCheckArgument(c.returnType.get())) {
+  if (!f.getListParam().back()->getNodeType()->equalsForCheckArgument(c.getReturnType().get())) {
     throw SemanticException(f.getDeclPoint(),
-                            "Expect type " + c.returnType->getSymbolName() + "but find" +
+                            "Expect type " + c.getReturnType()->getSymbolName() + "but find" +
                                 f.getListParam().back()->getNodeType()->getSymbolName());
   }
 }

@@ -817,13 +817,13 @@ void AsmGenerator::visit(Low&) {
 }
 
 void AsmGenerator::visit(Exit& e) {
-  if (!e.returnType->isVoid()) {
+  if (!e.getReturnType()->isVoid()) {
     AssignmentStmt c( // result := expr;
       Token(-1, -1, TokenType::Assignment),
       std::make_unique<Variable>(
         Token(-1, -1, TokenType::String,
-              e.assignmentVar->getSymbolName(), e.assignmentVar->getSymbolName()),
-        e.returnType),
+              e.getVar()->getSymbolName(), e.getVar()->getSymbolName()),
+        e.getReturnType()),
       std::move(syscall_params.front())
     );
     visit(c);
@@ -869,7 +869,7 @@ void AsmGenerator::visit(Write& w) {
         << cmd(CALL, {Printf});
     }
   }
-  if (w.isnewLine) {
+  if (w.isNewLine()) {
     asm_file
       << Comment("printf new line")
       << cmd(MOV, {RDI}, {Label(label_fmt_new_line)})
