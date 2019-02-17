@@ -204,7 +204,7 @@ class OpenArray : public SymType {
 
 class Record : public SymType {
  public:
-  using SymType::SymType;
+	Record(const Token&);
 
   void addVar(const ptr_Var&);
   auto& getTable() { return fields; }

@@ -168,6 +168,13 @@ OpenArray::OpenArray(const Token& decl, ptr_Type type)
     typeElem(std::move(type)) {}
 
 
+Record::Record(const Token& t) : SymType(t) {}
+
+void Record::addVar(const ptr_Var& v) {
+  fieldsList.push_back(v);
+  fields.insert(v);
+}
+
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
           tableFunction.checkContain(t) || tableConst.checkContain(t);
@@ -477,10 +484,6 @@ uint64_t ParamVar::size() const {
   return 8; // pointer
 }
 
-void Record::addVar(const ptr_Var& v) {
-  fieldsList.push_back(v);
-  fields.insert(v);
-}
 
 uint64_t Record::offset(const std::string& name) {
   uint64_t offset = 0;
