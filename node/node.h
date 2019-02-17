@@ -31,7 +31,7 @@ class Variable : public Expression {
   Variable(const Token&);
   Variable(const Token&, ptr_Type);
 
-  const auto& getSubToken() const { return name; }
+  auto& getSubToken() { return name; }
   // todo remove virtual
   std::string getVarName() override { return name.getString(); }
 
@@ -46,7 +46,7 @@ class Literal : public Expression {
   Literal(const Token&);
   Literal(const Token& v, ptr_Type t);
 
-  const auto& getSubToken() const { return value; }
+  auto& getSubToken() { return value; }
 
   void accept(Visitor&) override;
 
@@ -78,8 +78,8 @@ class UnaryOperation : public Expression {
  public:
   UnaryOperation(Token, ptr_Expr);
 
-  const auto& getOpr() const { return opr; }
-  const auto& getExpr() const { return expr; }
+  auto& getOpr() { return opr; }
+  auto& getExpr() { return expr; }
 
   void accept(Visitor&) override;
 // todo private
@@ -91,8 +91,8 @@ class ArrayAccess : public Expression {
  public:
   ArrayAccess(const Token& d, ptr_Expr name, ListExpr i);
 
-  const auto& getName() const { return nameArray; }
-  const auto& getListIndex() const { return listIndex; };
+  auto& getName() { return nameArray; }
+  auto& getListIndex() { return listIndex; };
 
   void accept(Visitor&) override;
   // todo private
@@ -105,8 +105,8 @@ class FunctionCall : public Expression {
   FunctionCall() = default;
   FunctionCall(const Token& d, ptr_Expr, ListExpr);
 
-  const auto& getName() const { return nameFunction; }
-  const auto& getParam() const { return listParam; };
+  auto& getName() { return nameFunction; }
+  auto& getParam() { return listParam; };
 
   void accept(Visitor&) override;
 // todo private
@@ -128,8 +128,8 @@ class RecordAccess : public Expression {
  public:
   RecordAccess(const Token& d, ptr_Expr, Token);
 
-  auto& getRecord() const { return record; }
-  auto& getField() const { return field; };
+  auto& getRecord() { return record; }
+  auto& getField() { return field; };
 
   void accept(Visitor&) override;
 // todo private
@@ -149,7 +149,7 @@ class FunctionCallStmt : public ASTNodeStmt {
  public:
   FunctionCallStmt(ptr_Expr);
 
-  const auto& getFunctionCall() { return functionCall; }
+  auto& getFunctionCall() { return functionCall; }
 
   void accept(Visitor&) override;
 
@@ -161,7 +161,7 @@ class BlockStmt : public ASTNodeStmt {
  public:
   BlockStmt(ListStmt);
 
-  const auto& getBlock() const { return stmts; }
+  auto& getBlock() { return stmts; }
 
   void accept(Visitor&) override;
 
@@ -175,9 +175,9 @@ class IfStmt : public ASTNodeStmt {
   IfStmt(ptr_Expr, ptr_Stmt);
   IfStmt(ptr_Expr, ptr_Stmt, ptr_Stmt);
 
-  const auto& getCondition() const { return condition; }
-  const auto& getThen() const { return then_stmt; }
-  const auto& getElse() const { return else_stmt; }
+  auto& getCondition() { return condition; }
+  auto& getThen() { return then_stmt; }
+  auto& getElse() { return else_stmt; }
 
   void accept(Visitor&) override;
 // todo private
@@ -192,8 +192,8 @@ class WhileStmt : public LoopStmt {
  public:
   WhileStmt(ptr_Expr, ptr_Stmt);
 
-  const auto& getCondition() const { return condition; }
-  const auto& getBlock() const { return block; }
+  auto& getCondition() { return condition; }
+  auto& getBlock() { return block; }
 
   void accept(Visitor&) override;
 // todo private
@@ -207,11 +207,11 @@ class ForStmt : public LoopStmt {
           ptr_Expr, ptr_Expr, bool,
           ptr_Stmt);
 
-  auto& getVar() const { return var; }
-  const auto& getLow() const { return low; }
-  const auto& getHigh() const { return high; }
-  bool getDirect() const { return direct; }
-  const auto& getBlock() const { return block; }
+  auto& getVar() { return var; }
+  auto& getLow() { return low; }
+  auto& getHigh() { return high; }
+  bool getDirect() { return direct; }
+  auto& getBlock() { return block; }
 
   void accept(Visitor&) override;
 // todo private
