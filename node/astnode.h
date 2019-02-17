@@ -89,17 +89,18 @@ class SymFun : public Symbol {
 
 class SymVar : public Symbol {
  public:
-  using Symbol::Symbol;
-  // todo move to cpp
-  SymVar(std::string name, ptr_Type t) : Symbol(std::move(name)), type(std::move(t)) {}
-  SymVar(const Token& n, ptr_Type t)
-    : Symbol(n), type(std::move(t)) {}
+  //using Symbol::Symbol;
+  SymVar(ptr_Type t);
+  SymVar(std::string name, ptr_Type t);
+  SymVar(const Token& n, ptr_Type t);
 
     // todo remove
   virtual uint64_t size() const;
-  // todo protected
-  ptr_Type type;
-//  ptr_Expr defaultValue;
   virtual void setOffset(uint64_t) = 0;
   virtual uint64_t getOffset() = 0;
+
+  auto& getVarType() { return type; }
+
+ protected:
+	ptr_Type type;
 };

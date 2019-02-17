@@ -263,7 +263,7 @@ void PrintVisitor::visit(LocalVar& l) {
   print("Local variable: " + l.getSymbolName());
   print("Decl point: " + getPoint(l.getDeclPoint()));
   ++depth;
-  l.type->accept(*this);
+  l.getVarType()->accept(*this);
   --depth;
 }
 
@@ -271,7 +271,7 @@ void PrintVisitor::visit(GlobalVar& l) {
   print("Global variable: " + l.getSymbolName());
   print("Decl point: " + getPoint(l.getDeclPoint()));
   ++depth;
-  l.type->accept(*this);
+  l.getVarType()->accept(*this);
   --depth;
 }
 
@@ -288,7 +288,7 @@ void PrintVisitor::visit(ParamVar& p) {
   print("Decl point: " + getPoint(p.getDeclPoint()));
   ++depth;
   print(toString(p.spec));
-  p.type->accept(*this);
+  p.getVarType()->accept(*this);
   --depth;
 }
 

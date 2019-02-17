@@ -116,7 +116,7 @@ void RecordAccessChecker::visit(Record& r) {
   if (!r.getTable().checkContain(recordAccess.getField().getString())) {
     throw NotDefinedException(recordAccess.getField());
   }
-  recordAccess.type = r.getTable().find(recordAccess.getField().getString())->type;
+  recordAccess.type = r.getTable().find(recordAccess.getField().getString())->getVarType();
 }
 
 void FunctionCallChecker::make(FunctionCall& f, const ptr_Symbol& s) {
@@ -144,18 +144,18 @@ void FunctionCallChecker::visit(FunctionSignature& s) {
         throw SemanticException(argument->getDeclPoint(), "Expect lvalue in argument");
       }
     }
-    if (parameter->type->equalsForCheckArgument(argument->type.get())) {
+    if (parameter->getVarType()->equalsForCheckArgument(argument->type.get())) {
       newParam.push_back(std::move(argument));
       continue;
     }
-    if ((parameter->type->isDouble() && argument->type->isInt()) ||
-        (parameter->type->isPurePointer() && argument->type->isTypePointer())) {
-      auto newArgument = std::make_unique<Cast>(parameter->type, std::move(argument));
+    if ((parameter->getVarType()->isDouble() && argument->type->isInt()) ||
+        (parameter->getVarType()->isPurePointer() && argument->type->isTypePointer())) {
+      auto newArgument = std::make_unique<Cast>(parameter->getVarType(), std::move(argument));
       newParam.push_back(std::move(newArgument));
       continue;
     }
     throw SemanticException(argument->getDeclPoint(),
-                            "Expect argument's type \"" + parameter->type->getSymbolName() +
+                            "Expect argument's type \"" + parameter->getVarType()->getSymbolName() +
                             "\" but find \"" + argument->type->getSymbolName() + "\"");
   }
   f.listParam = std::move(newParam);
@@ -302,14 +302,14 @@ void TypeChecker::visit(Variable& v) {
 
   // TODO const
   if (stackTable.isConst(v.getName().getString())) {
-    v.type = stackTable.findConst(v.getName().getString())->type;
+    v.type = stackTable.findConst(v.getName().getString())->getVarType();
     return;
   }
 
   if (!stackTable.isVar(v.getName().getString())) {
     throw NotDefinedException(v.getName());
   }
-  v.type = stackTable.findVar(v.getName().getString())->type;
+  v.type = stackTable.findVar(v.getName().getString())->getVarType();
 }
 
 bool TypeChecker::setCast(BinaryOperation& b, bool isAssigment) {

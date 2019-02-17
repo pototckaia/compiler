@@ -151,8 +151,8 @@ void AsmGenerator::visit_function(SymFun& fun) {
     << cmd(SUB, {RSP}, {sizeLocal});
 
   for (auto& e : s->paramsList) {
-    if (e->type->isOpenArray() && e->spec == ParamSpec::NotSpec) {
-      auto array = std::dynamic_pointer_cast<OpenArray>(e->type);
+    if (e->getVarType()->isOpenArray() && e->spec == ParamSpec::NotSpec) {
+      auto array = std::dynamic_pointer_cast<OpenArray>(e->getVarType());
       uint64_t sizeElem = array->typeElem->size();
       auto _start = getLabel();
       auto _end = getLabel();
@@ -194,7 +194,7 @@ void AsmGenerator::visit(GlobalVar& g) {
 
 void AsmGenerator::visit(ParamVar& p) {
   buf_var_name = Operand(adr(RBP, p.offset), none); // [rbp + offset]
-  if (p.type->isOpenArray()) {
+  if (p.getVarType()->isOpenArray()) {
     asm_file
       << Comment("open array")
       << cmd(MOV, {RAX}, buf_var_name);
@@ -905,7 +905,7 @@ void AsmGenerator::visit(FunctionCall& f) {
     auto iterParams = s->paramsList.begin();
     for (auto iterArgs = f.listParam.begin();
          iterArgs != f.listParam.end(); ++iterArgs, ++iterParams) {
-      if ((*iterParams)->type->isOpenArray()) {
+      if ((*iterParams)->getVarType()->isOpenArray()) {
         auto array = (*iterArgs)->type->getStaticArray();
         asm_file
           << Comment("open array argument")
@@ -1039,7 +1039,7 @@ void AsmGlobalDecl::visit(GlobalVar& v) {
   a
     << cmd(bss)
     << Label(v.label) << ": ";
-  v.type->accept(*this);
+  v.getVarType()->accept(*this);
 }
 
 void AsmGlobalDecl::visit(Double&) { a << RESQ << " 1\n"; }

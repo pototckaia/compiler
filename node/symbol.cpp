@@ -12,7 +12,20 @@ Symbol::Symbol(const std::string& n)
   : name(n) {}
 
 Symbol::Symbol(const Token& t)
-    :  ASTNode(t), name(t.getString()) {}
+  :  ASTNode(t), name(t.getString()) {}
+
+SymFun::SymFun(const Token &t, ptr_Sign f)
+  : Symbol(t), signature(std::move(f)) {}
+
+SymVar::SymVar(ptr_Type t)
+  : type(t) {}
+
+SymVar::SymVar(std::string name, ptr_Type t)
+  : Symbol(std::move(name)), type(std::move(t)) {}
+
+SymVar::SymVar(const Token& n, ptr_Type t)
+  : Symbol(n), type(std::move(t)) {}
+
 
 bool Tables::checkContain(const std::string& t) {
   return tableType.checkContain(t) || tableVariable.checkContain(t) ||
@@ -26,9 +39,6 @@ void Tables::insertCheck(const std::shared_ptr<Symbol>& t) {
     throw AlreadyDefinedException(t->getDeclPoint(), t->getSymbolName());
   }
 }
-
-SymFun::SymFun(const Token &t, ptr_Sign f)
-  : Symbol(t), signature(std::move(f)) {}
 
 void Tables::insert(const std::shared_ptr<ForwardType>& f) {
   forwardType.push_back(f);
@@ -73,7 +83,7 @@ void Tables::resolveForwardFunction() {
 uint64_t Tables::sizeVar() {
   uint64_t s = 0;
   for (auto& v : tableVariable) {
-    s += v.second->type->size();
+    s += v.second->getVarType()->size();
   }
   return s;
 }
@@ -312,8 +322,7 @@ Round::Round() : SymFun("round") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Double>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -323,8 +332,7 @@ Trunc::Trunc() : SymFun("trunc") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Double>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Double>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -334,8 +342,7 @@ Succ::Succ() : SymFun("succ") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -345,8 +352,7 @@ Prev::Prev()  : SymFun("prev") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -356,8 +362,7 @@ Chr::Chr() : SymFun("chr") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Char>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Int>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Int>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
@@ -367,8 +372,7 @@ Ord::Ord() : SymFun("ord") {
   SymFun::signature = std::make_shared<FunctionSignature>();
   SymFun::signature->returnType = std::make_shared<Int>();
   ListParam p;
-  auto var = std::make_shared<ParamVar>();
-  var->type = std::make_shared<Char>();
+  auto var = std::make_shared<ParamVar>(std::make_shared<Char>());
   var->spec = ParamSpec::NotSpec;
   p.push_back(var);
   SymFun::signature->setParamsList(p);
