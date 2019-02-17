@@ -29,7 +29,7 @@ SemanticDecl::SemanticDecl() : stackTable(Tables()) {
 
 ptr_Expr SemanticDecl::parseFunctionCall(const Token& d, ptr_Expr e, ListExpr l) {
   if (dynamic_cast<Variable*>(e.get())) {
-    auto name = dynamic_cast<Variable*>(e.get())->getName().getString();
+    auto name = dynamic_cast<Variable *>(e.get())->getSubToken().getString();
     if (stackTable.isType(name)) {
       if (l.empty() || l.size() > 1) {
         throw SemanticException(d, "Cast expect 1 argument");

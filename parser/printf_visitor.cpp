@@ -22,7 +22,7 @@ void PrintVisitor::visit(Literal& l) {
 }
 
 void PrintVisitor::visit(Variable& v) {
-  print(v.getName().getString());
+  print(v.getSubToken().getString());
   if (v.getNodeType() != nullptr)
     print(v.getNodeType());
   else

@@ -223,10 +223,10 @@ void AsmGenerator::visit(ForwardFunction& f) {
 
 void AsmGenerator::visit(Variable& v) {
   if (v.getNodeType()->isProcedureType() &&
-      stackTable.isFunction(v.getName().getString())) {
-    stackTable.findFunction(v.getName().getString())->accept(*this);
+      stackTable.isFunction(v.getSubToken().getString())) {
+    stackTable.findFunction(v.getSubToken().getString())->accept(*this);
   } else {
-    stackTable.findVar(v.getName().getString())->accept(*this);
+    stackTable.findVar(v.getSubToken().getString())->accept(*this);
   }
   asm_file
     << Comment("lvalue variable")

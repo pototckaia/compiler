@@ -283,10 +283,10 @@ void TypeChecker::visit(Variable& v) {
     throw SemanticException(v.getDeclPoint(), "Expect function call");
   }
 
-  if (stackTable.isFunction(v.getName().getString())) {
-    auto f = stackTable.findFunction(v.getName().getString());
+  if (stackTable.isFunction(v.getSubToken().getString())) {
+    auto f = stackTable.findFunction(v.getSubToken().getString());
     if (f->isEmbedded()) {
-      v.setEmbeddedFunction(stackTable.findFunction(v.getName().getString()));
+      v.setEmbeddedFunction(stackTable.findFunction(v.getSubToken().getString()));
       v.setNodeType(nullptr);
       return;
     } else if (stackTable.top().tableVariable.checkContain(f->getSymbolName()) &&
@@ -301,15 +301,15 @@ void TypeChecker::visit(Variable& v) {
   }
 
   // TODO const
-  if (stackTable.isConst(v.getName().getString())) {
-    v.setNodeType(stackTable.findConst(v.getName().getString())->getVarType());
+  if (stackTable.isConst(v.getSubToken().getString())) {
+    v.setNodeType(stackTable.findConst(v.getSubToken().getString())->getVarType());
     return;
   }
 
-  if (!stackTable.isVar(v.getName().getString())) {
-    throw NotDefinedException(v.getName());
+  if (!stackTable.isVar(v.getSubToken().getString())) {
+    throw NotDefinedException(v.getSubToken());
   }
-  v.setNodeType(stackTable.findVar(v.getName().getString())->getVarType());
+  v.setNodeType(stackTable.findVar(v.getSubToken().getString())->getVarType());
 }
 
 bool TypeChecker::setCast(BinaryOperation& b, bool isAssigment) {

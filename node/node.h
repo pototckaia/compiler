@@ -31,7 +31,8 @@ class Variable : public Expression {
   Variable(const Token&);
   Variable(const Token&, ptr_Type);
 
-  const auto& getName() const { return name; }
+  const auto& getSubToken() const { return name; }
+  // todo remove virtual
   std::string getVarName() override { return name.getString(); }
 
   void accept(Visitor&) override;
@@ -39,7 +40,6 @@ class Variable : public Expression {
  private:
   Token name;
 };
-
 
 class Literal : public Expression {
  public:
