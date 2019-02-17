@@ -39,14 +39,18 @@ void Lexer::errorHandler(int state) {
 
 // TODO move constant to state_table
 void Lexer::checkLenId(int prevState, int newState) {
-  bool isIdContinue = (prevState == 2 && newState == 2) || (prevState == 14 && newState == 14);
+  bool isIdContinue = (prevState == ID_CONTINUE_STATE_1 && newState == ID_CONTINUE_STATE_1) ||
+                      (prevState == ID_CONTINUE_STATE_2 && newState == ID_CONTINUE_STATE_2);
   if (isIdContinue && valToken.size() > maxLenId) {
     throw LexerException(line, beginToken, "Error: Identifier exceed maximum length");
   }
 }
 
 bool Lexer::isEndComment(int prevState, int newState) {
-  return newState == 0 && (prevState == 28 || prevState == 36 || prevState == 35);
+  return newState == END_COMMENT_STATE &&
+         (prevState == BEGIN_COMMENT_STATE_1 ||
+          prevState == BEGIN_COMMENT_STATE_2 ||
+          prevState == BEGIN_COMMENT_STATE_3);
 }
 
 bool Lexer::isPreview(int state) {
@@ -54,7 +58,7 @@ bool Lexer::isPreview(int state) {
 }
 
 bool Lexer::isWhitespace(int prevState, int newState) {
-  return prevState == 0 && newState == 0;
+  return prevState == START_STATE && newState == START_STATE;
 }
 
 Token Lexer::next() {

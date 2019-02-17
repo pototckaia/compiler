@@ -123,7 +123,13 @@ std::make_pair(24, 15), std::make_pair(24, 17),}\
 #define TWICE_PUT_BACK  (-39)
 #define CHECK_ID 	    ( -4)
 
+#define BEGIN_COMMENT_STATE_1 28
+#define BEGIN_COMMENT_STATE_2 30
+#define BEGIN_COMMENT_STATE_3 35
+#define END_COMMENT_STATE 0
 
+#define ID_CONTINUE_STATE_1 2
+#define ID_CONTINUE_STATE_2 14
 // #define END_COMMENT {"28-0", "30-0", "35-0"}
 
 
