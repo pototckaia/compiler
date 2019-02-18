@@ -87,7 +87,7 @@ void AsmGenerator::visit(MainFunction& m) {
 
   // function decl
   for (auto& fun : m.getTable().tableFunction) {
-    if (fun->isEmbedded()) {
+    if (fun->isBuildIn()) {
       continue;
     }
     visit_function(*fun);

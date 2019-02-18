@@ -77,7 +77,7 @@ class SymFun : public Symbol {
   SymFun(const Token& t, ptr_Sign f);
 
   // todo remove
-  virtual bool isEmbedded() const { return true; }
+  virtual bool isBuildIn() const;
 
 	// todo remove virtual
 	virtual void setLabel(const std::string& s) { label = s; }

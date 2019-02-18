@@ -36,42 +36,42 @@ Function::Function(const Token& t, ptr_Sign f, ptr_Stmt p, Tables l)
 Function::~Function() = default;
 
 ForwardFunction::ForwardFunction(const Token& t, ptr_Sign f)
-  : Function(t, std::move(f)) {}
+  : SymFun(t, std::move(f)) {}
 
 MainFunction::MainFunction(Tables t, ptr_Stmt b)
     : SymFun("Main block"), body(std::move(b)), decl(std::move(t)) {}
 
-Round::Round() : SymFun("round") {
+Round::Round() : BuildInFun("round") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Double>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
-Trunc::Trunc() : SymFun("trunc") {
+Trunc::Trunc() : BuildInFun("trunc") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Double>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 };
 
-Succ::Succ() : SymFun("succ") {
+Succ::Succ() : BuildInFun("succ") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
-Prev::Prev()  : SymFun("prev") {
+Prev::Prev()  : BuildInFun("prev") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
 }
 
-Chr::Chr() : SymFun("chr") {
+Chr::Chr() : BuildInFun("chr") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Int>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Char>());
 }
 
-Ord::Ord() : SymFun("ord") {
+Ord::Ord() : BuildInFun("ord") {
   auto var = std::make_shared<ParamVar>(std::make_shared<Char>(), ParamSpec::NotSpec);
   ListParam params(1, var);
   signature = std::make_shared<FunctionSignature>(params, std::make_shared<Int>());
@@ -93,16 +93,16 @@ Read::Read(bool newLine) {
     setSymbolName("readln");
 }
 
-High::High() : SymFun("high") {}
+High::High() : BuildInFun("high") {}
 
-Low::Low() : SymFun("low") {}
+Low::Low() : BuildInFun("low") {}
 
 Exit::Exit(ptr_Type returnType)
-  : SymFun("exit"),
+  : BuildInFun("exit"),
     returnType(std::move(returnType)) {};
 
 Exit::Exit(ptr_Type returnType, std::shared_ptr<ParamVar> var)
-  : SymFun("exit"),
+  : BuildInFun("exit"),
     returnType(std::move(returnType)), assignmentVar(std::move(var)) {}
 
 
@@ -289,6 +289,11 @@ std::string toString(ParamSpec p) {
 bool Symbol::isForward() const { return false; }
 bool ForwardType::isForward() const { return true; }
 bool ForwardFunction::isForward() const { return true; }
+
+// isBuildIn
+
+bool SymFun::isBuildIn() const { return false; }
+bool BuildInFun::isBuildIn() const { return true; }
 
 // type equals
 

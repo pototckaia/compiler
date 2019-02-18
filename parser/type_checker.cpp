@@ -285,7 +285,7 @@ void TypeChecker::visit(Variable& v) {
 
   if (stackTable.isFunction(v.getSubToken().getString())) {
     auto f = stackTable.findFunction(v.getSubToken().getString());
-    if (f->isEmbedded()) {
+    if (f->isBuildIn()) {
       v.setEmbeddedFunction(stackTable.findFunction(v.getSubToken().getString()));
       v.setNodeType(nullptr);
       return;
