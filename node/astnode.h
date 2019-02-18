@@ -58,6 +58,7 @@ class ASTNode {
 class Symbol : public ASTNode {
  public:
   using ASTNode::ASTNode;
+  Symbol(const Token&, const std::string&);
   Symbol(const std::string& n);
   Symbol(const Token& t);
 
@@ -98,6 +99,7 @@ class SymVar : public Symbol {
  public:
   //using Symbol::Symbol;
   SymVar(ptr_Type t);
+
   SymVar(std::string name, ptr_Type t);
   SymVar(const Token& n, ptr_Type t);
 

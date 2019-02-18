@@ -91,15 +91,12 @@ SemanticDecl::parseRecordType(Token declPoint,
 }
 
 ptr_Type SemanticDecl::parsePointer(Token declPoint, Token token, bool isCanForwardType) {
-  auto p = std::make_shared<Pointer>(declPoint);
   if (stackTable.isType(token.getString())) {
-    p->setPointerBase(stackTable.findType(token.getString()));
-    return p;
+    return std::make_shared<Pointer>(declPoint, stackTable.findType(token.getString()));
   } else if (!stackTable.checkContain(token.getString()) && isCanForwardType) {
     auto forward = std::make_shared<ForwardType>(token);
     stackTable.top().insert(forward);
-    p->setPointerBase(forward);
-    return p;
+    return std::make_shared<Pointer>(declPoint, forward);
   } else {
     throw NotDefinedException(token);
   }

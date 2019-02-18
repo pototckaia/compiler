@@ -142,7 +142,7 @@ class ASTNodeStmt : public virtual ASTNode {};
 
 class AssignmentStmt : public ASTNodeStmt, public BinaryOperation {
  public:
-  using BinaryOperation::BinaryOperation;
+  AssignmentStmt(const Token&, ptr_Expr, ptr_Expr);
   void accept(Visitor&) override;
 };
 

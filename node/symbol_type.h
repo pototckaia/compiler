@@ -150,7 +150,6 @@ class ForwardType : public Alias {
 
 class Pointer : public SymType {
  public:
-  using SymType::SymType;
   Pointer(ptr_Type p);
   Pointer(const Token& t, ptr_Type p);
 
@@ -168,7 +167,6 @@ class Pointer : public SymType {
 
 class StaticArray : public SymType {
  public:
-  using SymType::SymType;
   using BoundsType = std::list<std::pair<uint64_t, uint64_t>>;
   StaticArray(const Token&, ptr_Type, const BoundsType&);
 

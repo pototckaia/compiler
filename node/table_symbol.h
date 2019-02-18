@@ -5,6 +5,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 #include "astnode.h"
 #include "token.h"
@@ -28,7 +29,9 @@ class TableSymbol {
 
 template<class T>
 void TableSymbol<T>::replace(T t) {
-  table[t->getSymbolName()] = std::forward<T>(t);
+  table[t->getSymbolName()] = t ;
+  std::replace_if(order.begin(), order.end(),
+    [&t](T e) { return t->getSymbolName() == e->getSymbolName(); }, t);
 }
 
 template<class T>
@@ -36,7 +39,7 @@ void TableSymbol<T>::insert(T t) {
   if (checkContain(t->getSymbolName())) {
     throw std::logic_error("Already defined " + t->getSymbolName());
   }
-  table[t->getSymbolName()] = std::forward<T>(t);
+  table[t->getSymbolName()] = t;
   order.push_back(t);
 }
 

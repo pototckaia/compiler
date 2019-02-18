@@ -31,7 +31,8 @@ class ForwardFunction : public SymFun {
 	// todo remove virtual
   std::string getLabel() override { return function->getLabel(); }
   void setLabel(const std::string& s) override { function->setLabel(s); }
-  ptr_Sign& getSignature() override { return function->getSignature(); }
+
+//  ptr_Sign& getSignature() override { return function->getSignature(); }
 	ptr_Stmt& getBody() override { return function->getBody(); }
 	Tables& getTable() override { return function->getTable(); }
 

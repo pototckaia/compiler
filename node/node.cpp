@@ -62,6 +62,10 @@ RecordAccess::RecordAccess(const Token& d, ptr_Expr record, Token field)
   : ASTNode(d),
     record(std::move(record)), field(std::move(field)) {}
 
+AssignmentStmt::AssignmentStmt(const Token& op, ptr_Expr left, ptr_Expr right)
+	: ASTNode(op),
+		BinaryOperation(op, std::move(left), std::move(right)) {}
+
 FunctionCallStmt::FunctionCallStmt(ptr_Expr e)
   : functionCall(std::move(e)) {}
 

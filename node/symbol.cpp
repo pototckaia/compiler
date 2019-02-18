@@ -1,3 +1,4 @@
+#include <iostream>
 #include "table_symbol.h"
 #include "symbol_type.h"
 #include "symbol_var.h"
@@ -12,10 +13,13 @@ Symbol::Symbol(const std::string& n)
   : name(n) {}
 
 Symbol::Symbol(const Token& t)
-  :  ASTNode(t), name(t.getString()) {}
+  :  ASTNode(t) {}
+
+Symbol::Symbol(const Token& t, const std::string& n)
+  : ASTNode(t), name(n) {}
 
 SymFun::SymFun(const Token &t, ptr_Sign f)
-  : Symbol(t), signature(std::move(f)) {}
+  : Symbol(t, t.getString()), signature(std::move(f)) {}
 
 SymVar::SymVar(ptr_Type t)
   : type(std::move(t)) {}
@@ -24,7 +28,7 @@ SymVar::SymVar(std::string name, ptr_Type t)
   : Symbol(name), type(std::move(t)) {}
 
 SymVar::SymVar(const Token& n, ptr_Type t)
-  : Symbol(n), type(std::move(t)) {}
+  : Symbol(n, n.getString()), type(std::move(t)) {}
 
 Function::Function(const Token &t, ptr_Sign f)
   : SymFun(t, std::move(f)) {}
@@ -121,10 +125,10 @@ Boolean::Boolean() : SymType("boolean") {}
 TPointer::TPointer() : SymType("pointer") {}
 
 Alias::Alias(const Token& t)
-  : SymType(t) {}
+  : SymType(t, t.getString()) {}
 
 Alias::Alias(const Token& t, ptr_Type p)
-  : SymType(t), type(std::move(p)) {}
+  : SymType(t, t.getString()), type(std::move(p)) {}
 
 ForwardType::ForwardType(const Token& t) : Alias(t) {}
 
@@ -132,7 +136,8 @@ Pointer::Pointer(ptr_Type p)
   : SymType(), typeBase(std::move(p)) {}
 
 Pointer::Pointer(const Token& t, ptr_Type p)
-  : SymType(t), typeBase(std::move(p)) {}
+  : SymType(t),
+    typeBase(std::move(p)) {}
 
 StaticArray::StaticArray(const Token& d, ptr_Type t,
                          const StaticArray::BoundsType& b)
