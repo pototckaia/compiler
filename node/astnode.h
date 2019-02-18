@@ -62,6 +62,7 @@ class Symbol : public ASTNode {
   Symbol(const std::string& n);
   Symbol(const Token& t);
 
+  // todo how remove
   virtual bool isForward() const;
   bool isAnonymous() const { return name.empty(); }
 
@@ -77,15 +78,14 @@ class SymFun : public Symbol {
   using Symbol::Symbol;
   SymFun(const Token& t, ptr_Sign f);
 
-  // todo remove
+  // todo how remove
   virtual bool isBuildIn() const;
 
 	// todo remove virtual
 	virtual void setLabel(const std::string& s) { label = s; }
 	virtual std::string getLabel() { return label; }
 
-	// todo remove virtual
-	virtual ptr_Sign& getSignature() { return signature; }
+	ptr_Sign& getSignature() { return signature; }
 	// todo remove
 	virtual ptr_Stmt& getBody() { throw std::logic_error("get Body"); };
 	virtual Tables& getTable() {throw std::logic_error("get Table"); };
