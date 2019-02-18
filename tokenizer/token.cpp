@@ -69,6 +69,6 @@ std::string Token::getString() const {
 std::string Token::getTestLine() const {
 	return getPoint(*this, "\t") +
 				 getGroup(tokenType) + "\t" +
-				 "\"" + strValue + "\"\t" +
-				 getString();
+				 "\"" + strValue + "\"\t\t" +
+				 "\"" + getString() + "\"";
 }
