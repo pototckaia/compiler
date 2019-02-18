@@ -284,6 +284,12 @@ std::string toString(ParamSpec p) {
   }
 }
 
+// isForward
+
+bool Symbol::isForward() const { return false; }
+bool ForwardType::isForward() const { return true; }
+bool ForwardFunction::isForward() const { return true; }
+
 // type equals
 
 bool SymType::checkAlias(SymType* s) const {

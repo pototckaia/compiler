@@ -30,7 +30,7 @@ class ForwardFunction : public Function {
 
   // todo remove
   bool isEmbedded() const override { return false; }
-	bool isForward() const override { return true; }
+	bool isForward() const override;
 	void accept(Visitor& v) override;
 	// todo remove virtual
   std::string getLabel() override { return function->getLabel(); }

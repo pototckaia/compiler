@@ -46,7 +46,6 @@ class ASTNode {
   virtual ~ASTNode() = default;
 
   virtual void accept(Visitor&) = 0;
-
   void setDeclPoint(const Token& t);
   int getDeclLine();
   int getDeclColumn();
@@ -62,9 +61,7 @@ class Symbol : public ASTNode {
   Symbol(const std::string& n);
   Symbol(const Token& t);
 
-    // TODO remove
-  virtual bool isForward() const { return false; }
-
+  virtual bool isForward() const;
   bool isAnonymous() const { return name.empty(); }
 
   const std::string& getSymbolName() const { return name; }

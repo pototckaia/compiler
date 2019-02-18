@@ -143,7 +143,7 @@ class ForwardType : public Alias {
   void accept(Visitor& v) override;
   bool equals(SymType* s) const override;
   // todo remove virtual
-  bool isForward() const override { return true; }
+  bool isForward() const override;
   void setRefType(ptr_Type t) { type = std::move(t); }
 };
 
