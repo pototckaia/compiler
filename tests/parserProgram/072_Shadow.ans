@@ -1,17 +1,21 @@
 Decl
 	Table Symbol Type
-		boolean
-			boolean
-		char
-			char
-		double
-			double
 		integer
 			integer
+		double
+			double
+		char
+			char
 		pointer
 			pointer
+		boolean
+			boolean
 	Table Symbol Const
 	Table Symbol Variable
+		result
+			Global variable: result
+			Decl point: 2,4	
+				boolean
 		a
 			Global variable: a
 			Decl point: 3,4	
@@ -20,24 +24,39 @@ Decl
 			Global variable: b
 			Decl point: 3,7	
 				integer
-		i
-			Global variable: i
-			Decl point: 4,4	
-				char
 		n
 			Global variable: n
 			Decl point: 3,10	
 				integer
-		result
-			Global variable: result
-			Decl point: 2,4	
-				boolean
+		i
+			Global variable: i
+			Decl point: 4,4	
+				char
 	Table Symbol Function
+		writeln
+			Write
+		write
+			Write
+		readln
+			Read
+		read
+			Read
+		trunc
+			Trunc
+		round
+			Round
+		succ
+			Succ
+		prev
+			Prev
 		chr
 			Chr
-		exit
-			Exit
-				void
+		ord
+			Ord
+		high
+			High
+		low
+			Low
 		foo
 			Function or Procedure: foo
 			Decl point: 9,10	
@@ -57,11 +76,6 @@ Decl
 					Table Symbol Type
 					Table Symbol Const
 					Table Symbol Variable
-						foo
-							Param value: foo
-							Decl point: -1,-1	
-								Not specification
-								integer
 						i
 							Local variable: i
 							Decl point: 11,3	
@@ -69,6 +83,11 @@ Decl
 						result
 							Local variable: result
 							Decl point: 11,6	
+								integer
+						foo
+							Param value: foo
+							Decl point: -1,-1	
+								Not specification
 								integer
 					Table Symbol Function
 						exit
@@ -138,28 +157,9 @@ Decl
 							result
 							Type expression
 								integer
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
-		readln
-			Read
-		round
-			Round
-		succ
-			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		exit
+			Exit
+				void
 Block
 	While
 		>

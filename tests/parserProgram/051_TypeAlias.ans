@@ -1,5 +1,21 @@
 Decl
 	Table Symbol Type
+		integer
+			integer
+		double
+			double
+		char
+			char
+		pointer
+			pointer
+		boolean
+			boolean
+		pchar
+			Type alias: pchar
+			Decl point: 2,5	
+				Pointer
+				Decl point: 2,13	
+					char
 		a
 			Type alias: a
 			Decl point: 3,5	
@@ -14,10 +30,6 @@ Decl
 				Decl point: 4,14	
 					Return:
 						integer
-		boolean
-			boolean
-		char
-			char
 		d
 			Type alias: d
 			Decl point: 5,1	
@@ -29,8 +41,6 @@ Decl
 						integer
 					Return:
 						char
-		double
-			double
 		e
 			Type alias: e
 			Decl point: 6,1	
@@ -134,44 +144,34 @@ Decl
 							Pointer
 							Decl point: 2,13	
 								char
-		integer
-			integer
-		pchar
-			Type alias: pchar
-			Decl point: 2,5	
-				Pointer
-				Decl point: 2,13	
-					char
-		pointer
-			pointer
 	Table Symbol Const
 	Table Symbol Variable
 	Table Symbol Function
-		chr
-			Chr
-		exit
-			Exit
-				void
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
+		writeln
+			Write
+		write
+			Write
 		readln
 			Read
+		read
+			Read
+		trunc
+			Trunc
 		round
 			Round
 		succ
 			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
+		exit
+			Exit
+				void
 Block

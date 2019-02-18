@@ -1,5 +1,15 @@
 Decl
 	Table Symbol Type
+		integer
+			integer
+		double
+			double
+		char
+			char
+		pointer
+			pointer
+		boolean
+			boolean
 		a
 			Type alias: a
 			Decl point: 2,1	
@@ -16,8 +26,6 @@ Decl
 							Local variable: a
 							Decl point: 3,12	
 								integer
-		boolean
-			boolean
 		c
 			Type alias: c
 			Decl point: 4,1	
@@ -28,8 +36,6 @@ Decl
 							Local variable: a
 							Decl point: 4,12	
 								integer
-		char
-			char
 		d
 			Type alias: d
 			Decl point: 5,1	
@@ -52,8 +58,6 @@ Decl
 							Local variable: d
 							Decl point: 5,21	
 								double
-		double
-			double
 		e
 			Type alias: e
 			Decl point: 6,1	
@@ -98,18 +102,6 @@ Decl
 				Record
 				Decl point: 7,5	
 					Table Symbol Variable
-						d
-							Local variable: d
-							Decl point: 13,5	
-								Record
-								Decl point: 13,9	
-									Table Symbol Variable
-										i
-											Local variable: i
-											Decl point: 14,13	
-												Pointer
-												Decl point: 14,17	
-													integer
 						y
 							Local variable: y
 							Decl point: 8,5	
@@ -132,38 +124,46 @@ Decl
 													Size
 														low: 0 high: 100
 													char
-		integer
-			integer
-		pointer
-			pointer
+						d
+							Local variable: d
+							Decl point: 13,5	
+								Record
+								Decl point: 13,9	
+									Table Symbol Variable
+										i
+											Local variable: i
+											Decl point: 14,13	
+												Pointer
+												Decl point: 14,17	
+													integer
 	Table Symbol Const
 	Table Symbol Variable
 	Table Symbol Function
-		chr
-			Chr
-		exit
-			Exit
-				void
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
+		writeln
+			Write
+		write
+			Write
 		readln
 			Read
+		read
+			Read
+		trunc
+			Trunc
 		round
 			Round
 		succ
 			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
+		exit
+			Exit
+				void
 Block

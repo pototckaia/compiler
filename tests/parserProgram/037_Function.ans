@@ -1,18 +1,70 @@
 Decl
 	Table Symbol Type
-		boolean
-			boolean
-		char
-			char
-		double
-			real
 		integer
 			integer
+		real
+			real
+		char
+			char
 		pointer
 			pointer
+		boolean
+			boolean
 	Table Symbol Const
 	Table Symbol Variable
 	Table Symbol Function
+		writeln
+			Write
+		write
+			Write
+		readln
+			Read
+		read
+			Read
+		trunc
+			Trunc
+		round
+			Round
+		succ
+			Succ
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
+		foo
+			Function or Procedure: foo
+			Decl point: 1,11	
+				Procedure
+				Decl point: 1,14	
+				Decl
+					Table Symbol Type
+						real
+							Type alias: real
+							Decl point: 3,10	
+								real
+					Table Symbol Const
+					Table Symbol Variable
+						i
+							Local variable: i
+							Decl point: 2,9	
+								integer
+					Table Symbol Function
+						exit
+							Exit
+								void
+				Block
+					Function Call
+						exit
+						Exit
+							void
+						Type expression
+							void
 		bee
 			Function or Procedure: bee
 			Decl point: 10,10	
@@ -55,41 +107,6 @@ Decl
 						
 						Type expression
 							char
-		chr
-			Chr
-		exit
-			Exit
-				void
-		foo
-			Function or Procedure: foo
-			Decl point: 1,11	
-				Procedure
-				Decl point: 1,14	
-				Decl
-					Table Symbol Type
-						real
-							Type alias: real
-							Decl point: 3,10	
-								real
-					Table Symbol Const
-					Table Symbol Variable
-						i
-							Local variable: i
-							Decl point: 2,9	
-								integer
-					Table Symbol Function
-						exit
-							Exit
-								void
-				Block
-					Function Call
-						exit
-						Exit
-							void
-						Type expression
-							void
-		high
-			High
 		hoo
 			Function or Procedure: hoo
 			Decl point: 16,10	
@@ -119,26 +136,9 @@ Decl
 						1
 						Type expression
 							char
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
-		readln
-			Read
-		round
-			Round
-		succ
-			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		exit
+			Exit
+				void
 Block
 	Function Call
 		foo

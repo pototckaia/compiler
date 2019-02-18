@@ -1,27 +1,23 @@
 Decl
 	Table Symbol Type
-		boolean
-			boolean
-		char
-			char
-		double
-			double
 		integer
 			integer
+		double
+			double
+		char
+			char
+		pointer
+			pointer
+		boolean
+			boolean
 		pl
 			Type alias: pl
 			Decl point: 1,6	
 				Pointer
 				Decl point: 1,11	
 					integer
-		pointer
-			pointer
 	Table Symbol Const
 	Table Symbol Variable
-		l
-			Global variable: l
-			Decl point: 3,6	
-				integer
 		p1
 			Global variable: p1
 			Decl point: 2,6	
@@ -34,38 +30,42 @@ Decl
 				Pointer
 				Decl point: 2,14	
 					integer
+		l
+			Global variable: l
+			Decl point: 3,6	
+				integer
 		pp
 			Global variable: pp
 			Decl point: 4,6	
 				pointer
 	Table Symbol Function
-		chr
-			Chr
-		exit
-			Exit
-				void
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
+		writeln
+			Write
+		write
+			Write
 		readln
 			Read
+		read
+			Read
+		trunc
+			Trunc
 		round
 			Round
 		succ
 			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
+		exit
+			Exit
+				void
 Block
 	Assigment
 		:=

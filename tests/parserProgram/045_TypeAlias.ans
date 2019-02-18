@@ -1,5 +1,15 @@
 Decl
 	Table Symbol Type
+		integer
+			integer
+		double
+			double
+		char
+			char
+		pointer
+			pointer
+		boolean
+			boolean
 		a
 			Type alias: a
 			Decl point: 2,1	
@@ -8,8 +18,6 @@ Decl
 					Size
 						low: 1 high: 2
 					integer
-		boolean
-			boolean
 		c
 			Type alias: c
 			Decl point: 3,1	
@@ -19,8 +27,6 @@ Decl
 						low: 1 high: 2
 						low: 2 high: 3
 					boolean
-		char
-			char
 		d
 			Type alias: d
 			Decl point: 4,1	
@@ -31,8 +37,18 @@ Decl
 						low: 0 high: 100
 						low: 0 high: 100
 					double
-		double
-			double
+		w
+			Type alias: w
+			Decl point: 5,1	
+				Static array
+				Decl point: 5,5	
+					Size
+						low: 1 high: 100
+					Static array
+					Decl point: 5,22	
+						Size
+							low: 1 high: 3
+						double
 		e
 			Type alias: e
 			Decl point: 6,1	
@@ -47,50 +63,34 @@ Decl
 								Local variable: a
 								Decl point: 6,28	
 									integer
-		integer
-			integer
-		pointer
-			pointer
-		w
-			Type alias: w
-			Decl point: 5,1	
-				Static array
-				Decl point: 5,5	
-					Size
-						low: 1 high: 100
-					Static array
-					Decl point: 5,22	
-						Size
-							low: 1 high: 3
-						double
 	Table Symbol Const
 	Table Symbol Variable
 	Table Symbol Function
-		chr
-			Chr
-		exit
-			Exit
-				void
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
+		writeln
+			Write
+		write
+			Write
 		readln
 			Read
+		read
+			Read
+		trunc
+			Trunc
 		round
 			Round
 		succ
 			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
+		exit
+			Exit
+				void
 Block

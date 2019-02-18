@@ -1,18 +1,42 @@
 Decl
 	Table Symbol Type
-		boolean
-			boolean
-		char
-			char
-		double
-			double
 		integer
 			integer
+		double
+			double
+		char
+			char
 		pointer
 			pointer
+		boolean
+			boolean
 	Table Symbol Const
 	Table Symbol Variable
 	Table Symbol Function
+		writeln
+			Write
+		write
+			Write
+		readln
+			Read
+		read
+			Read
+		trunc
+			Trunc
+		round
+			Round
+		succ
+			Succ
+		prev
+			Prev
+		chr
+			Chr
+		ord
+			Ord
+		high
+			High
+		low
+			Low
 		bar
 			Function or Procedure: bar
 			Decl point: 9,10	
@@ -59,11 +83,6 @@ Decl
 						0
 						Type expression
 							integer
-		chr
-			Chr
-		exit
-			Exit
-				void
 		foo
 			Function or Procedure: foo
 			Decl point: 4,11	
@@ -87,28 +106,9 @@ Decl
 									integer
 						Type expression
 							integer
-		high
-			High
-		low
-			Low
-		ord
-			Ord
-		prev
-			Prev
-		read
-			Read
-		readln
-			Read
-		round
-			Round
-		succ
-			Succ
-		trunc
-			Trunc
-		write
-			Write
-		writeln
-			Write
+		exit
+			Exit
+				void
 Block
 	Function Call
 		bar
